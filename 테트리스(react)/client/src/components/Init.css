@@ -1,0 +1,54 @@
+.menu{
+  position: absolute;
+  border-style: double;
+  border-color: black;
+  border-width: 4px;
+  background-color: white;
+  width: 500px;
+  height: 400px;
+  top:100px;
+  left: 400px;
+  overflow-y: scroll;
+}
+.menus{
+  text-align: left;
+  padding: 10px;
+  margin: 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: navy;
+  color: black;
+  background-color: rgb(212, 244, 250);
+}
+.menus:hover{
+  background-color: rgb(146, 255, 255);
+}
+.startGame{
+  text-align: left;
+  padding: 10px;
+  margin: 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: navy;
+  color: black;
+  background-color: rgb(255,216,216);
+}
+.startGame:hover{
+  background-color: rgb(242,200,200);
+}
+.roomMake{
+  position: absolute;
+  top:70px;
+  left: 400px;
+}
+.player{
+  position: absolute;
+  top:530px;
+  left: 400px;
+  width: 500px;
+  text-align: center;
+  font-size: 30px;
+}
+.textDecorationNone{
+  text-decoration: none;
+}

@@ -1,0 +1,574 @@
+  .menu{
+    position: absolute;
+    border-style: double;
+    border-color: black;
+    border-width: 4px;
+    background-color: white;
+    width: 600px;
+    height: 400px;
+    top:100px;
+    left: 350px;
+    overflow: auto;
+  }
+  .menus{
+    padding: 10px;
+    margin: 10px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: navy;
+  }
+  .roomMake{
+    position: absolute;
+    top:70px;
+    left: 350px;
+  }
+  .player{
+    position: absolute;
+    top:530px;
+    left: 400px;
+    width: 500px;
+    text-align: center;
+    font-size: 30px;
+  }
+  .input{
+    position: absolute;
+    border-style: solid;
+    width: 170px;
+    height: 20px;
+    font-size: 10px;
+    top: 342px;
+    left: 1000px;
+  }
+  .send{
+    position: absolute;
+    width: 34px;
+    height: 20px;
+    left: 1170px;
+    top: 342px;
+    font-size: 11px;
+    color: black;
+    text-align: center;
+  }
+  .menuUser{
+    position: absolute;
+    top: 130px;
+    left: 1030px;
+    width: 300px;
+    border-style: none;
+    height: 510px;
+    overflow: auto;
+    font-size: 30px;
+    text-align: center;
+  }
+  .someone{
+    border-style: none;
+    border-radius: 5px;
+    background-color: rgb(255,255,103);
+    position: relative;
+    left: 5px;
+    width: 300px;
+    font-size: 20px;
+    text-align: left;
+  }
+  .left{
+    position: relative;
+    left: 15px;
+    width: 600px;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: left;
+  }
+  .right{
+    position: relative;
+    left: 400px;
+    width: 600px;
+    font-weight: bold;
+    text-align: right;
+  }
+  .manageMenu{
+    overflow: auto;
+    border-style: solid;
+    border-width: 1px;
+    width: 400px;
+    height: 200px;
+    position: relative;
+    text-align: center;
+    font-size: 5px;
+    background-color: rgb(212,244,250);
+  }
+  .manageMenuUser{
+    overflow: auto;
+    border-style: solid;
+    border-width: 1px;
+    width: 100px;
+    height: 198px;
+    left: 298px;
+    top: 0px;
+    position: absolute;
+    text-align: center;
+    font-size: 5px;
+  }
+  .someone2{
+    border-style: none;
+    border-radius: 2px;
+    background-color: rgb(255,255,103);
+    position: relative;
+    left: 5px;
+    width: 250px;
+    font-size: 5px;
+    text-align: left;
+  }
+  .left2{
+    position: relative;
+    width: 250px;
+    font-weight: bold;
+    font-size: 7px;
+    text-align: left;
+  }
+  .ban{
+    overflow: auto;
+    position: absolute;
+    top:0px;
+    left: 0px;
+    width: 405px;
+    height:  662px;
+  }
+  .manageOS{
+    overflow: auto;
+    position: absolute;
+    top:0px;
+    left: 410px;
+    width: 950px;
+    height:  662px;
+  }
+  .manageMenuRoom{
+    overflow: auto;
+    position: relative;
+    width: 300px;
+    height: 40px;
+    text-align: center;
+    font-size: 7px;
+  }
+  .manageMenuChat{
+    position: relative;
+    width: 300px;
+    height: 160px;
+    font-size: 5px;
+    overflow: auto;
+  }
+  .ipjang{
+    border-style: none;
+    position: relative;
+    width: 200px;
+    font-size: 10px;
+    text-align: left;
+  }
+  .ipjang2{
+    border-style: none;
+    border-radius: 2px;
+    background-color: rgb(165,165,165);
+    position: relative;
+    left: 5px;
+    width: 290px;
+    font-size: 5px;
+    text-align: center;
+    margin:2px;
+  }
+  .usersInRoom{
+    position: relative;
+    text-align: center;
+    color: navy;
+  }
+  .chating{
+    position: absolute;
+    background-color: rgb(212,244,250);
+    width: 200px;
+    border-style: solid;
+    height: 200px;
+    position: absolute;
+    top: 140px;
+    left: 1000px;
+    font-size: 10px;
+    overflow: auto;
+  }
+  .a0{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: red;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a1{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: purple;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a2{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: pink;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a3{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: yellow;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a4{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: orange;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a5{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: green;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a6{
+    position: absolute;
+    border-width: 2px;
+    border-color: white;
+    background-color: blue;
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 76px;
+    top: -19px;
+  }
+  .a0z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: red;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .a1z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: purple;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .a2z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: pink;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .a3z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: yellow;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .a4z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: orange;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .a5z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: green;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .a6z{
+    position: absolute;
+    border-width: 1px;
+    border-color: white;
+    background-color: blue;
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 76px;
+    top: -19px;
+  }
+  .base{
+    position: absolute;
+    border-width: 10px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 190px;
+    height: 380px;
+    left: 740px;
+    top: 140px;
+    overflow: hidden;
+  }
+  .body{
+    background-color: rgb(76,76,76);
+  }
+  .base2{
+    position: absolute;
+    border-width: 5px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 80px;
+    height: 80px;
+    left: 660px;
+    top: 140px;
+    overflow: hidden;
+  }
+  .base3{
+    position: absolute;
+    border-width: 5px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 80px;
+    height: 80px;
+    left: 660px;
+    top: 220px;
+    overflow: hidden;
+  }
+  .me{
+    position: absolute;
+    top:114px;
+    left: 740px;
+    width: 205px;
+    height: 20px;
+    text-align: center;
+    font-size: 15px;
+    background-color: white;
+    border-style: solid;
+  }
+  .you1{
+    position: absolute;
+    top: 16px;
+    left: 40px;
+    height: 20px;
+    width: 136px;
+    text-align: center;
+    font-size: 15px;
+    border-style: solid;
+    background-color: white;
+  }
+  .you2{
+    position: absolute;
+    top: 366px;
+    left: 40px;
+    height: 20px;
+    width: 136px;
+    text-align: center;
+    font-size: 15px;
+    border-style: solid;
+    background-color: white;
+  }
+  .you3{
+    position: absolute;
+    top: 16px;
+    left: 210px;
+    height: 20px;
+    width: 136px;
+    text-align: center;
+    font-size: 15px;
+    border-style: solid;
+    background-color: white;
+  }
+  .you4{
+    position: absolute;
+    top: 366px;
+    left: 210px;
+    height: 20px;
+    width: 136px;
+    text-align: center;
+    font-size: 15px;
+    border-style: solid;
+    background-color: white;
+  }
+  .you5{
+    position: absolute;
+    top: 366px;
+    left: 380px;
+    height: 20px;
+    width: 136px;
+    text-align: center;
+    font-size: 15px;
+    border-style: solid;
+    background-color: white;
+  }
+  .enemy1{
+    position: absolute;
+    border-width: 6px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 130px;
+    height: 260px;
+    left: 40px;
+    top: 40px;
+    overflow: hidden;
+  }
+  .enemy2{
+    position: absolute;
+    border-width: 6px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 130px;
+    height: 260px;
+    left: 40px;
+    top: 390px;
+    overflow: hidden;
+  }
+  .enemy3{
+    position: absolute;
+    border-width: 6px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 130px;
+    height: 260px;
+    left: 210px;
+    top: 40px;
+    overflow: hidden;
+  }
+  .enemy4{
+    position: absolute;
+    border-width: 6px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 130px;
+    height: 260px;
+    left: 210px;
+    top: 390px;
+    overflow: hidden;
+  }
+  .enemy5{
+    position: absolute;
+    border-width: 6px;
+    border-color: blue;
+    border-style: solid;
+    background-color: black;
+    width: 130px;
+    height: 260px;
+    left: 380px;
+    top: 390px;
+    overflow: hidden;
+  }
+  .start{
+    position: absolute;
+    border-width: 4px;
+    border-style: outset;
+    border-color: skyblue;
+    background-color: skyblue;
+    width: 80px;
+    height: 30px;
+    left: 1000px;
+    top: 425px;
+    overflow: hidden;
+    text-align: center;
+    font-size: 18px;
+  }
+  .exit{
+    position: absolute;
+    border-width: 4px;
+    border-style: outset;
+    border-color: skyblue;
+    background-color: skyblue;
+    width: 80px;
+    height: 30px;
+    left: 1100px;
+    top: 425px;
+    overflow: hidden;
+    text-align: center;
+    font-size: 18px;
+  }
+  .line{
+    position: absolute;
+    border-width: 2px;
+    background-color: rgb(166,166,166);
+    border-style: outset;
+    width: 15px;
+    height: 15px;
+    left: 0px;
+    top: 361px;
+  }
+  .linez{
+    position: absolute;
+    border-width: 1px;
+    background-color: rgb(166,166,166);
+    border-style: outset;
+    width: 11px;
+    height: 11px;
+    left: 0px;
+    top: 361px;
+  }
+  .rank{
+    position: absolute;
+    color: white;
+    font-size: 80px;
+    left: 75px;
+    top: 135px;
+  }
+  .rank2{
+    position: absolute;
+    color: white;
+    font-size: 50px;
+    left: 45px;
+    top: 95px;
+  }

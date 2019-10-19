@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="css/index.css">
+  <title>테트리스(김유준)</title>
+  <script src="jquery-3.1.1.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+  var myId;
+  var room;
+  var user;
+  var socket;
+  var gage;
+  var noName;
+
+  $(document).ready(function(){
+    socket=io.connect();
+    $(document.body).empty();             
+    $(document.body).append('<div id="menu" class="menu"><td></td></div><input class="roomMake" type="button" id="roomMake" value="방 만들기"><div class="player" id="player"></div>');           //대기실 페이지의 기본틀을 구성
+    socket.on('goId',function(data){
+      myId=data.socketId;
+      noName=data.noName;
+      user=prompt('아이디를 입력하세요.','');                //아이디를 입력하라는 프롬프트창을 띄움
+      if(user==null||user==''){                         //유저가 아이디를 입력하지 않는다면
+        user="이름없음"+String(noName);                   //아이디를 "이름없음"+n 으로 지정
+        socket.emit('allUser',user);                    //아이디를 담아 'allUser'로 소켓전송
+        $('#player').append(user+"님 안녕하세요!");
+        room="init";                                    //room에 'init'(대기실)방을 저장
+        socket.emit('join',{room:room,myId:myId});      //서버에 대기실방으로 입장하기 위하여 'join'으로 room을 담아 소켓전송
+      }
+      else{                                             //유저가 아이디를 입력 했다면
+        socket.emit('userCheck',{user:user,myId:myId});     //아이디를 담아 'userCheck'로 소켓전송
+      }
+    });
+
+    socket.on('userCheck',function(data){
+      if(data==1){                                          //서버에서 현재 존재하는 아이디인지 확인한뒤 그 아이디가 존재한다면
+        alert("이미 존재하는 아이디입니다.\n아이디를 다시 입력해주세요.");        //아이디를 다시 입력해 달라는 창을 띄움
+        user=prompt('아이디를 입력하세요.','');                  //아이디 입력 위와 동일
+        if(user==null||user==''){   
+          user="이름없음"+String(noName);
+          $('#player').append(user+"님 안녕하세요!");
+          room="init";
+          socket.emit('join',{room:room,myId:myId});
+        }
+        else{
+          socket.emit('userCheck',{user:user,myId:myId});
+        }
+      }
+      else{
+        socket.emit('allUser',user);
+        $('#player').append(user+"님 안녕하세요!");
+        room="init";
+        socket.emit('join',{room:room,myId:myId});
+      }
+    });
+
+    socket.on('menuReceive',function(menu){
+      $('#menu').empty();                   //대기실 방정보를 지우고
+      for(var z=0;z<menu.length;z++){         //받아온 방정보를 다시 만들어줌
+
+        var menuForm="<div id='"+String(menu[z].myId)+"' room='"+menu[z].gameRoom+"' person='"+String(menu[z].gamePerson)+"' class='menus'> 방제 : "+String(menu[z].gameRoom)+" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;인원 : "+String(menu[z].gamePerson)+"/6 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;방장 : "+String(menu[z].gameMaster)+" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 상태 : "+menu[z].gaming+"</div>";
+        if(Number(menu[z].gamePerson)<6){           //방 인원이 6명 보다 작으면 입장할 수 있게 클릭 이벤트를 넣고 6명이라면 클릭이벤트를 넣지 않음
+          $(menuForm).appendTo('#menu').click(function(){
+            room=$(this).attr("room");
+            socket.emit('roomClick',{room:room,user:user,myId:myId});
+            secondGo();
+          });
+        };
+        if(menu[z].gaming=="대기중"){                //방의 상태가 대기중이면 파란색을 입힘
+          $("#"+String(menu[z].myId)).css("background-color","rgb(212,244,250)").hover(function(){
+            $(this).css("background-color", "rgb(146,255,255)");
+          }, function(){
+            $(this).css("background-color", "rgb(212,244,250)");
+          });
+        }
+        else{                                       //방의 상태가 게임중이면 빨간색을 입힘
+          $("#"+String(menu[z].myId)).css("background-color","rgb(255,216,216)").hover(function(){
+            $(this).css("background-color", "rgb(242,200,200)");
+          }, function(){
+            $(this).css("background-color", "rgb(255,216,216)");
+          });
+        }
+      };
+    });
+    
+    $('#roomMake').click(function(){                //방만들기를 클릭하면 roommakes 함수 실행
+      roommakes();
+    });
+
+    socket.on('allRoomCheck',function(data){        
+      if(data==1){                   //방제가 이미 존재한다면
+        alert("이미 존재하는 방제입니다.\n방제를 다시 입력해주세요.");    //방제를 다시 입력하라는 창을 띄움
+        roommakes();
+      }
+      else{
+        socket.emit('roomMake',{myId:myId,gameRoom:room,gamePerson:1,gameMaster:user});
+      }
+    })
+
+    socket.on('getNoroom',function(data){
+      room='방제없음'+String(data);           //방제를 입력하지 않았다면 방제없음+n 으로 방제 설정
+      socket.emit('roomMake',{myId:myId,gameRoom:room,gamePerson:1,gameMaster:user});
+    })
+
+    socket.on('roomMake',function(data){
+      myOrder=1;                            //방장의 우선순위는 1
+      secondGo();
+    })
+
+    socket.on('texts',function(data){
+      $('#chating').append("<div>"+data.user+">"+data.texts+"</div>");        //텍스트를 채팅창에 넣음
+      $("#chating").scrollTop($("#chating")[0].scrollHeight);                 //스크롤을 항상 밑에 지정
+    })
+
+    socket.on('removeUser',function(data){
+      $('#chating').append("<div>"+data.user+"님이 퇴장하셨습니다.</div>");        //유저가 퇴장했다는 창을 채팅창에 넣음
+      for(var i=0;i<5;i++){
+        $('#you'+String(i+1)).empty();
+        $('#you'+String(i+1)).append("플레이어 대기중..");                     //그 유저의 네임란에 플레이어대기중으로 교체
+      }
+      for(var i=0;i<data.users.length;i++){
+        if(data.users[i]==user){
+          myOrder=i+1;                  //나의 우선수위를 지정
+          break;
+        }
+      }
+      for(var i=0;i<data.users.length;i++){
+        if(data.users[i]!=user){
+          var someoneOrder;
+          if(i+1>myOrder){            //본인을 제외한 다른유저의 우선순위를 변수에 저장
+            someoneOrder=i;           //본인보다 누군가의 우선순위가 큰 수라면 우선순위를 그대로 저장
+          }
+          else{
+            someoneOrder=i+1;         //본인보다 누군가의 우선순위가 앞에 있다면 우선순위+1 를 저장 
+          }
+          if(someoneOrder==1&&myOrder!=1){              //우선순위가 1(방장)이라면
+            $('#you'+String(someoneOrder)).empty();
+            $('#you'+String(someoneOrder)).append("★ "+data.users[i]+"님");        //유저의 네임란 앞에 방장의 표시(★)을 달아줌
+          }
+          else{
+            $('#you'+String(someoneOrder)).empty();
+            $('#you'+String(someoneOrder)).append(data.users[i]+"님");             //아니라면 네임란을 유저의 이름으로 교체
+          }
+        }
+      }
+      if(myOrder==1&&ing==0){               //나의 우선순위가 1(방장)이고 게임을 하고있지 않다면 함수를 실행
+        $('#me').empty();
+        $('#me').append("★ "+user+"님");
+        $("#start").remove();
+        $(document.body).append('<div class="start" id="start">시작하기</div>');
+        $("#start").mousedown(function(){
+          $("#start").css("border-style","inset");
+        });
+        $("#start").mouseup(function(){
+          $("#start").css("border-style","outset");
+          socket.emit('start',room);
+          $("#start").remove();
+        });
+      }
+    })
+
+    socket.on('myOrderCheck',function(data){
+      for(var i=0;i<data.length;i++){
+        if(data[i]==user){
+          myOrder=i+1;                  //나의 우선수위를 지정
+          break;
+        }
+      }
+      for(var i=0;i<data.length;i++){
+        if(data[i]!=user){
+          var someoneOrder;
+          if(i+1>myOrder){            //본인을 제외한 다른유저의 우선순위를 변수에 저장
+            someoneOrder=i;           //본인보다 누군가의 우선순위가 큰 수라면 우선순위를 그대로 저장
+          }
+          else{
+            someoneOrder=i+1;         //본인보다 누군가의 우선순위가 앞에 있다면 우선순위+1 를 저장 
+          }
+          if(someoneOrder!=1){              //우선순위가 1(방장)이 아니라면
+            $('#you'+String(someoneOrder)).empty();
+            $('#you'+String(someoneOrder)).append(data[i]+"님");             //유저의 네임란을 유저의 이름으로 교체
+          }
+          else{
+            $('#you'+String(someoneOrder)).empty();
+            $('#you'+String(someoneOrder)).append("★ "+data[i]+"님");        //아니라면 유저의 네임란 앞에 방장의 표시(★)을 달아줌
+          }
+        }
+      }
+      socket.emit('myOrder',{myOrder:myOrder,room:room,user:user});
+    })
+
+    socket.on('addUser',function(data){
+      var someoneOrder;
+      if(data.myOrder>myOrder){
+        someoneOrder=data.myOrder-1;
+      }
+      else{
+        someoneOrder=data.myOrder;
+      }
+      $('#chating').append("<div>"+data.user+"님이 입장하셨습니다.</div>");        //입장했다는 텍스트를 채팅창을 띄어줌
+        if(someoneOrder==1&&myOrder!=1){
+          $('#you'+String(someoneOrder)).empty();
+          $('#you'+String(someoneOrder)).append("★ "+data.user+"님");
+        }
+        else{
+          $('#you'+String(someoneOrder)).empty();
+          $('#you'+String(someoneOrder)).append(data.user+"님");
+        }
+    })
+
+    socket.on('start',function(){
+      initi();
+    });
+
+    socket.on('smart',function(data){
+      var someoneOrder;
+      if(data.myOrder>myOrder){
+        someoneOrder=data.myOrder-1;            //받아온 정보를 파악하여 어느 유저의 정보인지 파악함
+      }
+      else{
+        someoneOrder=data.myOrder;
+      }
+      $('#enemy'+String(someoneOrder)).empty();
+      for(i=0;i<data.texts.length;i++){
+        var divEnemy="<div id='zzz"+String(someoneOrder)+"' class='"+data.texts[i][0]+"z' style='top:"+String(13*(data.texts[i][1]/19))+"px;left:"+String(13*(data.texts[i][2]/19))+"px;'></div>";
+        $('#enemy'+String(someoneOrder)).append(divEnemy);              //받아온 블록들의 정보를 이용하여 블록들을 그 유저의 칸에 그려줌
+      }
+    });
+
+    socket.on('upline',function(data){                //누군가 블록한줄을 파괴하여 나머지 사람들에게 공격을 하는 함수
+      if(ing==1){
+        if(gage>myRank-2){                //유저의 공격받은 gage가 방에서 살아남은 인원에 비례
+          for(i=0;i<arr.length-4;i++){
+            $("#"+String(arr[i])).css("top",parseInt($("#"+String(arr[i])).css("top"))-19+"px");    //현재 존재하는 블록들을 한줄씩 올림
+          }
+          for(i=0;i<10;i++){
+            if(data!=i){
+              $("#pan").append("<div class='line' id='c"+String(lines+i)+"''></div>");
+              $("#c"+String(lines+i)).css("left",parseInt($("#c"+String(lines+i)).css("left"))+19*i+"px");//새로운 블록을 한칸을 비우고 맨밑줄에 배치
+              arr.unshift("c"+String(lines+i));         //블록들의 정보를 보관하는 배열에 이 블록들을 앞으로 넣음
+            }
+          }
+          for(i=appear-3;i<=appear;i++){
+            for(j=0;j<arr.length-4;j++){
+              if($('#'+String(i)).css("left")==$('#'+String(arr[j])).css("left")&&$('#'+String(i)).css("top")==$('#'+String(arr[j])).css("top")){                         //한칸을 올라오는 순간에 현재 떨어지고 있는 블록이 곂친다면
+                for(var k=appear-3;k<=appear;k++){
+                  $('#'+String(k)).css("top",parseInt($("#"+String(k)).css("top"))-19+"px");      //현재 떨어지고 있는 블록을 한칸씩 올려버림
+                }
+                j-=1;
+              }
+            }
+          }
+          lines+=10;
+          gage=1;
+        }
+        else{
+          gage++;
+        }
+      }
+    });
+
+    socket.on('gameset',function(data){           //누군가가 게임에서 졌을 때 서버에서 받는 함수
+      if(myRank>0){
+        if(data!=myOrder){
+          var someoneOrder;
+          if(data>myOrder){
+            someoneOrder=data-1;
+          }
+          else{
+            someoneOrder=data;
+          }
+          var instant=document.getElementById("enemy"+String(someoneOrder));
+          var instant2=instant.getElementsByTagName("div");
+          for(var i=0;i<instant2.length;i++){
+            $(instant2[i]).css("background-color","rgb(166,166,166)");            //진 유저의 모든 블록을 회색으로 변경
+          }
+          $("#enemy"+String(someoneOrder)).append("<div class='rank2'>"+myRank+"</div>");       //순위를 유저의 블록창에 띄어줌
+        }
+        else{
+          gameset();
+        }
+      }
+      myRank-=1;
+      if(myRank==0){                //모든 유저가 게임이 끝났다면
+        if(myOrder==1){
+          $(document.body).append('<div class="start" id="start">시작하기</div>');      //방장의 시작하기 버튼을 활성화
+          $("#start").mousedown(function(){
+            $("#start").css("border-style","inset");
+          });
+          $("#start").mouseup(function(){
+            $("#start").css("border-style","outset");
+            socket.emit('start',room);
+            $("#start").remove();
+          });
+          socket.emit('gameEnd',room);
+        }
+        $("#exit").mousedown(function(){
+          $(this).css("border-style","inset");
+        });
+        $("#exit").mouseup(function(){                  //모든 유저의 나가기 버튼을 활성화
+          $(this).css("border-style","outset");
+          $(document.body).empty();
+          $(document.body).append('<div id="menu" class="menu"><td></td></div><input class="roomMake" type="button" id="roomMake" value="방 만들기"><div class="player" id="player"></div>');
+          $(document.body).attr('class','');
+          myOrder=0;
+          $('#player').append(user+"님 안녕하세요!");
+          $('#roomMake').click(function(){
+            roommakes();
+          });
+          socket.emit('exit',{room:room,myId:myId,user:user});
+          room='init';
+        });
+      }
+      if(myRank==1&&ing==1){
+        socket.emit('gameset',{room:room,myOrder:myOrder});
+      }
+    });
+
+    socket.on('myRank',function(data){
+      myRank=data;
+      randomBlock();
+    })
+
+  })
+
+  var appear=0;
+  var flag=0;
+  var these;
+  var state;
+  var arr=[];
+  var init=0;
+  var width=190;
+  var height=380;
+  var memory=new Array(2);
+  var time=300;
+  var lines=0;
+  var randomVar;
+  var myOrder;
+  var myRank;
+  var ing;
+  var fired=false;
+
+  function secondGo(){                    //게임방 안에 페이지를 만들어 주는 함수
+    ing=0;
+    window.addEventListener('keydown',getkeyAndMove,false);
+    $(document.body).attr('class',"body");
+    $(document.body).unbind();
+    $(document.body).empty();
+    $(document.body).append('<div class="base" id="pan"></div><div class="base2" id="pan2"></div><div class="base3" id="pan3"></div><div class="enemy1" id="enemy1"></div><div class="enemy2" id="enemy2"></div><div class="enemy3" id="enemy3"></div><div class="enemy4" id="enemy4"></div><div class="enemy5" id="enemy5"></div><div class="exit" id="exit">나가기</div><div class="me" id="me"></div><div class="you1" id="you1">플레이어 대기중..</div><div class="you2" id="you2">플레이어 대기중..</div><div class="you3" id="you3">플레이어 대기중..</div><div class="you4" id="you4">플레이어 대기중..</div><div class="you5" id="you5">플레이어 대기중..</div><div id="chating" class="chating"></div><input type="text" id="input" class="input" value=""></input><input type="button" id="send" class="send" value="전송"></input>');
+    if(myOrder==1){
+      $(document.body).append('<div class="start" id="start">시작하기</div>');
+      $("#start").mousedown(function(){
+        $("#start").css("border-style","inset");
+      });
+      $("#start").mouseup(function(){
+        $("#start").css("border-style","outset");
+        socket.emit('start',room);
+        $("#start").remove();
+      });
+    }
+    if(myOrder!=1){
+      $('#me').append(user+"님");
+    }
+    else{
+      $('#me').append("★ "+user+"님");
+    }
+
+    $("#send").click(function(){            //채팅 전송버튼을 활성화
+      var texts=$("#input").val();
+      $("#input").val("");
+      socket.emit('text',{texts:texts,room:room,user:user});
+    });
+
+    $("#exit").mousedown(function(){
+      $(this).css("border-style","inset");
+    });
+    $("#exit").mouseup(function(){          //나가기 버튼을 활성화
+      $(this).css("border-style","outset");
+      $(document.body).empty();
+      $(document.body).append('<div id="menu" class="menu"><td></td></div><input class="roomMake" type="button" id="roomMake" value="방 만들기"><div class="player" id="player"></div>');
+      $(document.body).attr('class','');
+      myOrder=0;
+      $('#player').append(user+"님 안녕하세요!");
+      $('#roomMake').click(function(){
+        roommakes();
+      });
+      socket.emit('exit',{room:room,myId:myId,user:user});
+      room='init';
+    });
+  }
+
+  function getkeyAndMove(event) {
+    var keyCode; 
+    if(event == null){
+        keyCode = window.event.keyCode;
+        window.event.preventDefault();
+    }
+    else{
+        keyCode = event.keyCode; 
+    }
+    switch(keyCode){ 
+      case 13:                        //채팅을 보낼 때 필요한 엔터키를 활성화
+        var texts=$("#input").val();
+        if(texts!=null){
+          $("#input").val("");
+          socket.emit('text',{texts:texts,myId:myId,room:room,user:user});
+        }
+        break; 
+    }
+  }
+  function respace(event){
+    if(event == null){
+        keyCode = window.event.keyCode;
+        window.event.preventDefault();
+    }
+    else{
+        keyCode = event.keyCode; 
+        event.preventDefault();
+    }
+      switch(keyCode){
+
+          case 32:      //스페이스를 떼는 버튼을 활성화
+            fired=false;
+            break;
+      }
+  }
+  function getkeyAndMove2(event) {
+    
+    var keyCode;
+    var flag2=0;
+    if(event == null){
+        keyCode = window.event.keyCode;
+        window.event.preventDefault();
+    }
+    else{
+        keyCode = event.keyCode; 
+        event.preventDefault();
+    }
+    switch(keyCode){
+          case 32:      //스페이스 버튼을 활성화
+          if(fired==false){
+            fired=true;
+            do{
+              for(i=appear-3;i<=appear;i++){
+                if(parseInt($('#'+String(i)).css("top"))>=height-19){     //바닥까지 닿았는지 확인
+                  flag2=1;
+                  break;
+                }
+              }
+              if(flag2==0){
+                for(i=appear-3;i<=appear;i++){              //밑에 걸리는게 있는지 확인
+                  for(j=0;j<arr.length-4;j++){
+                    if($('#'+String(i)).css("left")==$('#'+String(arr[j])).css("left")&&parseInt($('#'+String(i)).css("top"))+19==parseInt($('#'+String(arr[j])).css("top"))){
+                      flag2=1;
+                      break;
+                    }
+                  }
+                }
+              }
+              if(flag2==0){                 //걸리는게 없다면 한칸 내려오기
+                for(i=appear-3;i<=appear;i++){
+                  $('#'+String(i)).css("top",parseInt($('#'+String(i)).css("top"))+19+"px");
+                }
+              }
+            }while(flag2==0)          //밑에 걸리는게 있을때 까지 위의 함수 반복
+            clearInterval(tid);
+            appear++;
+            flag=0;
+            randomBlock();
+          }
+          break;
+
+        case 37:      // 왼쪽 화살표
+          for(i=appear-3;i<=appear;i++){
+            if(parseInt($('#'+String(i)).css("left"))-19<0){      //왼쪽 벽에 걸리는게 있는지 확인
+              flag2=1;
+              break;
+            }
+          }
+          if(flag2==0){
+            for(i=appear-3;i<=appear;i++){            //왼쪽에 블록이 있는지 확인
+              for(j=0;j<arr.length-4;j++){
+                if(parseInt($('#'+String(i)).css("left"))-19==parseInt($('#'+String(arr[j])).css("left"))&&$('#'+String(i)).css("top")==$('#'+String(arr[j])).css("top")){
+                  flag2=1;
+                  break;
+                }
+              }
+            }
+          }
+          if(flag2==0){                   //블록이 왼쪽 벽에 붙어있지 않고 왼쪽에 블록이 없다면 왼쪽으로 한칸 이동
+            for(i=appear-3;i<=appear;i++){
+              $('#'+String(i)).css("left",parseInt($('#'+String(i)).css("left"))-19+"px");
+            }
+          }
+            break; 
+        case 38:      // 위쪽 화살표를 활성화
+          upKey();
+            break; 
+        case 39:    // 오른쪽 화살표를 활성화
+          for(i=appear-3;i<=appear;i++){
+            if(parseInt($('#'+String(i)).css("left"))+19>=width){      //오른쪽 벽에 걸리는게 있는지 확인
+              flag2=1;
+              break;
+            }
+          }
+          if(flag2==0){             //오른쪽에 블록이 있는지 확인
+            for(i=appear-3;i<=appear;i++){
+              for(j=0;j<arr.length-4;j++){
+                if(parseInt($('#'+String(i)).css("left"))+19==parseInt($('#'+String(arr[j])).css("left"))&&$('#'+String(i)).css("top")==$('#'+String(arr[j])).css("top")){
+                  flag2=1;
+                  break;
+                }
+              }
+            }
+      }
+          if(flag2==0){                   //블록이 오른쪽 벽에 붙어있지 않고 오른에 블록이 없다면 왼쪽으로 한칸 이동
+            for(i=appear-3;i<=appear;i++){
+              $('#'+String(i)).css("left",parseInt($('#'+String(i)).css("left"))+19+"px");
+            }
+          }
+          break; 
+        case 40:      // 아래쪽 화살표를 활성화
+          for(i=appear-3;i<=appear;i++){
+            if(parseInt($('#'+String(i)).css("top"))>=height-19){           //현재 움직이는 블록이 맨밑에 있지 않은지 확인
+              flag2=1;
+              break;
+            }
+          }
+          if(flag2==0){
+            for(i=appear-3;i<=appear;i++){
+              for(j=0;j<arr.length-4;j++){
+                if(parseInt($('#'+String(i)).css("left"))==parseInt($('#'+String(arr[j])).css("left"))&&parseInt($('#'+String(i)).css("top"))+19==parseInt($('#'+String(arr[j])).css("top"))){          //현재 움직이는 블록 바로 밑칸에 다른 블록이 없는지 확인
+                  flag2=1;
+                  break;
+                }
+              }
+            }
+          }
+          if(flag2==0){
+            for(i=appear-3;i<=appear;i++){                //현재 움직이는 블록이 맽밑에 있지 않고 바로 밑칸에 다른 블록이 없다면 밑으로 한칸 이동
+              $('#'+String(i)).css("top",parseInt($('#'+String(i)).css("top"))+19+"px");
+            }
+          }
+          break; 
+    }
+  
+  }
+
+  function upKey(){         //모든 블록들을 돌릴 때 사용하는 함수
+        if(these==4){                       //엿모양 돌리기
+          if(state==0){
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-19+"px");
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-38+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-19+"px");
+            if(gumsa()==0){
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+19+"px");
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+38+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+19+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else if(state==1){
+            var howManyRight=0;
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+19+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+38+"px");
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+            if(rightSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+              }
+              howManyRight++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-19+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-38+"px");
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+              while(howManyRight!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+                }
+                howManyRight--;
+              }
+            }
+            else{
+              state++;
+            }
+          }
+          else if(state==2){
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+19+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-19+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-19+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+19+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else{
+            var howManyleft=0;
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-19+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            if(leftSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+              }
+              howManyleft++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+19+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+              while(howManyleft!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+                }
+                howManyleft--;
+              }
+            }
+            else{
+              state=0;
+            }
+          }
+        }
+        if(these==1){                     //직선돌리기
+          if(state==0){
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+19+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-19+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-38+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-57+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-19+"px");
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+19+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+38+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+57+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else{
+            var howManyleft=0;
+            var howManyRight=0;
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-19+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+19+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+38+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+57+"px");
+            if(leftSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+              }
+              howManyleft++;
+            }
+            if(rightSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+              }
+              howManyRight++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+19+"px");
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-19+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-38+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-57+"px");
+              while(howManyleft!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+                }
+                howManyleft--;
+              }
+              while(howManyRight!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+                }
+                howManyRight--;
+              }
+            }
+            else{
+              state=0;
+            }
+          }
+        }
+        if(these==2){                       //기억돌리기
+          if(state==0){
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))-19+"px");
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-38+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+19+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))+19+"px");
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+38+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-19+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else if(state==1){
+            var howManyRight=0;
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))+38+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            if(rightSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+              }
+              howManyRight++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))-38+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+              while(howManyRight!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+                }
+                howManyRight--;
+              }
+            }
+            else{
+              state++;
+            }
+          }
+          else if(state==2){
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px"); 
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+38+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-19+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px"); 
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-38+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+19+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else{
+            var howManyleft=0;
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))-19+"px");
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px"); 
+            if(leftSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+              }
+              howManyleft++;
+            }
+            if(gumsa()==0){
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))+19+"px");
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px"); 
+              while(howManyleft!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+                }
+                howManyleft--;
+              }
+            }
+            else{
+              state=0;
+            }
+          }
+        }
+        if(these==3){                       //반대기억돌리기
+          if(state==0){
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))+19+"px");
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-38+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-19+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))-19+"px");
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+38+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+19+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else if(state==1){
+            var howManyRight=0;
+            $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))+38+"px");
+            $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))+19+"px");
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+            if(rightSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+              }
+              howManyRight++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-1)).css("left",parseInt($('#'+String(appear-1)).css("left"))-38+"px");
+              $('#'+String(appear-1)).css("top",parseInt($('#'+String(appear-1)).css("top"))-19+"px");
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+              while(howManyRight!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+                }
+                howManyRight--;
+              }
+            }
+            else{
+              state++;
+            }
+          }
+          else if(state==2){
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))-38+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+            if(gumsa()==0){
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))+38+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else{
+            var howManyleft=0;
+            $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))+19+"px");
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+            $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))-19+"px");
+            $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))-38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            if(leftSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+              }
+              howManyleft++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-3)).css("top",parseInt($('#'+String(appear-3)).css("top"))-19+"px");
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+              $('#'+String(appear-2)).css("top",parseInt($('#'+String(appear-2)).css("top"))+19+"px");
+              $('#'+String(appear)).css("left",parseInt($('#'+String(appear)).css("left"))+38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+              while(howManyleft!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+                }
+                howManyleft--;
+              }
+            }
+            else{
+              state=0;
+            }
+          }
+        }
+        if(these==5){                     //반대리을 돌리기
+          if(state==0){
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else{
+            var howManyleft=0;
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            if(leftSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+              }
+              howManyleft++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+              while(howManyleft!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+                }
+                howManyleft--;
+              }
+            }
+            else{
+              state=0;
+            }
+          }
+        }
+        if(these==6){                     //리을 돌리기
+          if(state==0){
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            }
+            else{
+              state++;
+            }
+          }
+          else{
+            var howManyRight=0;
+            $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))+38+"px");
+            $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))+38+"px");
+            if(rightSide()==0){
+              for(var j=appear-3;j<=appear;j++){
+                $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))-19+"px");
+              }
+              howManyRight++;
+            }
+            if(gumsa()==0){
+              $('#'+String(appear-2)).css("left",parseInt($('#'+String(appear-2)).css("left"))-38+"px");
+              $('#'+String(appear)).css("top",parseInt($('#'+String(appear)).css("top"))-38+"px");
+              while(howManyRight!=0){
+                for(var j=appear-3;j<=appear;j++){
+                  $("#"+String(j)).css('left',parseInt($('#'+String(j)).css("left"))+19+"px");
+                }
+                howManyRight--;
+              }
+            }
+            else{
+              state=0;
+            }
+          }
+        }
+  }
+
+  function initi(){             //게임을 시작할 때 처음에 실행되는 함수
+    ing=1;
+    gage=1;
+    $("#pan").empty();
+    $("#pan2").empty();
+    $("#pan3").empty();
+    $("#enemy1").empty();
+    $("#enemy2").empty();
+    $("#enemy3").empty();
+    $("#enemy4").empty();
+    $("#enemy5").empty();               //모든 칸을 비워줌
+    $("#exit").off();                   //나가기 버튼을 비활성화
+    window.removeEventListener('keydown',getkeyAndMove,false);
+    window.addEventListener('keydown',getkeyAndMove2,false);
+    window.addEventListener('keyup',respace,false);
+
+    if(myOrder==1){ // 방장이라면 
+      socket.emit('myRank',room);
+    }
+  }
+
+  function randomBlock(){             //블록을 생성하는 함수
+    if(init!=0){
+      lineClear();                    //한줄이 다 찼는지 확인하는 함수
+      receive();
+    }
+    state=0;
+    if(memory[1]!=null){                        //첫번째 미리보기에 블록이 있다면
+      these=memory[1];
+      memory[2]=these;                          //두번째 미리보기에 있는 블록을 가져옴
+      arr.push(appear);
+      $('#pan').append("<div id='"+String(appear++)+"' class='a"+String(these)+"'></div>");
+      arr.push(appear);
+      $('#pan').append("<div id='"+String(appear++)+"' class='a"+String(these)+"'></div>");
+      arr.push(appear);
+      $('#pan').append("<div id='"+String(appear++)+"' class='a"+String(these)+"'></div>");
+      arr.push(appear);
+      $('#pan').append("<div id='"+String(appear)+"' class='a"+String(these)+"'></div>");
+      make(these,"");
+      if(init==0){
+        init++;
+      }
+    }
+
+    if(memory[0]!=null){                        //두번째 미리보기에 블록이 있다면
+      $("#pan2").empty();
+      these=memory[0];
+      memory[1]=these;                          //두번째 미리보기에 있는 블록을 가져옴
+      $('#pan2').append("<div id='a"+String(appear++)+"' class='a"+String(these)+"'></div>");
+      $('#pan2').append("<div id='a"+String(appear++)+"' class='a"+String(these)+"'></div>");
+      $('#pan2').append("<div id='a"+String(appear++)+"' class='a"+String(these)+"'></div>");
+      $('#pan2').append("<div id='a"+String(appear)+"' class='a"+String(these)+"'></div>");
+      for(i=0;i<4;i++){
+        $("#a"+String(appear-i)).css("top","19px");
+        $("#a"+String(appear-i)).css("left","30px");
+      }
+      center(these,"#a");
+      make(these,"a");
+      appear-=3;
+    }
+
+    these=Math.floor(Math.random()*7);          //랜덤하게 2번째 미리보기의 블록을 채움
+    memory[0]=these;
+    $("#pan3").empty();
+    $('#pan3').append("<div id='b"+String(appear++)+"' class='a"+String(these)+"'></div>");
+    $('#pan3').append("<div id='b"+String(appear++)+"' class='a"+String(these)+"'></div>");
+    $('#pan3').append("<div id='b"+String(appear++)+"' class='a"+String(these)+"'></div>");
+    $('#pan3').append("<div id='b"+String(appear)+"' class='a"+String(these)+"'></div>");
+    for(i=0;i<4;i++){
+      $("#b"+String(appear-i)).css("top","19px");
+      $("#b"+String(appear-i)).css("left","30px");
+    }
+    center(these,"#b");
+    make(these,"b");
+    appear-=3;
+    if(memory[2]==null){        //블록이 생성되지 않았다면
+      randomBlock();            //함수를 다시 실행
+      return;
+    }
+
+    these=memory[2];
+
+    for(var i=0;i<arr.length-4;i++){              
+      for(var j=appear-3;j<=appear;j++){
+        if($('#'+String(arr[i])).css("top")==$('#'+String(j)).css("top")&&$('#'+String(arr[i])).css("left")==$('#'+String(j)).css("left")){                 //생성된 블록이 위치한 곳에 다른 블록이 겹친다면
+          socket.emit('gameset',{room:room,myOrder:myOrder});         //게임 끝
+          return;                       
+        }
+      }
+    }
+    tid=setInterval(drop,time);                 //0.3초마다 drop 함수를 실행
+  }
+
+  function drop(){
+    for(i=0;i<arr.length-4;i++){          //밑에 걸리는게 있는지 확인
+      for(j=appear-3;j<=appear;j++){
+        if($('#'+String(arr[i])).css("left")==$('#'+String(j)).css("left")&&parseInt($('#'+String(arr[i])).css("top"))-19==parseInt($('#'+String(j)).css("top"))){
+          flag=1;
+          break;
+        }
+      }
+      if(flag==1){
+        break;
+      }
+    }
+    if(flag==0){
+      for(i=appear-3;i<=appear;i++){          //움직이는 블록의 밑이 바닥인지 화인
+        if(parseInt($("#"+String(i)).css("top"))+19>=height){
+          flag=1;
+        }
+      }
+    }
+    if(flag==1){       //현재 움직이는 블록이 다른 블록에 걸리거나 바닥에 있다면 블록을 생성하는 함수 실행
+      clearInterval(tid);
+      appear++;
+      flag=0;
+      randomBlock();
+    }
+    else{             //현재 움직이는 블록이 다른 블록에 안걸리고 바닥에 있지 않다면 한칸 내려오기
+      $("#"+String(appear-3)).css("top",parseInt($("#"+String(appear-3)).css("top"))+19+"px");
+      $("#"+String(appear-2)).css("top",parseInt($("#"+String(appear-2)).css("top"))+19+"px");
+      $("#"+String(appear-1)).css("top",parseInt($("#"+String(appear-1)).css("top"))+19+"px");
+      $("#"+String(appear)).css("top",parseInt($("#"+String(appear)).css("top"))+19+"px");
+      receive();
+    }
+  }
+
+  function lineClear(){                 //줄이 꽉 찼는지 확인하는 함수
+    randomVar=Math.floor(Math.random()*10);           //부서진 라인이 있다면 공격을 하기 위해 비운 위치를 저장하는 변수
+    for(i=appear-4;i<appear;i++){
+      var myTopNumber=[];
+      var myTop;
+      for(j=0;j<arr.length;j++){
+        myTop=$('#'+String(i)).css("top");
+        if($('#'+String(arr[j])).css("top")==myTop){
+          myTopNumber.push(arr[j]);
+        }
+      }
+      if(myTopNumber.length>9){           //한 줄이 꽉 차 있다면(10칸이 다 채워져 있다면)
+        for(var k=0;k<10;k++){
+          $('#'+String(myTopNumber[k])).remove();            //그 줄에 있는 블록을 모두 지우고
+          for(j=0;j<arr.length;j++){
+            if(arr[j]==myTopNumber[k]){
+              break;
+            }
+          }
+          if(j<arr.length){
+            arr.splice(j,1);                    //모든 블록을 담고 있는 배열에서 지운 블록들을 모두 제거
+          }
+        }
+        for(j=0;j<arr.length;j++){
+          if(parseInt($('#'+String(arr[j])).css("top"))<parseInt(myTop)){
+            $('#'+String(arr[j])).css("top",parseInt($('#'+String(arr[j])).css("top"))+19+"px"); //지운 블록들보다 위에 있는 블록들을 밑으로 한칸씩 내림
+          }
+        }
+        socket.emit('lineup',{randomVar:randomVar,room:room});
+      }
+    }
+  }
+  function make(these,word){        //블록의 모양을 만들어주는 함수
+    switch(these){
+      case 0:           //네모
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))+19+"px");
+        $("#"+word+String(appear-1)).css("top",parseInt($("#"+word+String(appear-1)).css("top"))+19+"px");
+        $("#"+word+String(appear)).css("top",parseInt($("#"+word+String(appear)).css("top"))+19+"px");
+        $("#"+word+String(appear)).css("left",parseInt($("#"+word+String(appear)).css("left"))+19+"px");
+        break;
+      case 1:           //직선
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))-19+"px");
+        $("#"+word+String(appear-1)).css("left",parseInt($("#"+word+String(appear-1)).css("left"))+19+"px");
+        $("#"+word+String(appear)).css("left",parseInt($("#"+word+String(appear)).css("left"))+38+"px");
+        break;
+      case 2:           //기억
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))-19+"px");
+        $("#"+word+String(appear-1)).css("left",parseInt($("#"+word+String(appear-1)).css("left"))+19+"px");
+        $("#"+word+String(appear)).css("left",parseInt($("#"+word+String(appear)).css("left"))+19+"px");
+        $("#"+word+String(appear)).css("top",parseInt($("#"+word+String(appear)).css("top"))+19+"px");
+        break;
+      case 3:           //반대기억
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))-19+"px");
+        $("#"+word+String(appear-1)).css("left",parseInt($("#"+word+String(appear-1)).css("left"))+19+"px");
+        $("#"+word+String(appear)).css("left",parseInt($("#"+word+String(appear)).css("left"))-19+"px");
+        $("#"+word+String(appear)).css("top",parseInt($("#"+word+String(appear)).css("top"))+19+"px");
+        break;
+      case 4:           //엿
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))-19+"px");
+        $("#"+word+String(appear-1)).css("left",parseInt($("#"+word+String(appear-1)).css("left"))+19+"px");
+        $("#"+word+String(appear)).css("top",parseInt($("#"+word+String(appear)).css("top"))+19+"px");
+        break;
+      case 5:           //반대리을
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))-19+"px");
+        $("#"+word+String(appear-2)).css("top",parseInt($("#"+word+String(appear-2)).css("top"))+19+"px");
+        $("#"+word+String(appear-1)).css("left",parseInt($("#"+word+String(appear-1)).css("left"))+19+"px");
+        $("#"+word+String(appear)).css("top",parseInt($("#"+word+String(appear)).css("top"))+19+"px");
+        break;
+      case 6:           //리을
+        $("#"+word+String(appear-2)).css("left",parseInt($("#"+word+String(appear-2)).css("left"))+19+"px");
+        $("#"+word+String(appear-2)).css("top",parseInt($("#"+word+String(appear-2)).css("top"))+19+"px");
+        $("#"+word+String(appear-1)).css("left",parseInt($("#"+word+String(appear-1)).css("left"))-19+"px");
+        $("#"+word+String(appear)).css("top",parseInt($("#"+word+String(appear)).css("top"))+19+"px");
+        break;
+    }
+  }
+  function center(these,word){          //미리보기 칸에서 블록들을 가운데 배치하기 위한 함수
+    if(these==1){
+      for(i=0;i<4;i++){
+        $(word+String(appear-i)).css("top","27px");
+        $(word+String(appear-i)).css("left","22px");
+      }
+    }
+    else if(these==0){
+      for(i=0;i<4;i++){
+        $(word+String(appear-i)).css("top","20px");
+        $(word+String(appear-i)).css("left","20px");
+      }
+    }
+  }
+  function receive(){                   //서버로 보낼 블록들의 정보를 분석해 원하는 형태로 바꿔 주는 함수
+    var text=[];
+    for(i=0;i<arr.length;i++){
+      var classes=$("#"+String(arr[i])).attr("class");
+      var tops=parseInt($("#"+String(arr[i])).css("top"));
+      var lefts=parseInt($("#"+String(arr[i])).css("left"));
+      text.push([classes,tops,lefts]);
+    }
+    socket.emit('rint',{texts:text,room:room,myOrder:myOrder});
+  }
+  function gameset(){                   //게임이 끝났을 때 실행하는 함수
+    ing=0;
+    if(tid!=null){
+      clearInterval(tid);               //떨어지는 함수를 멈춤
+    }
+    window.removeEventListener('keydown',getkeyAndMove2,false);
+    window.removeEventListener('keyup',respace,false);
+    window.addEventListener('keydown',getkeyAndMove,false);
+    for(j=appear-3;j<=appear;j++){
+      $('#'+String(j)).remove();                  //현재 움직이던 블록 제거
+    }
+
+    for(var i=0;i<appear-3;i++){
+      $('#'+String(i)).css("background-color","rgb(166,166,166)");        //블록들을 모두 회색으로 변경
+    }
+
+    appear=0;
+    arr=[];
+
+    $('#pan').append("<div class='rank'>"+myRank+"</div>");               //나의 순위를 게임창에 띄움
+  }
+
+  function roommakes(){                 //방을 만들 때 실행하는 함수
+    room=String(prompt('방 이름을 입력하세요'));             //방제를 입력받는 프롬프트 창을 띄움
+    if(room==null||room==''||room=="null"){           //방제를 입력하지 않았다면 다음 실행
+      socket.emit('getNoroom',myId);
+    }
+    else{                                             //방제를 입력했다면 다음 실행
+      socket.emit('allRoomCheck',{myId:myId,room:room});
+    }
+  }
+  
+  function gumsa(){                 //현재 움직이던 블록이 다른 블록들과 겹치는지 검사하는 함수
+    for(i=0;i<arr.length-4;i++){
+      for(j=appear-3;j<=appear;j++){
+        if($('#'+String(j)).css("top")==$('#'+String(arr[i])).css("top")&&$('#'+String(j)).css("left")==$('#'+String(arr[i])).css("left")){
+          return 0;                   //겹치는게 있다면 false
+        }
+      }
+    }
+    return 1;                         //겹치는게 없다면 true
+  }
+
+  function rightSide(){               //현재 움직이는 블록이 모양을 변경 했을 때 오른쪽 벽을 넘어가는지 확인하는 함수
+    for(var j=appear-3;j<=appear;j++){
+      if(parseInt($('#'+String(j)).css("left"))>=width){
+        return 0;                     //넘어가면 false
+      }
+    }
+    return 1;                         //넘어가지 않으면 true
+  }
+
+  function leftSide(){               //현재 움직이는 블록이 모양을 변경 했을 때 왼쪽 벽을 넘어가는지 확인하는 함수
+    for(var j=appear-3;j<=appear;j++){
+      if(parseInt($('#'+String(j)).css("left"))<0){
+        return 0;                     //넘어가면 false
+      }
+    }
+    return 1;                         //넘어가지 않으면 true
+  }
+  </script>
+</head>
+<body>
+</body>
+</html>

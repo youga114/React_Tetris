@@ -1,0 +1,224 @@
+.App {
+  text-align: center;
+  width: 100%;
+  height: 100%;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/*
+  .body{
+    background-color: rgb(178,235,244);
+  }
+  .exit{
+    position: absolute;
+    border-width: 4px;
+    border-style: outset;
+    border-color: rgb(75,75,75);
+    background-color: rgb(75,75,75);
+    width: 80px;
+    height: 30px;
+    left: 10px;
+    top: 10px;
+    text-align: center;
+    font-size: 18px;
+  }
+  .input{
+    position: absolute;
+    border-style: solid;
+    border-width: 1px;
+    width: 500px;
+    height: 50px;
+    font-size: 30px;
+    top: 50px;
+    left: 400px;
+  }
+  .send{
+    position: absolute;
+    border-width: 4px;
+    border-style: outset;
+    border-color: yellow;
+    background-color: yellow;
+    width: 100px;
+    height: 50px;
+    left: 910px;
+    top: 50px;
+    text-align: center;
+    font-size: 40px;
+  }
+  .base{
+    position: absolute;
+    background-color: rgb(212,244,250);
+    top: 130px;
+    width: 1030px;
+    border-style: none;
+    height: 510px;
+    overflow: auto;
+  }
+  .menuUser{
+    position: absolute;
+    top: 130px;
+    left: 1030px;
+    width: 300px;
+    border-style: none;
+    height: 510px;
+    overflow: auto;
+    font-size: 30px;
+    text-align: center;
+  }
+  .someone{
+    border-style: none;
+    border-radius: 5px;
+    background-color: rgb(255,255,103);
+    position: relative;
+    left: 5px;
+    width: 300px;
+    font-size: 20px;
+    text-align: left;
+  }
+  .me{
+    border-style: none;
+    border-radius: 5px;
+    background-color: rgb(255,255,103);
+    position: relative;
+    width: 300px;
+    font-size: 20px;
+    left: 715px;
+    text-align: right;
+  }
+  .left{
+    position: relative;
+    left: 15px;
+    width: 600px;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: left;
+  }
+  .right{
+    position: relative;
+    left: 400px;
+    width: 600px;
+    font-weight: bold;
+    text-align: right;
+  }
+  .manageMenu{
+    overflow: auto;
+    border-style: solid;
+    border-width: 1px;
+    width: 400px;
+    height: 200px;
+    position: relative;
+    text-align: center;
+    font-size: 5px;
+    background-color: rgb(212,244,250);
+  }
+  .manageMenuUser{
+    overflow: auto;
+    border-style: solid;
+    border-width: 1px;
+    width: 100px;
+    height: 198px;
+    left: 298px;
+    top: 0px;
+    position: absolute;
+    text-align: center;
+    font-size: 5px;
+  }
+  .someone2{
+    border-style: none;
+    border-radius: 2px;
+    background-color: rgb(255,255,103);
+    position: relative;
+    left: 5px;
+    width: 250px;
+    font-size: 5px;
+    text-align: left;
+  }
+  .left2{
+    position: relative;
+    width: 250px;
+    font-weight: bold;
+    font-size: 7px;
+    text-align: left;
+  }
+  .ban{
+    overflow: auto;
+    position: absolute;
+    top:0px;
+    left: 0px;
+    width: 405px;
+    height:  662px;
+  }
+  .manageOS{
+    overflow: auto;
+    position: absolute;
+    top:0px;
+    left: 410px;
+    width: 950px;
+    height:  662px;
+  }
+  .manageMenuRoom{
+    overflow: auto;
+    position: relative;
+    width: 300px;
+    height: 40px;
+    text-align: center;
+    font-size: 7px;
+  }
+  .manageMenuChat{
+    position: relative;
+    width: 300px;
+    height: 160px;
+    font-size: 5px;
+    overflow: auto;
+  }
+  .ipjang{
+    border-style: none;
+    border-radius: 5px;
+    background-color: rgb(165,165,165);
+    position: relative;
+    left: 5px;
+    width: 1000px;
+    font-size: 20px;
+    text-align: center;
+    margin:10px;
+  }
+  .ipjang2{
+    border-style: none;
+    border-radius: 2px;
+    background-color: rgb(165,165,165);
+    position: relative;
+    left: 5px;
+    width: 290px;
+    font-size: 5px;
+    text-align: center;
+    margin:2px;
+  }
+  .usersInRoom{
+    position: relative;
+    text-align: center;
+    color: navy;
+  }*/

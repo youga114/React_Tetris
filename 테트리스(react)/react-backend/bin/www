@@ -1,0 +1,205 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app');
+var debug = require('debug')('react-backend:server');
+var http = require('http');
+var socketio=require('socket.io');
+
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '52272');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
+
+var io=socketio(server);
+
+let loginNum=0;
+let rooms=[];            //방의 정보를 담을 배열
+let users=[];
+let roomNum=0;
+
+io.on('connection',function(socket){
+  console.log("Socket connected: " + socket.id);
+  console.log("Login number: " + ++loginNum);
+
+  socket.on("disconnect",function(){          //socket연결이 해제되면 다음 함수를 실행
+    console.log("Socket disconnected: " + socket.id);
+    console.log("Login number: " + --loginNum);
+  })
+
+  socket.join('init');               //init방에 입장
+  io.sockets.to(socket.id).emit('action',{type:'menuReceive',data:rooms});      //menu를 담에 'menuReceive'로 소켓전송
+
+  socket.on('action', (action) => {
+    if(action.type === 'server/hello'){
+      // console.log('Got hello data!', action.data);
+      // socket.emit('action', {type:'message', data:'good day!'});
+    }
+    else if(action.type === 'server/make'){
+      var hung={name:action.data.name,personNum:1,master:action.data.master,roomNum:roomNum++,state:"대기중"};
+      rooms.push(hung);              //menu배열에 방정보를 넣음
+      users.push([action.data.master]);
+      socket.leave('init');             //'init'(대기실)방을 떠남
+      socket.join(action.data.name);           //data.gameRoom방에 입장
+      socket.broadcast.in('init').emit('action', {type:'menuReceive',data:rooms});
+      io.sockets.to(socket.id).emit('action',{type:'roomMake',data:{user:[action.data.master],myRoom:action.data.name,myNum:0}});      //menu를 담에 'menuReceive'로 소켓전송
+    }
+    else if(action.type === 'server/join'){
+      for(var i=0;i<rooms.length;i++){
+        if(rooms[i].roomNum==action.data.roomNum){
+          break;
+        }
+      }
+      users[i].push(action.data.user);
+      rooms[i].personNum++;
+      socket.leave('init');             //'init'(대기실)방을 떠남
+      socket.join(rooms[i].name);
+      socket.broadcast.in(rooms[i].name).emit('action', {type:'someoneJoin',data:{users:users[i],joinPerson:action.data.user}});
+      socket.broadcast.in('init').emit('action', {type:'menuReceive',data:rooms});
+      io.sockets.to(socket.id).emit('action',{type:'roomMake',data:{user:users[i],myRoom:rooms[i].name,myNum:users[i].length-1}});
+    }
+    else if(action.type === 'server/speak'){
+      socket.broadcast.in(action.data.myRoom).emit('action', {type:'someoneChat',data:{content:action.data.content,speaker:action.data.speaker}});
+      io.sockets.to(socket.id).emit('action',{type:'someoneChat',data:{content:action.data.content,speaker:"me"}});
+    }
+    else if(action.type === 'server/exit'){
+      for(var i=0;i<rooms.length;i++){
+        if(rooms[i].name==action.data.roomName){
+          break;
+        }
+      }
+      for(var j=0;j<users[i].length;j++){
+        if(users[i][j]==action.data.user){
+          if(users[i][j]==rooms[i].master){
+            rooms[i].master=users[i][j+1];
+          }
+          users[i].splice(j,1);
+          socket.leave(rooms[i].name);             //'init'(대기실)방을 떠남
+          socket.join('init');
+          if(users[i].length==0){
+            users.splice(i,1);
+            rooms.splice(i,1);
+          }
+          else{
+            rooms[i].personNum--;
+            socket.broadcast.in(rooms[i].name).emit('action', {type:'someoneExit',data:{users:users[i],exitPerson:action.data.user,someoneNum:action.data.someoneNum}});
+          }
+          io.sockets.in('init').emit('action', {type:'menuReceive',data:rooms});
+          io.sockets.to(socket.id).emit('action',{type:'roomExit',data:""});
+          break;
+        }
+      }
+    }
+    else if(action.type === 'server/start'){
+      for(var i=0;i<rooms.length;i++){
+        if(rooms[i].name==action.data.roomName){
+          rooms[i].state="게임중";
+          break;
+        }
+      }
+      io.sockets.in(action.data.roomName).emit('action', {type:'start',data:{personNum:rooms[i].personNum}});
+      io.sockets.in('init').emit('action', {type:'menuReceive',data:rooms});
+    }
+    else if(action.type === 'server/blocks'){
+      socket.broadcast.in(action.data.roomName).emit('action', {type:'blocks',data:{blocks:action.data.blocks,enemyNum:action.data.myNum}});
+    }
+    else if(action.type === 'server/gameset'){
+      io.sockets.to(socket.id).emit('action',{type:'gameset2'});
+      socket.broadcast.in(action.data.roomName).emit('action', {type:'gameset',data:{blocks:action.data.blocks,enemyNum:action.data.myNum,enemyRank:action.data.rank}});
+      if(action.data.rank==1){
+        for(var i=0;i<rooms.length;i++){
+          if(rooms[i].name==action.data.roomName){
+            rooms[i].state="대기중";
+            break;
+          }
+        }
+        io.sockets.in('init').emit('action', {type:'menuReceive',data:rooms});
+      }
+    }
+    else if(action.type === 'server/gamesetTome'){
+      io.sockets.to(socket.id).emit('action',{type:'gamesetTome'});
+    }
+    else if(action.type === 'server/lineup'){
+      socket.broadcast.in(action.data.roomName).emit('action',{type:'lineup',data:{randomVar:action.data.randomVar}});
+    }
+  });
+});
