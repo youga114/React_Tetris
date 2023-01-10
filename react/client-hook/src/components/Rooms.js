@@ -46,6 +46,20 @@ const Room = styled.div`
 	}
 `;
 
+const PlayingGame = styled.div`
+	text-align: left;
+	padding: 10px;
+	margin: 10px;
+	border-width: 2px;
+	border-style: solid;
+	border-color: navy;
+	color: black;
+	background-color: rgb(255, 216, 216);
+	&:hover {
+		background-color: rgb(242, 200, 200);
+	}
+`;
+
 let Rooms = () => {
 	const createRoom = () => {
 		var name = prompt("방 이름을 입력하세요", "");

@@ -1,16 +1,3 @@
-.startGame {
-	text-align: left;
-	padding: 10px;
-	margin: 10px;
-	border-width: 2px;
-	border-style: solid;
-	border-color: navy;
-	color: black;
-	background-color: rgb(255, 216, 216);
-}
-.startGame:hover {
-	background-color: rgb(242, 200, 200);
-}
 .textDecorationNone {
 	text-decoration: none;
 }
