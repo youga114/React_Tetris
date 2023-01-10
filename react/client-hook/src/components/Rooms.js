@@ -1,5 +1,4 @@
 import React from "react";
-import "./Rooms.css";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import styled from "@emotion/styled";
@@ -90,7 +89,6 @@ let Rooms = () => {
 								<Link
 									to="/tetris"
 									key={room.roomNum}
-									className="textDecorationNone"
 									onClick={() => this._joinFun(room.roomNum)}
 								>
 									<Room>
@@ -107,43 +105,36 @@ let Rooms = () => {
 								<Link
 									to="/tetris"
 									key={room.roomNum}
-									className="textDecorationNone"
 									onClick={() => joinRoom(room.roomNum)}
 								>
-									<div className="startGame">
+									<PlayingGame>
 										방제 : {room.name}{" "}
 										&nbsp;&nbsp;&nbsp;인원 :{" "}
 										{room.personNum}/6 &nbsp;&nbsp;방장 :{" "}
 										{room.master} &nbsp;&nbsp;상태 :{" "}
 										{room.state}
-									</div>
+									</PlayingGame>
 								</Link>
 							);
 						}
 					} else {
 						if (room.state === "대기중") {
 							return (
-								<div className="textDecorationNone">
-									<Room>
-										방제 : {room.name}{" "}
-										&nbsp;&nbsp;&nbsp;인원 :{" "}
-										{room.personNum}/6 &nbsp;&nbsp;방장 :{" "}
-										{room.master} &nbsp;&nbsp;상태 :{" "}
-										{room.state}
-									</Room>
-								</div>
+								<Room>
+									방제 : {room.name} &nbsp;&nbsp;&nbsp;인원 :{" "}
+									{room.personNum}/6 &nbsp;&nbsp;방장 :{" "}
+									{room.master} &nbsp;&nbsp;상태 :{" "}
+									{room.state}
+								</Room>
 							);
 						} else {
 							return (
-								<div className="textDecorationNone">
-									<div className="startGame">
-										방제 : {room.name}{" "}
-										&nbsp;&nbsp;&nbsp;인원 :{" "}
-										{room.personNum}/6 &nbsp;&nbsp;방장 :{" "}
-										{room.master} &nbsp;&nbsp;상태 :{" "}
-										{room.state}
-									</div>
-								</div>
+								<PlayingGame>
+									방제 : {room.name} &nbsp;&nbsp;&nbsp;인원 :{" "}
+									{room.personNum}/6 &nbsp;&nbsp;방장 :{" "}
+									{room.master} &nbsp;&nbsp;상태 :{" "}
+									{room.state}
+								</PlayingGame>
 							);
 						}
 					}
