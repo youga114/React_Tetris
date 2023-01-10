@@ -77,7 +77,7 @@ let Rooms = () => {
 	};
 
 	return (
-		<>
+		<div>
 			<Link to="/tetris">
 				<MakeRoomButton onClick={createRoom}>방 만들기</MakeRoomButton>
 			</Link>
@@ -141,7 +141,7 @@ let Rooms = () => {
 				})}
 			</Menu>
 			<Player>{this.props.me}님 안녕하세요!</Player>
-		</>
+		</div>
 	);
 };
 
