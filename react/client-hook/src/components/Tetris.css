@@ -1,0 +1,421 @@
+.body {
+	background-color: rgb(76, 76, 76);
+	height: 100vh;
+	width: 100vw;
+}
+.base {
+	position: absolute;
+	border-width: 10px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 190px;
+	height: 380px;
+	left: 740px;
+	top: 140px;
+	overflow: hidden;
+}
+.base2 {
+	position: absolute;
+	border-width: 5px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 80px;
+	height: 80px;
+	left: 660px;
+	top: 140px;
+	overflow: hidden;
+}
+.base3 {
+	position: absolute;
+	border-width: 5px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 80px;
+	height: 80px;
+	left: 660px;
+	top: 220px;
+	overflow: hidden;
+}
+.me {
+	position: absolute;
+	top: 114px;
+	left: 740px;
+	width: 205px;
+	height: 20px;
+	text-align: center;
+	font-size: 15px;
+	background-color: white;
+	border-style: solid;
+}
+.you1 {
+	position: absolute;
+	top: 16px;
+	left: 40px;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+}
+.you2 {
+	position: absolute;
+	top: 366px;
+	left: 40px;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+}
+.you3 {
+	position: absolute;
+	top: 16px;
+	left: 210px;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+}
+.you4 {
+	position: absolute;
+	top: 366px;
+	left: 210px;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+}
+.you5 {
+	position: absolute;
+	top: 366px;
+	left: 380px;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+}
+.enemy1 {
+	position: absolute;
+	border-width: 6px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	left: 40px;
+	top: 40px;
+	overflow: hidden;
+}
+.enemy2 {
+	position: absolute;
+	border-width: 6px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	left: 40px;
+	top: 390px;
+	overflow: hidden;
+}
+.enemy3 {
+	position: absolute;
+	border-width: 6px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	left: 210px;
+	top: 40px;
+	overflow: hidden;
+}
+.enemy4 {
+	position: absolute;
+	border-width: 6px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	left: 210px;
+	top: 390px;
+	overflow: hidden;
+}
+.enemy5 {
+	position: absolute;
+	border-width: 6px;
+	border-color: blue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	left: 380px;
+	top: 390px;
+	overflow: hidden;
+}
+.start {
+	padding: 0;
+	position: absolute;
+	border-width: 4px;
+	border-style: outset;
+	border-color: skyblue;
+	background-color: skyblue;
+	width: 80px;
+	height: 30px;
+	left: 1010px;
+	top: 425px;
+	overflow: hidden;
+	text-align: center;
+	font-size: 18px;
+}
+.exit {
+	padding: 0;
+	position: absolute;
+	border-width: 4px;
+	border-style: outset;
+	border-color: skyblue;
+	background-color: skyblue;
+	width: 80px;
+	height: 30px;
+	left: 1110px;
+	top: 425px;
+	overflow: hidden;
+	text-align: center;
+	font-size: 18px;
+}
+.chating {
+	text-align: left;
+	position: absolute;
+	background-color: rgb(212, 244, 250);
+	width: 200px;
+	border-style: solid;
+	height: 200px;
+	position: absolute;
+	top: 140px;
+	left: 1000px;
+	font-size: 10px;
+	overflow: auto;
+	z-index: 500;
+}
+.input {
+	position: absolute;
+	border-style: solid;
+	width: 170px;
+	height: 20px;
+	font-size: 10px;
+	top: 342px;
+	left: 1000px;
+	z-index: 150;
+}
+.send {
+	position: absolute;
+	width: 34px;
+	height: 25px;
+	left: 1171px;
+	top: 342px;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	padding: 0;
+	z-index: 100;
+}
+.a0 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: red;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a1 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: purple;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a2 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: pink;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a3 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: yellow;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a4 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: orange;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a5 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: green;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a6 {
+	position: absolute;
+	border-width: 2px;
+	border-color: white;
+	background-color: blue;
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 76px;
+	top: -19px;
+}
+.a0z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: red;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.a1z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: purple;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.a2z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: pink;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.a3z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: yellow;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.a4z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: orange;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.a5z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: green;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.a6z {
+	position: absolute;
+	border-width: 1px;
+	border-color: white;
+	background-color: blue;
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 76px;
+	top: -19px;
+}
+.aline {
+	position: absolute;
+	border-width: 2px;
+	background-color: rgb(166, 166, 166);
+	border-style: outset;
+	width: 15px;
+	height: 15px;
+	left: 0px;
+	top: 361px;
+}
+.alinez {
+	position: absolute;
+	border-width: 1px;
+	background-color: rgb(166, 166, 166);
+	border-style: outset;
+	width: 11px;
+	height: 11px;
+	left: 0px;
+	top: 361px;
+}
+.rank {
+	position: absolute;
+	color: white;
+	font-size: 80px;
+	left: 75px;
+	top: 135px;
+}
+.rank2 {
+	position: absolute;
+	color: white;
+	font-size: 50px;
+	left: 45px;
+	top: 95px;
+}
