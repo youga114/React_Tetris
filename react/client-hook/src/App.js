@@ -1,15 +1,26 @@
-import React, { Fragment } from "react";
+import React from "react";
 import { BrowserRouter, Route } from "react-router-dom";
-import Rooms from "./components/Rooms";
+import LobbyContainer from "./containers/LobbyContainer";
 import Tetris from "./components/Tetris";
 
 const App = () => {
 	return (
 		<BrowserRouter>
-			<Fragment>
-				<Route exact path="/" component={Rooms} />
-				<Route path="/tetris" component={Tetris} />
-			</Fragment>
+			<div>
+				<Route
+					exact
+					path="/"
+					component={(props) => (
+						<LobbyContainer {...props} />
+					)}
+				/>
+				<Route
+					path="/tetris"
+					component={(props) => (
+						<Tetris {...props} />
+					)}
+				/>
+			</div>
 		</BrowserRouter>
 	);
 };
