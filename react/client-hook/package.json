@@ -20,5 +20,8 @@
 		"test": "react-scripts test --env=jsdom",
 		"eject": "react-scripts eject"
 	},
-	"proxy": "http://localhost:52272"
+	"proxy": "http://localhost:52272",
+	"devDependencies": {
+		"@emotion/babel-plugin": "^11.10.5"
+	}
 }
