@@ -3,10 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import Lobby from "../components/Lobby";
 
 const LobbyContainer = () => {
-	const games = useSelector(
-		(state) => state.gamesReducer.rooms
-	);
-	const me = useSelector((state) => state.userReducer.me);
+	const games = useSelector((state) => state.lobby.rooms);
+	const me = useSelector((state) => state.account.me);
 	const dispatch = useDispatch();
 	const onCreate = useCallback(() =>
 		dispatch({

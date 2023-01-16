@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import Game from "../components/Game";
 
 const GameContainer = (props) => {
-	const me = useSelector((state) => state.userReducer.me);
+	const me = useSelector((state) => state.account.me);
 	const dispatch = useDispatch();
 	const onJoin = useCallback(() =>
 		dispatch({

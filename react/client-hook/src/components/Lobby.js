@@ -42,6 +42,7 @@ const Lobby = ({ games, me, onCreate }) => {
 			<GameList>
 				{games.map((game) => (
 					<GameContainer
+						key={game.roomNum}
 						gameNum={game.roomNum}
 						numberOfPeople={game.personNum}
 						title={game.name}
