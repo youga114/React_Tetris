@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Route } from "react-router-dom";
 import LobbyContainer from "./containers/LobbyContainer";
-import Tetris from "./components/Tetris";
+import Game from "./containers/GameContainer";
 
 const App = () => {
 	return (
@@ -17,7 +17,7 @@ const App = () => {
 				<Route
 					path="/tetris"
 					component={(props) => (
-						<Tetris {...props} />
+						<Game {...props} />
 					)}
 				/>
 			</div>

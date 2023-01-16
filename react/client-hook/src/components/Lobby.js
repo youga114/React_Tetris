@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
-import GameContainer from "../containers/GameContainer";
+import GameItemContainer from "../containers/GameItemContainer";
 
 const GameList = styled.div`
 	position: absolute;
@@ -41,7 +41,7 @@ const Lobby = ({ games, me, onCreate }) => {
 			</Link>
 			<GameList>
 				{games.map((game) => (
-					<GameContainer
+					<GameItemContainer
 						key={game.roomNum}
 						gameNum={game.roomNum}
 						numberOfPeople={game.personNum}
