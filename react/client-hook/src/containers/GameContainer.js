@@ -5,59 +5,25 @@ import Game from "../components/Game";
 const GameContainer = () => {
 	const users = useSelector((state) => state.game.users);
 	const me = useSelector((state) => state.account.me);
-	const chatings = useSelector(
-		(state) => state.game.chatings
-	);
-	const myRoom = useSelector(
-		(state) => state.game.myRoom
-	);
+	const chatings = useSelector((state) => state.game.chatings);
+	const myRoom = useSelector((state) => state.account.myRoom);
 	const myNum = useSelector((state) => state.game.myNum);
 	const state = useSelector((state) => state.game.state);
-	const personNum = useSelector(
-		(state) => state.game.personNum
-	);
-	const blocks = useSelector(
-		(state) => state.game.blocks
-	);
-	const blocks2 = useSelector(
-		(state) => state.game.blocks2
-	);
-	const blocks3 = useSelector(
-		(state) => state.game.blocks3
-	);
-	const blocks4 = useSelector(
-		(state) => state.game.blocks4
-	);
-	const blocks5 = useSelector(
-		(state) => state.game.blocks5
-	);
-	const blocks6 = useSelector(
-		(state) => state.game.blocks6
-	);
-	const enemyRank2 = useSelector(
-		(state) => state.game.enemyRank2
-	);
-	const enemyRank3 = useSelector(
-		(state) => state.game.enemyRank3
-	);
-	const enemyRank4 = useSelector(
-		(state) => state.game.enemyRank4
-	);
-	const enemyRank5 = useSelector(
-		(state) => state.game.enemyRank5
-	);
-	const enemyRank6 = useSelector(
-		(state) => state.game.enemyRank6
-	);
-	const blockKey = useSelector(
-		(state) => state.game.blockKey
-	);
-	const lineup = useSelector(
-		(state) => state.game.lineup
-	);
-	const randomVar = useSelector(
-		(state) => state.game.randomVar
-	);
+	const personNum = useSelector((state) => state.game.personNum);
+	const blocks = useSelector((state) => state.game.blocks);
+	const blocks2 = useSelector((state) => state.game.blocks2);
+	const blocks3 = useSelector((state) => state.game.blocks3);
+	const blocks4 = useSelector((state) => state.game.blocks4);
+	const blocks5 = useSelector((state) => state.game.blocks5);
+	const blocks6 = useSelector((state) => state.game.blocks6);
+	const enemyRank2 = useSelector((state) => state.game.enemyRank2);
+	const enemyRank3 = useSelector((state) => state.game.enemyRank3);
+	const enemyRank4 = useSelector((state) => state.game.enemyRank4);
+	const enemyRank5 = useSelector((state) => state.game.enemyRank5);
+	const enemyRank6 = useSelector((state) => state.game.enemyRank6);
+	const blockKey = useSelector((state) => state.game.blockKey);
+	const lineup = useSelector((state) => state.game.lineup);
+	const randomVar = useSelector((state) => state.game.randomVar);
 
 	const dispatch = useDispatch();
 	const sendMessage = useCallback((text) => {
