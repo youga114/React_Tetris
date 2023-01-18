@@ -280,16 +280,20 @@ const EnemyRanking = styled.div`
 	top: 95px;
 `;
 
-let lastUserFlag = 0;
-let stateValue = 0;
-let lineupFlag = 0;
+const KEY_CODE = {
+	SPACE: 32,
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	DOWN: 40,
+};
+
 let randomVar = Math.floor(Math.random() * 10);
 let blockState = "";
 
 let text = "";
 let rank = "";
 let blockKey = 1;
-let timeIntervalId = 0;
 
 const Game = ({
 	users,
@@ -317,37 +321,67 @@ const Game = ({
 	addLine,
 	updateBlocks,
 }) => {
-	useEffect(() => {
-		window.addEventListener("keydown", getChatingEnterKey, false);
-	}, []);
-
 	const [blocks, setBlocks] = useState([]);
 	const [firstWaitingBlock, setFirstWaitingBlock] = useState([]);
 	const [secondWaitingBlock, setSecondWaitingBlock] = useState([]);
 
-	const isPressingSpace = useRef(false);
+	const timeIntervalId = useRef(0);
+	const downBlockRef = useRef();
+	const getGameControllKeyRef = useRef();
+	const gameControllKeyListener = useRef((event) => {
+		getGameControllKeyRef.current(event);
+	});
 
-	const initialize = useCallback(() => {
-		window.removeEventListener("keydown", getChatingEnterKey, false);
-		window.addEventListener("keydown", getGameControllKey, false);
-		window.addEventListener("keyup", getGameControllKeyUp, false);
+	useEffect(() => {
+		window.addEventListener("keydown", getChatingEnterKey, false);
+		return () => {
+			window.removeEventListener("keydown", getChatingEnterKey, false);
+		};
+	}, []);
+
+	const getChatingEnterKey = useCallback((event) => {
+		let keyCode = 0;
+		if (event == null) {
+			keyCode = window.event.keyCode;
+			window.event.preventDefault();
+		} else {
+			keyCode = event.keyCode;
+		}
+		switch (keyCode) {
+			case 13: //채팅을 보낼 때 필요한 엔터키를 활성화
+				sendMessage();
+				break;
+			default:
+				return;
+		}
+	});
+
+	const initialize = () => {
+		window.addEventListener(
+			"keydown",
+			gameControllKeyListener.current,
+			false
+		);
 
 		setBlocks(_makeFun(createWaitingBlock()[0][1]));
 		setFirstWaitingBlock(createWaitingBlock());
 		setSecondWaitingBlock(createWaitingBlock());
 
-		stateValue = 1;
 		rank = "";
 		blockKey = 1;
 
 		blockState = 0;
-		timeIntervalId = setInterval(downBlock, 300);
-	}, []);
+		timeIntervalId.current = setInterval(() => {
+			downBlockRef.current();
+		}, 300);
+
+		start();
+	};
 
 	const createNextBlocks = () => {
 		checkFilledLine();
 		blockState = 0;
-		setBlocks(_makeFun(firstWaitingBlock[0][1]));
+		setBlocks([...blocks, ..._makeFun(firstWaitingBlock[0][1])]);
 		setFirstWaitingBlock(secondWaitingBlock);
 		setSecondWaitingBlock(createWaitingBlock());
 
@@ -367,12 +401,13 @@ const Game = ({
 	};
 
 	const finishGame = (personNum) => {
-		this.lastUserFlag = 0;
 		rank = personNum;
-		window.removeEventListener("keydown", getGameControllKey, false);
-		window.removeEventListener("keyup", getGameControllKeyUp, false);
-		window.addEventListener("keydown", getChatingEnterKey, false);
-		clearInterval(timeIntervalId);
+		window.removeEventListener(
+			"keydown",
+			gameControllKeyListener.current,
+			false
+		);
+		clearInterval(timeIntervalId.current);
 
 		let deadBlocks = blocks.slice();
 		for (let i = 0; i < deadBlocks.length; i++) {
@@ -392,50 +427,52 @@ const Game = ({
 				block.push([2, these, 19, 43, "red"]);
 				block.push([3, these, 38, 24, "red"]);
 				block.push([4, these, 38, 43, "red"]);
-				return block;
+				break;
 			case 1: //직선
 				block.push([1, these, 30, 22, "purple"]);
 				block.push([2, these, 30, 3, "purple"]);
 				block.push([3, these, 30, 41, "purple"]);
 				block.push([4, these, 30, 60, "purple"]);
-				return block;
+				break;
 			case 2: //기억
 				block.push([1, these, 20, 31, "pink"]);
 				block.push([2, these, 20, 12, "pink"]);
 				block.push([3, these, 20, 50, "pink"]);
 				block.push([4, these, 39, 50, "pink"]);
-				return block;
+				break;
 			case 3: //반대기억
 				block.push([1, these, 20, 31, "yellow"]);
 				block.push([2, these, 20, 12, "yellow"]);
 				block.push([3, these, 20, 50, "yellow"]);
 				block.push([4, these, 39, 12, "yellow"]);
-				return block;
+				break;
 			case 4: //엿
 				block.push([1, these, 20, 31, "orange"]);
 				block.push([2, these, 20, 12, "orange"]);
 				block.push([3, these, 20, 50, "orange"]);
 				block.push([4, these, 39, 31, "orange"]);
-				return block;
+				break;
 			case 5: //반대리을
 				block.push([1, these, 20, 31, "green"]);
 				block.push([2, these, 39, 12, "green"]);
 				block.push([3, these, 20, 50, "green"]);
 				block.push([4, these, 39, 31, "green"]);
-				return block;
+				break;
 			case 6: //리을
 				block.push([1, these, 20, 31, "blue"]);
 				block.push([2, these, 39, 50, "blue"]);
 				block.push([3, these, 20, 12, "blue"]);
 				block.push([4, these, 39, 31, "blue"]);
-				return block;
+				break;
 			default:
-				return block;
+				break;
 		}
+
+		return block;
 	};
 
 	const _makeFun = (these) => {
-		let block = blocks.slice();
+		let block = [];
 		let key = blockKey;
 		switch (these) {
 			case 0: //네모
@@ -481,7 +518,7 @@ const Game = ({
 				block.push([key++, these, 0, 76, "blue"]);
 				break;
 			default:
-				return;
+				break;
 		}
 		blockKey = key;
 		return block;
@@ -526,6 +563,8 @@ const Game = ({
 		down();
 	};
 
+	downBlockRef.current = downBlock;
+
 	const checkFilledLine = () => {
 		let cloneBlocks = [];
 		let length = blocks.length;
@@ -559,7 +598,7 @@ const Game = ({
 		updateBlocks(blocks);
 	};
 
-	const _lineupFun = () => {
+	const upLine = () => {
 		if (this.gage > personNum - 2) {
 			//유저의 공격받은 gage가 방에서 살아남은 인원에 비례
 			for (let i = 0; i < blocks.length - 4; i++) {
@@ -596,23 +635,6 @@ const Game = ({
 		}
 	};
 
-	const getChatingEnterKey = (event) => {
-		let keyCode = 0;
-		if (event == null) {
-			keyCode = window.event.keyCode;
-			window.event.preventDefault();
-		} else {
-			keyCode = event.keyCode;
-		}
-		switch (keyCode) {
-			case 13: //채팅을 보낼 때 필요한 엔터키를 활성화
-				sendMessage();
-				break;
-			default:
-				return;
-		}
-	};
-
 	const getGameControllKey = (event) => {
 		let keyCode = 0;
 		let flag2 = 0;
@@ -623,143 +645,142 @@ const Game = ({
 			keyCode = event.keyCode;
 			event.preventDefault();
 		}
+
 		let length = blocks.length;
 		switch (keyCode) {
-			case 32:
-				if (isPressingSpace.current === false) {
-					isPressingSpace.current = true;
-					let isReachedBottom = false;
-
-					while (isReachedBottom === false) {
-						for (let i = length - 4; i < length; i++) {
-							if (blocks[i][2] >= 380 - 19) {
-								//바닥까지 닿았는지 확인
-								isReachedBottom = true;
-								break;
-							}
-						}
-						if (isReachedBottom === false) {
-							for (let i = length - 4; i < length; i++) {
-								//밑에 걸리는게 있는지 확인
-								for (let j = 0; j < length - 4; j++) {
-									if (
-										blocks[i][3] === blocks[j][3] &&
-										blocks[i][2] + 19 === blocks[j][2]
-									) {
-										flag2 = 1;
-										break;
-									}
-								}
-							}
-						}
-						if (isReachedBottom === false) {
-							let loweredBlocks = blocks.slice();
-							for (let i = length - 4; i < length; i++) {
-								loweredBlocks[i][2] += 19;
-							}
-							setBlocks(loweredBlocks);
-						}
-					}
-
-					createNextBlocks();
-				}
-				return;
-			case 37: // 왼쪽 화살표
-				for (let i = length - 4; i < length; i++) {
-					if (blocks[i][3] - 19 < 0) {
-						//왼쪽 벽에 걸리는게 있는지 확인
-						flag2 = 1;
-						break;
-					}
-				}
-				if (flag2 === 0) {
+			case KEY_CODE.SPACE:
+				while (isReachedBottom(blocks) === false) {
 					for (let i = length - 4; i < length; i++) {
-						//왼쪽에 블록이 있는지 확인
-						for (let j = 0; j < length - 4; j++) {
-							if (
-								blocks[i][3] - 19 === blocks[j][3] &&
-								blocks[i][2] === blocks[j][2]
-							) {
-								flag2 = 1;
-								break;
-							}
-						}
+						blocks[i][2] += 19;
 					}
 				}
-				if (flag2 === 0) {
-					//블록이 왼쪽 벽에 붙어있지 않고 왼쪽에 블록이 없다면 왼쪽으로 한칸 이동
+
+				setBlocks(blocks.slice());
+				createNextBlocks();
+				break;
+			case KEY_CODE.LEFT:
+				if (isReachedLeft(blocks) === false) {
 					for (let i = length - 4; i < length; i++) {
 						blocks[i][3] -= 19;
 					}
+
+					setBlocks(blocks.slice());
 				}
-				return;
-			case 38: // 위쪽 화살표를 활성화
-				_upKey();
 				break;
-			case 39: // 오른쪽 화살표를 활성화
-				for (let i = length - 4; i < length; i++) {
-					if (blocks[i][3] + 19 >= 190) {
-						//오른쪽 벽에 걸리는게 있는지 확인
-						flag2 = 1;
-						break;
-					}
-				}
-				if (flag2 === 0) {
-					//오른쪽에 블록이 있는지 확인
-					for (let i = length - 4; i < length; i++) {
-						for (let j = 0; j < length - 4; j++) {
-							if (
-								blocks[i][3] + 19 === blocks[j][3] &&
-								blocks[i][2] === blocks[j][2]
-							) {
-								flag2 = 1;
-								break;
-							}
-						}
-					}
-				}
-				if (flag2 === 0) {
-					//블록이 오른쪽 벽에 붙어있지 않고 오른에 블록이 없다면 왼쪽으로 한칸 이동
+			case KEY_CODE.UP:
+				rotateBlock();
+				break;
+			case KEY_CODE.RIGHT:
+				if (isReachedRight(blocks) === false) {
 					for (let i = length - 4; i < length; i++) {
 						blocks[i][3] += 19;
 					}
+
+					setBlocks(blocks.slice());
 				}
-				return;
-			case 40: // 아래쪽 화살표를 활성화
-				for (let i = length - 4; i < length; i++) {
-					if (blocks[i][2] >= 380 - 19) {
-						//현재 움직이는 블록이 맨밑에 있지 않은지 확인
-						flag2 = 1;
-						break;
-					}
-				}
-				if (flag2 === 0) {
-					for (let i = length - 4; i < length; i++) {
-						for (let j = 0; j < length - 4; j++) {
-							if (
-								blocks[i][3] === blocks[j][3] &&
-								blocks[i][2] + 19 === blocks[j][2]
-							) {
-								//현재 움직이는 블록 바로 밑칸에 다른 블록이 없는지 확인
-								flag2 = 1;
-								break;
-							}
-						}
-					}
-				}
-				if (flag2 === 0) {
+				break;
+			case KEY_CODE.DOWN:
+				if (isReachedDown(blocks) === false) {
 					for (let i = length - 4; i < length; i++) {
 						//현재 움직이는 블록이 맽밑에 있지 않고 바로 밑칸에 다른 블록이 없다면 밑으로 한칸 이동
 						blocks[i][2] += 19;
 					}
+
+					setBlocks(blocks.slice());
 				}
-				return;
+				break;
 			default:
 				break;
 		}
 	};
 
-	const _upKey = () => {
+	getGameControllKeyRef.current = getGameControllKey;
+
+	const isReachedBottom = useCallback((blocks) => {
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			if (blocks[i][2] >= 380 - 19) {
+				return true;
+			}
+		}
+
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			for (let j = 0; j < blocks.length - 4; j++) {
+				if (
+					blocks[i][3] === blocks[j][3] &&
+					blocks[i][2] + 19 === blocks[j][2]
+				) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	});
+
+	const isReachedLeft = useCallback((blocks) => {
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			if (blocks[i][3] - 19 < 0) {
+				return true;
+			}
+		}
+
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			for (let j = 0; j < blocks.length - 4; j++) {
+				if (
+					blocks[i][3] - 19 === blocks[j][3] &&
+					blocks[i][2] === blocks[j][2]
+				) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	});
+
+	const isReachedRight = useCallback((blocks) => {
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			if (blocks[i][3] + 19 >= 190) {
+				return true;
+			}
+		}
+
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			for (let j = 0; j < blocks.length - 4; j++) {
+				if (
+					blocks[i][3] + 19 === blocks[j][3] &&
+					blocks[i][2] === blocks[j][2]
+				) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	});
+
+	const isReachedDown = useCallback((blocks) => {
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			if (blocks[i][2] >= 380 - 19) {
+				return true;
+			}
+		}
+
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			for (let j = 0; j < blocks.length - 4; j++) {
+				if (
+					blocks[i][3] === blocks[j][3] &&
+					blocks[i][2] + 19 === blocks[j][2]
+				) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	});
+
+	const rotateBlock = () => {
 		let blocks = blocks;
 		let appear = blocks.length - 1;
 		let these = blocks[appear][1];
@@ -1177,41 +1198,6 @@ const Game = ({
 		return 1; //넘어가지 않으면 true
 	};
 
-	const getGameControllKeyUp = (event) => {
-		let keyCode;
-		if (event == null) {
-			keyCode = window.event.keyCode;
-			window.event.preventDefault();
-		} else {
-			keyCode = event.keyCode;
-			event.preventDefault();
-		}
-
-		const TAKE_OFF_SPACE_KEY = 32;
-		switch (keyCode) {
-			case TAKE_OFF_SPACE_KEY:
-				isPressingSpace.current = false;
-				break;
-			default:
-				break;
-		}
-	};
-
-	if (state === "게임중" && stateValue === 0) {
-		lastUserFlag = 1;
-		initialize();
-	}
-	// if (personNum === 1 && state === "대기중") {
-	// 	stateValue = 0;
-	// 	if (lastUserFlag === 1) {
-	// 		finishGame(personNum);
-	// 	}
-	// }
-	// if (lineup !== lineupFlag) {
-	// 	lineupFlag++;
-	// 	_lineupFun();
-	// }
-
 	return (
 		<Body>
 			<MyGameWindow key="1">
@@ -1223,7 +1209,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={BlockStyle}
 							style={blockStyle}
 						/>
@@ -1240,7 +1226,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={BlockStyle}
 							style={blockStyle}
 						/>
@@ -1256,7 +1242,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={BlockStyle}
 							style={blockStyle}
 						/>
@@ -1272,7 +1258,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1289,7 +1275,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1306,7 +1292,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1323,7 +1309,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1340,7 +1326,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={item[0]}
+							key={`${item[0]}-${index}`}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1349,14 +1335,7 @@ const Game = ({
 				{<EnemyRanking>{enemyRank6}</EnemyRanking>}
 			</EnemyWindow5>
 			{state !== "게임중" && users[0] === me && (
-				<StartButton
-					onClick={() => {
-						this.stateValue = 0;
-						start();
-					}}
-				>
-					시작하기
-				</StartButton>
+				<StartButton onClick={initialize}>시작하기</StartButton>
 			)}
 			{state === "대기중" ? (
 				<Link to="/" onClick={leave}>

@@ -47,8 +47,7 @@ function reducer(state = initialState, action) {
 			chatContent.push([
 				"chat" + chatKey++,
 				"join",
-				action.data.joinPerson +
-					"님이 입장하셨습니다.",
+				action.data.joinPerson + "님이 입장하셨습니다.",
 			]);
 			return {
 				...state,
@@ -58,10 +57,7 @@ function reducer(state = initialState, action) {
 		case "someoneChat":
 			return {
 				...state,
-				chatings: insertItem(
-					state.chatings,
-					action
-				),
+				chatings: insertItem(state.chatings, action),
 			};
 		case "someoneExit":
 			if (action.data.someoneNum < state.myNum) {
@@ -71,8 +67,7 @@ function reducer(state = initialState, action) {
 			chatContent2.push([
 				"chat" + chatKey++,
 				"join",
-				action.data.exitPerson +
-					"님이 퇴장하셨습니다.",
+				action.data.exitPerson + "님이 퇴장하셨습니다.",
 			]);
 			return {
 				...state,
