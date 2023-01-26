@@ -281,6 +281,7 @@ const EnemyRanking = styled.div`
 `;
 
 const KEY_CODE = {
+	ENTER: 13,
 	SPACE: 32,
 	LEFT: 37,
 	UP: 38,
@@ -288,12 +289,227 @@ const KEY_CODE = {
 	DOWN: 40,
 };
 
-let randomVar = Math.floor(Math.random() * 10);
-let blockState = "";
+const BLOCK_SHAPE = {
+	SQUARE: 0,
+	LINEAR: 1,
+	FALCI_SHAPE: 2,
+	REVERSE_FALCI_SHAPE: 3,
+	MOUNTINE_SHAPE: 4,
+	BENT_UP_LINE: 5,
+	BENT_DOWN_LINE: 6,
+};
 
-let text = "";
-let rank = "";
+const BLOCK_SIZE = {
+	WIDTH: 19,
+	HEIGHT: 19,
+};
+
+let rotateQuarterCount = 0;
 let blockKey = 1;
+let upLineCount = 1;
+
+const createWaitingBlock = () => {
+	let blocks = [];
+
+	switch (Math.floor(Math.random() * 7)) {
+		case BLOCK_SHAPE.SQUARE:
+			blocks.push([1, BLOCK_SHAPE.SQUARE, 19, 24, "red"]);
+			blocks.push([2, BLOCK_SHAPE.SQUARE, 19, 43, "red"]);
+			blocks.push([3, BLOCK_SHAPE.SQUARE, 38, 24, "red"]);
+			blocks.push([4, BLOCK_SHAPE.SQUARE, 38, 43, "red"]);
+			break;
+		case BLOCK_SHAPE.LINEAR:
+			blocks.push([1, BLOCK_SHAPE.LINEAR, 30, 22, "purple"]);
+			blocks.push([2, BLOCK_SHAPE.LINEAR, 30, 3, "purple"]);
+			blocks.push([3, BLOCK_SHAPE.LINEAR, 30, 41, "purple"]);
+			blocks.push([4, BLOCK_SHAPE.LINEAR, 30, 60, "purple"]);
+			break;
+		case BLOCK_SHAPE.FALCI_SHAPE:
+			blocks.push([1, BLOCK_SHAPE.FALCI_SHAPE, 20, 31, "pink"]);
+			blocks.push([2, BLOCK_SHAPE.FALCI_SHAPE, 20, 12, "pink"]);
+			blocks.push([3, BLOCK_SHAPE.FALCI_SHAPE, 20, 50, "pink"]);
+			blocks.push([4, BLOCK_SHAPE.FALCI_SHAPE, 39, 50, "pink"]);
+			break;
+		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
+			blocks.push([1, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 20, 31, "yellow"]);
+			blocks.push([2, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 20, 12, "yellow"]);
+			blocks.push([3, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 20, 50, "yellow"]);
+			blocks.push([4, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 39, 12, "yellow"]);
+			break;
+		case BLOCK_SHAPE.MOUNTINE_SHAPE:
+			blocks.push([1, BLOCK_SHAPE.MOUNTINE_SHAPE, 20, 31, "orange"]);
+			blocks.push([2, BLOCK_SHAPE.MOUNTINE_SHAPE, 20, 12, "orange"]);
+			blocks.push([3, BLOCK_SHAPE.MOUNTINE_SHAPE, 20, 50, "orange"]);
+			blocks.push([4, BLOCK_SHAPE.MOUNTINE_SHAPE, 39, 31, "orange"]);
+			break;
+		case BLOCK_SHAPE.BENT_UP_LINE:
+			blocks.push([1, BLOCK_SHAPE.BENT_UP_LINE, 20, 31, "green"]);
+			blocks.push([2, BLOCK_SHAPE.BENT_UP_LINE, 39, 12, "green"]);
+			blocks.push([3, BLOCK_SHAPE.BENT_UP_LINE, 20, 50, "green"]);
+			blocks.push([4, BLOCK_SHAPE.BENT_UP_LINE, 39, 31, "green"]);
+			break;
+		case BLOCK_SHAPE.BENT_DOWN_LINE:
+			blocks.push([1, BLOCK_SHAPE.BENT_DOWN_LINE, 20, 31, "blue"]);
+			blocks.push([2, BLOCK_SHAPE.BENT_DOWN_LINE, 39, 50, "blue"]);
+			blocks.push([3, BLOCK_SHAPE.BENT_DOWN_LINE, 20, 12, "blue"]);
+			blocks.push([4, BLOCK_SHAPE.BENT_DOWN_LINE, 39, 31, "blue"]);
+			break;
+		default:
+			break;
+	}
+
+	return blocks;
+};
+
+const makeMainBlock = (blockID) => {
+	let blocks = [];
+	switch (blockID) {
+		case BLOCK_SHAPE.SQUARE:
+			blocks.push([blockKey++, blockID, -19, 76, "red"]);
+			blocks.push([blockKey++, blockID, -19, 95, "red"]);
+			blocks.push([blockKey++, blockID, 0, 76, "red"]);
+			blocks.push([blockKey++, blockID, 0, 95, "red"]);
+			break;
+		case BLOCK_SHAPE.LINEAR:
+			blocks.push([blockKey++, blockID, -19, 76, "purple"]);
+			blocks.push([blockKey++, blockID, -19, 57, "purple"]);
+			blocks.push([blockKey++, blockID, -19, 95, "purple"]);
+			blocks.push([blockKey++, blockID, -19, 114, "purple"]);
+			break;
+		case BLOCK_SHAPE.FALCI_SHAPE:
+			blocks.push([blockKey++, blockID, -19, 76, "pink"]);
+			blocks.push([blockKey++, blockID, -19, 57, "pink"]);
+			blocks.push([blockKey++, blockID, -19, 95, "pink"]);
+			blocks.push([blockKey++, blockID, 0, 95, "pink"]);
+			break;
+		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
+			blocks.push([blockKey++, blockID, -19, 76, "yellow"]);
+			blocks.push([blockKey++, blockID, -19, 57, "yellow"]);
+			blocks.push([blockKey++, blockID, -19, 95, "yellow"]);
+			blocks.push([blockKey++, blockID, 0, 57, "yellow"]);
+			break;
+		case BLOCK_SHAPE.MOUNTINE_SHAPE:
+			blocks.push([blockKey++, blockID, -19, 76, "orange"]);
+			blocks.push([blockKey++, blockID, -19, 57, "orange"]);
+			blocks.push([blockKey++, blockID, -19, 95, "orange"]);
+			blocks.push([blockKey++, blockID, 0, 76, "orange"]);
+			break;
+		case BLOCK_SHAPE.BENT_UP_LINE:
+			blocks.push([blockKey++, blockID, -19, 76, "green"]);
+			blocks.push([blockKey++, blockID, 0, 57, "green"]);
+			blocks.push([blockKey++, blockID, -19, 95, "green"]);
+			blocks.push([blockKey++, blockID, 0, 76, "green"]);
+			break;
+		case BLOCK_SHAPE.BENT_DOWN_LINE:
+			blocks.push([blockKey++, blockID, -19, 76, "blue"]);
+			blocks.push([blockKey++, blockID, 0, 95, "blue"]);
+			blocks.push([blockKey++, blockID, -19, 57, "blue"]);
+			blocks.push([blockKey++, blockID, 0, 76, "blue"]);
+			break;
+		default:
+			break;
+	}
+
+	return blocks;
+};
+
+const isReachedBottom = (blocks) => {
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		if (blocks[i][2] >= 380 - BLOCK_SIZE.HEIGHT) {
+			return true;
+		}
+	}
+
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		for (let j = 0; j < blocks.length - 4; j++) {
+			if (
+				blocks[i][3] === blocks[j][3] &&
+				blocks[i][2] + BLOCK_SIZE.HEIGHT === blocks[j][2]
+			) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+};
+
+const isReachedLeft = (blocks) => {
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		if (blocks[i][3] - 19 < 0) {
+			return true;
+		}
+	}
+
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		for (let j = 0; j < blocks.length - 4; j++) {
+			if (
+				blocks[i][3] - 19 === blocks[j][3] &&
+				blocks[i][2] === blocks[j][2]
+			) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+};
+
+const isReachedRight = (blocks) => {
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		if (blocks[i][3] + 19 >= 190) {
+			return true;
+		}
+	}
+
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		for (let j = 0; j < blocks.length - 4; j++) {
+			if (
+				blocks[i][3] + 19 === blocks[j][3] &&
+				blocks[i][2] === blocks[j][2]
+			) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+};
+
+const isReachedDown = (blocks) => {
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		if (blocks[i][2] >= 380 - BLOCK_SIZE.HEIGHT) {
+			return true;
+		}
+	}
+
+	for (let i = blocks.length - 4; i < blocks.length; i++) {
+		for (let j = 0; j < blocks.length - 4; j++) {
+			if (
+				blocks[i][3] === blocks[j][3] &&
+				blocks[i][2] + BLOCK_SIZE.HEIGHT === blocks[j][2]
+			) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+};
+
+const isOverlapped = (blocks) => {
+	for (let i = 0; i < blocks.length - 4; i++) {
+		for (let j = blocks.length - 4; j < blocks.length; j++) {
+			if (
+				blocks[j][2] === blocks[i][2] &&
+				blocks[j][3] === blocks[i][3]
+			) {
+				return false;
+			}
+		}
+	}
+	return true;
+};
 
 const Game = ({
 	users,
@@ -324,9 +540,12 @@ const Game = ({
 	const [blocks, setBlocks] = useState([]);
 	const [firstWaitingBlock, setFirstWaitingBlock] = useState([]);
 	const [secondWaitingBlock, setSecondWaitingBlock] = useState([]);
+	const [chatingInputText, setChatingInputText] = useState("");
+	const [rank, setRank] = useState("");
 
 	const timeIntervalId = useRef(0);
 	const downBlockRef = useRef();
+	const inputEl = useRef(null);
 	const getGameControllKeyRef = useRef();
 	const gameControllKeyListener = useRef((event) => {
 		getGameControllKeyRef.current(event);
@@ -348,7 +567,7 @@ const Game = ({
 			keyCode = event.keyCode;
 		}
 		switch (keyCode) {
-			case 13: //채팅을 보낼 때 필요한 엔터키를 활성화
+			case KEY_CODE.ENTER:
 				sendMessage();
 				break;
 			default:
@@ -363,14 +582,14 @@ const Game = ({
 			false
 		);
 
-		setBlocks(_makeFun(createWaitingBlock()[0][1]));
+		blockKey = 1;
+		rotateQuarterCount = 0;
+
+		setRank("");
+		setBlocks(makeMainBlock(createWaitingBlock()[0][1]));
 		setFirstWaitingBlock(createWaitingBlock());
 		setSecondWaitingBlock(createWaitingBlock());
 
-		rank = "";
-		blockKey = 1;
-
-		blockState = 0;
 		timeIntervalId.current = setInterval(() => {
 			downBlockRef.current();
 		}, 300);
@@ -379,9 +598,9 @@ const Game = ({
 	};
 
 	const createNextBlocks = () => {
-		checkFilledLine();
-		blockState = 0;
-		setBlocks([...blocks, ..._makeFun(firstWaitingBlock[0][1])]);
+		clearFilledLine();
+		rotateQuarterCount = 0;
+		setBlocks([...blocks, ...makeMainBlock(firstWaitingBlock[0][1])]);
 		setFirstWaitingBlock(secondWaitingBlock);
 		setSecondWaitingBlock(createWaitingBlock());
 
@@ -392,7 +611,6 @@ const Game = ({
 					blocks[i][2] === blocks[j][2] &&
 					blocks[i][3] === blocks[j][3]
 				) {
-					//생성된 블록이 위치한 곳에 다른 블록이 겹친다면
 					finishGame(personNum);
 					return;
 				}
@@ -401,7 +619,7 @@ const Game = ({
 	};
 
 	const finishGame = (personNum) => {
-		rank = personNum;
+		setRank(personNum);
 		window.removeEventListener(
 			"keydown",
 			gameControllKeyListener.current,
@@ -418,112 +636,6 @@ const Game = ({
 		setBlocks(deadBlocks);
 	};
 
-	const createWaitingBlock = () => {
-		let block = [];
-		let these = Math.floor(Math.random() * 7); //랜덤하게 2번째 미리보기의 블록을 채움
-		switch (these) {
-			case 0: //네모
-				block.push([1, these, 19, 24, "red"]);
-				block.push([2, these, 19, 43, "red"]);
-				block.push([3, these, 38, 24, "red"]);
-				block.push([4, these, 38, 43, "red"]);
-				break;
-			case 1: //직선
-				block.push([1, these, 30, 22, "purple"]);
-				block.push([2, these, 30, 3, "purple"]);
-				block.push([3, these, 30, 41, "purple"]);
-				block.push([4, these, 30, 60, "purple"]);
-				break;
-			case 2: //기억
-				block.push([1, these, 20, 31, "pink"]);
-				block.push([2, these, 20, 12, "pink"]);
-				block.push([3, these, 20, 50, "pink"]);
-				block.push([4, these, 39, 50, "pink"]);
-				break;
-			case 3: //반대기억
-				block.push([1, these, 20, 31, "yellow"]);
-				block.push([2, these, 20, 12, "yellow"]);
-				block.push([3, these, 20, 50, "yellow"]);
-				block.push([4, these, 39, 12, "yellow"]);
-				break;
-			case 4: //엿
-				block.push([1, these, 20, 31, "orange"]);
-				block.push([2, these, 20, 12, "orange"]);
-				block.push([3, these, 20, 50, "orange"]);
-				block.push([4, these, 39, 31, "orange"]);
-				break;
-			case 5: //반대리을
-				block.push([1, these, 20, 31, "green"]);
-				block.push([2, these, 39, 12, "green"]);
-				block.push([3, these, 20, 50, "green"]);
-				block.push([4, these, 39, 31, "green"]);
-				break;
-			case 6: //리을
-				block.push([1, these, 20, 31, "blue"]);
-				block.push([2, these, 39, 50, "blue"]);
-				block.push([3, these, 20, 12, "blue"]);
-				block.push([4, these, 39, 31, "blue"]);
-				break;
-			default:
-				break;
-		}
-
-		return block;
-	};
-
-	const _makeFun = (these) => {
-		let block = [];
-		let key = blockKey;
-		switch (these) {
-			case 0: //네모
-				block.push([key++, these, -19, 76, "red"]);
-				block.push([key++, these, -19, 95, "red"]);
-				block.push([key++, these, 0, 76, "red"]);
-				block.push([key++, these, 0, 95, "red"]);
-				break;
-			case 1: //직선
-				block.push([key++, these, -19, 76, "purple"]);
-				block.push([key++, these, -19, 57, "purple"]);
-				block.push([key++, these, -19, 95, "purple"]);
-				block.push([key++, these, -19, 114, "purple"]);
-				break;
-			case 2: //기억
-				block.push([key++, these, -19, 76, "pink"]);
-				block.push([key++, these, -19, 57, "pink"]);
-				block.push([key++, these, -19, 95, "pink"]);
-				block.push([key++, these, 0, 95, "pink"]);
-				break;
-			case 3: //반대기억
-				block.push([key++, these, -19, 76, "yellow"]);
-				block.push([key++, these, -19, 57, "yellow"]);
-				block.push([key++, these, -19, 95, "yellow"]);
-				block.push([key++, these, 0, 57, "yellow"]);
-				break;
-			case 4: //엿
-				block.push([key++, these, -19, 76, "orange"]);
-				block.push([key++, these, -19, 57, "orange"]);
-				block.push([key++, these, -19, 95, "orange"]);
-				block.push([key++, these, 0, 76, "orange"]);
-				break;
-			case 5: //반대리을
-				block.push([key++, these, -19, 76, "green"]);
-				block.push([key++, these, 0, 57, "green"]);
-				block.push([key++, these, -19, 95, "green"]);
-				block.push([key++, these, 0, 76, "green"]);
-				break;
-			case 6: //리을
-				block.push([key++, these, -19, 76, "blue"]);
-				block.push([key++, these, 0, 95, "blue"]);
-				block.push([key++, these, -19, 57, "blue"]);
-				block.push([key++, these, 0, 76, "blue"]);
-				break;
-			default:
-				break;
-		}
-		blockKey = key;
-		return block;
-	};
-
 	const downBlock = () => {
 		let lowerdBlocks = blocks.slice();
 		let length = lowerdBlocks.length;
@@ -532,7 +644,8 @@ const Game = ({
 			for (let j = length - 4; j < length; j++) {
 				if (
 					lowerdBlocks[i][3] === lowerdBlocks[j][3] &&
-					lowerdBlocks[i][2] === lowerdBlocks[j][2] + 19
+					lowerdBlocks[i][2] ===
+						lowerdBlocks[j][2] + BLOCK_SIZE.HEIGHT
 				) {
 					flag = 1;
 					break;
@@ -545,7 +658,7 @@ const Game = ({
 
 		if (flag === 0) {
 			for (let i = length - 4; i < length; i++) {
-				if (lowerdBlocks[i][2] + 19 >= 380) {
+				if (lowerdBlocks[i][2] + BLOCK_SIZE.HEIGHT >= 380) {
 					flag = 1;
 				}
 			}
@@ -555,7 +668,7 @@ const Game = ({
 			createNextBlocks();
 		} else {
 			for (let i = 0; i < 4; i++) {
-				lowerdBlocks[length - 1 - i][2] += 19;
+				lowerdBlocks[length - 1 - i][2] += BLOCK_SIZE.HEIGHT;
 			}
 			setBlocks(lowerdBlocks);
 		}
@@ -565,50 +678,45 @@ const Game = ({
 
 	downBlockRef.current = downBlock;
 
-	const checkFilledLine = () => {
-		let cloneBlocks = [];
-		let length = blocks.length;
-		for (let i = 0; i < length; i++) {
-			cloneBlocks.push(blocks[i]);
-		}
+	const clearFilledLine = () => {
+		let clearedBlocks = blocks.slice();
 
-		for (let i = length - 4; i < length; i++) {
-			let myTopNumber = [];
-			let myTop;
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			let sameHeightBlockIdx = [];
+			let blockHeight = blocks[i][2];
 			for (let j = 0; j < blocks.length; j++) {
-				myTop = cloneBlocks[i][2];
-				if (blocks[j][2] === myTop) {
-					myTopNumber.push(j);
+				blockHeight = blocks[i][2];
+				if (blocks[j][2] === blockHeight) {
+					sameHeightBlockIdx.push(j);
 				}
 			}
-			if (myTopNumber.length > 9) {
-				//한 줄이 꽉 차 있다면(10칸이 다 채워져 있다면)
+			if (sameHeightBlockIdx.length > 9) {
 				for (let k = 9; k >= 0; k--) {
-					blocks.splice(myTopNumber[k], 1); //그 줄에 있는 블록을 모두 지우고
+					clearedBlocks.splice(sameHeightBlockIdx[k], 1);
 				}
 				for (let j = 0; j < blocks.length; j++) {
-					if (blocks[j][2] < myTop) {
-						blocks[j][2] += 19; //지운 블록들보다 위에 있는 블록들을 밑으로 한칸씩 내림
+					if (blocks[j][2] < blockHeight) {
+						blocks[j][2] += BLOCK_SIZE.HEIGHT;
 					}
 				}
 				addLine();
 			}
 		}
 
-		updateBlocks(blocks);
+		updateBlocks(clearedBlocks);
 	};
 
 	const upLine = () => {
-		if (this.gage > personNum - 2) {
-			//유저의 공격받은 gage가 방에서 살아남은 인원에 비례
+		let emptyBlockIdx = Math.floor(Math.random() * 10);
+
+		if (upLineCount > personNum - 2) {
+			//유저의 공격받은 upLineCount가 방에서 살아남은 인원에 비례
 			for (let i = 0; i < blocks.length - 4; i++) {
-				blocks[i][2] -= 19; //현재 존재하는 블록들을 한줄씩 올림
+				blocks[i][2] -= BLOCK_SIZE.HEIGHT;
 			}
 			for (let i = 0; i < 10; i++) {
-				if (randomVar !== i) {
-					blocks.splice(0, 0, [blockKey, "line", 361, 19 * i]); //블록들의 정보를 보관하는 배열에 이 블록들을 앞으로 넣음
-
-					blockKey += 1;
+				if (emptyBlockIdx !== i) {
+					blocks.splice(0, 0, [blockKey++, "line", 361, 19 * i]); //블록들의 정보를 보관하는 배열에 이 블록들을 앞으로 넣음
 				}
 			}
 			for (let i = blocks.length - 4; i < blocks.length; i++) {
@@ -623,15 +731,15 @@ const Game = ({
 							k < blocks.length;
 							k++
 						) {
-							blocks[k][2] -= 19; //현재 떨어지고 있는 블록을 한칸씩 올려버림
+							blocks[k][2] -= BLOCK_SIZE.HEIGHT; //현재 떨어지고 있는 블록을 한칸씩 올려버림
 						}
 						j -= 1;
 					}
 				}
 			}
-			this.gage = 1;
+			upLineCount = 1;
 		} else {
-			this.gage++;
+			upLineCount++;
 		}
 	};
 
@@ -651,7 +759,7 @@ const Game = ({
 			case KEY_CODE.SPACE:
 				while (isReachedBottom(blocks) === false) {
 					for (let i = length - 4; i < length; i++) {
-						blocks[i][2] += 19;
+						blocks[i][2] += BLOCK_SIZE.HEIGHT;
 					}
 				}
 
@@ -683,7 +791,7 @@ const Game = ({
 				if (isReachedDown(blocks) === false) {
 					for (let i = length - 4; i < length; i++) {
 						//현재 움직이는 블록이 맽밑에 있지 않고 바로 밑칸에 다른 블록이 없다면 밑으로 한칸 이동
-						blocks[i][2] += 19;
+						blocks[i][2] += BLOCK_SIZE.HEIGHT;
 					}
 
 					setBlocks(blocks.slice());
@@ -696,486 +804,387 @@ const Game = ({
 
 	getGameControllKeyRef.current = getGameControllKey;
 
-	const isReachedBottom = useCallback((blocks) => {
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			if (blocks[i][2] >= 380 - 19) {
-				return true;
-			}
-		}
-
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			for (let j = 0; j < blocks.length - 4; j++) {
-				if (
-					blocks[i][3] === blocks[j][3] &&
-					blocks[i][2] + 19 === blocks[j][2]
-				) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	});
-
-	const isReachedLeft = useCallback((blocks) => {
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			if (blocks[i][3] - 19 < 0) {
-				return true;
-			}
-		}
-
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			for (let j = 0; j < blocks.length - 4; j++) {
-				if (
-					blocks[i][3] - 19 === blocks[j][3] &&
-					blocks[i][2] === blocks[j][2]
-				) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	});
-
-	const isReachedRight = useCallback((blocks) => {
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			if (blocks[i][3] + 19 >= 190) {
-				return true;
-			}
-		}
-
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			for (let j = 0; j < blocks.length - 4; j++) {
-				if (
-					blocks[i][3] + 19 === blocks[j][3] &&
-					blocks[i][2] === blocks[j][2]
-				) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	});
-
-	const isReachedDown = useCallback((blocks) => {
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			if (blocks[i][2] >= 380 - 19) {
-				return true;
-			}
-		}
-
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			for (let j = 0; j < blocks.length - 4; j++) {
-				if (
-					blocks[i][3] === blocks[j][3] &&
-					blocks[i][2] + 19 === blocks[j][2]
-				) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-	});
-
 	const rotateBlock = () => {
-		let blocks = blocks;
-		let appear = blocks.length - 1;
-		let these = blocks[appear][1];
-		let state = blockState;
-		if (these === 4) {
-			//엿모양 돌리기
-			if (state === 0) {
-				blocks[appear][3] -= 19;
-				blocks[appear - 1][3] -= 38;
-				blocks[appear - 1][2] -= 19;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear][3] += 19;
-					blocks[appear - 1][3] += 38;
-					blocks[appear - 1][2] += 19;
-				} else {
-					state++;
-				}
-			} else if (state === 1) {
-				let howManyRight = 0;
-				blocks[appear - 1][3] += 19;
-				blocks[appear - 1][2] += 38;
-				blocks[appear - 2][3] += 38;
-				blocks[appear - 2][2] += 19;
-				if (this._rightSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 1][3] -= 19;
-					blocks[appear - 1][2] -= 38;
-					blocks[appear - 2][3] -= 38;
-					blocks[appear - 2][2] -= 19;
-					while (howManyRight !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					state++;
-				}
-			} else if (state === 2) {
-				blocks[appear - 1][3] += 19;
-				blocks[appear - 1][2] -= 19;
-				blocks[appear][3] += 38;
-				blocks[appear][2] -= 38;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 1][3] -= 19;
-					blocks[appear - 1][2] += 19;
-					blocks[appear][3] -= 38;
-					blocks[appear][2] += 38;
-				} else {
-					state++;
-				}
-			} else {
-				let howManyleft = 0;
-				blocks[appear - 2][3] -= 38;
-				blocks[appear - 2][2] -= 19;
-				blocks[appear][3] -= 19;
-				blocks[appear][2] += 38;
-				if (this._leftSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] += 38;
-					blocks[appear - 2][2] += 19;
-					blocks[appear][3] += 19;
-					blocks[appear][2] -= 38;
-					while (howManyleft !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					state = 0;
-				}
-			}
-		}
-		if (these === 1) {
-			//직선돌리기
-			if (state === 0) {
-				blocks[appear - 2][3] += 19;
-				blocks[appear - 2][2] -= 19;
-				blocks[appear - 1][3] -= 19;
-				blocks[appear - 1][2] -= 38;
-				blocks[appear][3] -= 38;
-				blocks[appear][2] -= 57;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] -= 19;
-					blocks[appear - 2][2] += 19;
-					blocks[appear - 1][3] += 19;
-					blocks[appear - 1][2] += 38;
-					blocks[appear][3] += 38;
-					blocks[appear][2] += 57;
-				} else {
-					state++;
-				}
-			} else {
-				let howManyleft = 0;
-				let howManyRight = 0;
-				blocks[appear - 2][3] -= 19;
-				blocks[appear - 2][2] += 19;
-				blocks[appear - 1][3] += 19;
-				blocks[appear - 1][2] += 38;
-				blocks[appear][3] += 38;
-				blocks[appear][2] += 57;
-				if (this._leftSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (this._rightSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] += 19;
-					blocks[appear - 2][2] -= 19;
-					blocks[appear - 1][3] -= 19;
-					blocks[appear - 1][2] -= 38;
-					blocks[appear][3] -= 38;
-					blocks[appear][2] -= 57;
-					while (howManyleft !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-					while (howManyRight !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					state = 0;
-				}
-			}
-		}
-		if (these === 2) {
-			//기억돌리기
-			if (state === 0) {
-				blocks[appear - 3][2] -= 19;
-				blocks[appear - 1][3] -= 38;
-				blocks[appear - 1][2] += 19;
-				blocks[appear][3] -= 38;
-				blocks[appear][2] -= 38;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 3][2] += 19;
-					blocks[appear - 1][3] += 38;
-					blocks[appear - 1][2] -= 19;
-					blocks[appear][3] += 38;
-					blocks[appear][2] += 38;
-				} else {
-					state++;
-				}
-			} else if (state === 1) {
-				let howManyRight = 0;
-				blocks[appear - 3][2] += 38;
-				blocks[appear][3] += 38;
-				blocks[appear][2] += 38;
-				if (this._rightSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 3][2] -= 38;
-					blocks[appear][3] -= 38;
-					blocks[appear][2] -= 38;
-					while (howManyRight !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					state++;
-				}
-			} else if (state === 2) {
-				blocks[appear - 2][3] += 38;
-				blocks[appear - 2][2] -= 19;
-				blocks[appear - 1][3] += 38;
-				blocks[appear - 1][2] -= 19;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] -= 38;
-					blocks[appear - 2][2] += 19;
-					blocks[appear - 1][3] -= 38;
-					blocks[appear - 1][2] += 19;
-				} else {
-					state++;
-				}
-			} else {
-				let howManyleft = 0;
-				blocks[appear - 3][2] -= 19;
-				blocks[appear - 2][3] -= 38;
-				blocks[appear - 2][2] += 19;
-				if (this._leftSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 3][2] += 19;
-					blocks[appear - 2][3] += 38;
-					blocks[appear - 2][2] -= 19;
-					while (howManyleft !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					state = 0;
-				}
-			}
-		}
-		if (these === 3) {
-			//반대기억돌리기
-			if (state === 0) {
-				blocks[appear - 3][2] += 19;
-				blocks[appear - 1][3] -= 38;
-				blocks[appear - 1][2] -= 19;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 3][2] -= 19;
-					blocks[appear - 1][3] += 38;
-					blocks[appear - 1][2] += 19;
-				} else {
-					state++;
-				}
-			} else if (state === 1) {
-				let howManyRight = 0;
-				blocks[appear - 1][3] += 38;
-				blocks[appear - 1][2] += 19;
-				blocks[appear - 2][3] += 38;
-				blocks[appear - 2][2] += 19;
-				if (this._rightSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 1][3] -= 38;
-					blocks[appear - 1][2] -= 19;
-					blocks[appear - 2][3] -= 38;
-					blocks[appear - 2][2] -= 19;
-					while (howManyRight !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					state++;
-				}
-			} else if (state === 2) {
-				blocks[appear - 3][2] -= 38;
-				blocks[appear][3] += 38;
-				blocks[appear][2] -= 38;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 3][2] += 38;
-					blocks[appear][3] -= 38;
-					blocks[appear][2] += 38;
-				} else {
-					state++;
-				}
-			} else {
-				let howManyleft = 0;
-				blocks[appear - 3][2] += 19;
-				blocks[appear - 2][3] -= 38;
-				blocks[appear - 2][2] -= 19;
-				blocks[appear][3] -= 38;
-				blocks[appear][2] += 38;
-				if (this._leftSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 3][2] -= 19;
-					blocks[appear - 2][3] += 38;
-					blocks[appear - 2][2] += 19;
-					blocks[appear][3] += 38;
-					blocks[appear][2] -= 38;
-					while (howManyleft !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					state = 0;
-				}
-			}
-		}
-		if (these === 5) {
-			//반대리을 돌리기
-			if (state === 0) {
-				blocks[appear - 2][3] += 38;
-				blocks[appear][2] -= 38;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] -= 38;
-					blocks[appear][2] += 38;
-				} else {
-					state++;
-				}
-			} else {
-				let howManyleft = 0;
-				blocks[appear - 2][3] -= 38;
-				blocks[appear][2] += 38;
-				if (this._leftSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] += 38;
-					blocks[appear][2] -= 38;
-					while (howManyleft !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					state = 0;
-				}
-			}
-		}
-		if (these === 6) {
-			//리을 돌리기
-			if (state === 0) {
-				blocks[appear - 2][3] -= 38;
-				blocks[appear][2] -= 38;
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] += 38;
-					blocks[appear][2] += 38;
-				} else {
-					state++;
-				}
-			} else {
-				let howManyRight = 0;
-				blocks[appear - 2][3] += 38;
-				blocks[appear][2] += 38;
-				if (this._rightSide(blocks) === 0) {
-					for (let j = appear - 3; j <= appear; j++) {
-						blocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (this.checkOverlapping(blocks) === 0) {
-					blocks[appear - 2][3] -= 38;
-					blocks[appear][2] -= 38;
-					while (howManyRight !== 0) {
-						for (let j = appear - 3; j <= appear; j++) {
-							blocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					state = 0;
-				}
-			}
-		}
-		blockState = state;
-		updateBlocks(blocks);
-	};
+		let lastBlockIdx = blocks.length - 1;
+		let blockShape = blocks[blocks.length - 1][1];
+		let rotatedBlocks = blocks.slice();
 
-	const checkOverlapping = (blocks) => {
-		//현재 움직이던 블록이 다른 블록들과 겹치는지 검사하는 함수
-		for (let i = 0; i < blocks.length - 4; i++) {
-			for (let j = blocks.length - 4; j < blocks.length; j++) {
-				if (
-					blocks[j][2] === blocks[i][2] &&
-					blocks[j][3] === blocks[i][3]
-				) {
-					return 0; //겹치는게 있다면 false
+		if (blockShape === 4) {
+			//엿모양 돌리기
+			if (rotateQuarterCount === 0) {
+				rotatedBlocks[lastBlockIdx][3] -= 19;
+				rotatedBlocks[lastBlockIdx - 1][3] -= 38;
+				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx][3] += 19;
+					rotatedBlocks[lastBlockIdx - 1][3] += 38;
+					rotatedBlocks[lastBlockIdx - 1][2] += 19;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else if (rotateQuarterCount === 1) {
+				let howManyRight = 0;
+				rotatedBlocks[lastBlockIdx - 1][3] += 19;
+				rotatedBlocks[lastBlockIdx - 1][2] += 38;
+				rotatedBlocks[lastBlockIdx - 2][3] += 38;
+				rotatedBlocks[lastBlockIdx - 2][2] += 19;
+				if (_rightSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] -= 19;
+					}
+					howManyRight++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 1][3] -= 19;
+					rotatedBlocks[lastBlockIdx - 1][2] -= 38;
+					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+					while (howManyRight !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] += 19;
+						}
+						howManyRight--;
+					}
+				} else {
+					rotateQuarterCount++;
+				}
+			} else if (rotateQuarterCount === 2) {
+				rotatedBlocks[lastBlockIdx - 1][3] += 19;
+				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
+				rotatedBlocks[lastBlockIdx][3] += 38;
+				rotatedBlocks[lastBlockIdx][2] -= 38;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 1][3] -= 19;
+					rotatedBlocks[lastBlockIdx - 1][2] += 19;
+					rotatedBlocks[lastBlockIdx][3] -= 38;
+					rotatedBlocks[lastBlockIdx][2] += 38;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else {
+				let howManyleft = 0;
+				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+				rotatedBlocks[lastBlockIdx][3] -= 19;
+				rotatedBlocks[lastBlockIdx][2] += 38;
+				if (_leftSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] += 19;
+					}
+					howManyleft++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] += 38;
+					rotatedBlocks[lastBlockIdx - 2][2] += 19;
+					rotatedBlocks[lastBlockIdx][3] += 19;
+					rotatedBlocks[lastBlockIdx][2] -= 38;
+					while (howManyleft !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] -= 19;
+						}
+						howManyleft--;
+					}
+				} else {
+					rotateQuarterCount = 0;
 				}
 			}
 		}
-		return 1; //겹치는게 없다면 true
+		if (blockShape === 1) {
+			//직선돌리기
+			if (rotateQuarterCount === 0) {
+				rotatedBlocks[lastBlockIdx - 2][3] += 19;
+				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+				rotatedBlocks[lastBlockIdx - 1][3] -= 19;
+				rotatedBlocks[lastBlockIdx - 1][2] -= 38;
+				rotatedBlocks[lastBlockIdx][3] -= 38;
+				rotatedBlocks[lastBlockIdx][2] -= 57;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] -= 19;
+					rotatedBlocks[lastBlockIdx - 2][2] += 19;
+					rotatedBlocks[lastBlockIdx - 1][3] += 19;
+					rotatedBlocks[lastBlockIdx - 1][2] += 38;
+					rotatedBlocks[lastBlockIdx][3] += 38;
+					rotatedBlocks[lastBlockIdx][2] += 57;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else {
+				let howManyleft = 0;
+				let howManyRight = 0;
+				rotatedBlocks[lastBlockIdx - 2][3] -= 19;
+				rotatedBlocks[lastBlockIdx - 2][2] += 19;
+				rotatedBlocks[lastBlockIdx - 1][3] += 19;
+				rotatedBlocks[lastBlockIdx - 1][2] += 38;
+				rotatedBlocks[lastBlockIdx][3] += 38;
+				rotatedBlocks[lastBlockIdx][2] += 57;
+				if (_leftSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] += 19;
+					}
+					howManyleft++;
+				}
+				if (_rightSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] -= 19;
+					}
+					howManyRight++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] += 19;
+					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+					rotatedBlocks[lastBlockIdx - 1][3] -= 19;
+					rotatedBlocks[lastBlockIdx - 1][2] -= 38;
+					rotatedBlocks[lastBlockIdx][3] -= 38;
+					rotatedBlocks[lastBlockIdx][2] -= 57;
+					while (howManyleft !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] -= 19;
+						}
+						howManyleft--;
+					}
+					while (howManyRight !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] += 19;
+						}
+						howManyRight--;
+					}
+				} else {
+					rotateQuarterCount = 0;
+				}
+			}
+		}
+		if (blockShape === 2) {
+			//기억돌리기
+			if (rotateQuarterCount === 0) {
+				rotatedBlocks[lastBlockIdx - 1][3] -= 38;
+				rotatedBlocks[lastBlockIdx - 3][2] -= 19;
+				rotatedBlocks[lastBlockIdx - 1][2] += 19;
+				rotatedBlocks[lastBlockIdx][3] -= 38;
+				rotatedBlocks[lastBlockIdx][2] -= 38;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 3][2] += 19;
+					rotatedBlocks[lastBlockIdx - 1][3] += 38;
+					rotatedBlocks[lastBlockIdx - 1][2] -= 19;
+					rotatedBlocks[lastBlockIdx][3] += 38;
+					rotatedBlocks[lastBlockIdx][2] += 38;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else if (rotateQuarterCount === 1) {
+				let howManyRight = 0;
+				rotatedBlocks[lastBlockIdx - 3][2] += 38;
+				rotatedBlocks[lastBlockIdx][3] += 38;
+				rotatedBlocks[lastBlockIdx][2] += 38;
+				if (_rightSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] -= 19;
+					}
+					howManyRight++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 3][2] -= 38;
+					rotatedBlocks[lastBlockIdx][3] -= 38;
+					rotatedBlocks[lastBlockIdx][2] -= 38;
+					while (howManyRight !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] += 19;
+						}
+						howManyRight--;
+					}
+				} else {
+					rotateQuarterCount++;
+				}
+			} else if (rotateQuarterCount === 2) {
+				rotatedBlocks[lastBlockIdx - 2][3] += 38;
+				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+				rotatedBlocks[lastBlockIdx - 1][3] += 38;
+				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+					rotatedBlocks[lastBlockIdx - 2][2] += 19;
+					rotatedBlocks[lastBlockIdx - 1][3] -= 38;
+					rotatedBlocks[lastBlockIdx - 1][2] += 19;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else {
+				let howManyleft = 0;
+				rotatedBlocks[lastBlockIdx - 3][2] -= 19;
+				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+				rotatedBlocks[lastBlockIdx - 2][2] += 19;
+				if (_leftSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] += 19;
+					}
+					howManyleft++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 3][2] += 19;
+					rotatedBlocks[lastBlockIdx - 2][3] += 38;
+					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+					while (howManyleft !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] -= 19;
+						}
+						howManyleft--;
+					}
+				} else {
+					rotateQuarterCount = 0;
+				}
+			}
+		}
+		if (blockShape === 3) {
+			//반대기억돌리기
+			if (rotateQuarterCount === 0) {
+				rotatedBlocks[lastBlockIdx - 3][2] += 19;
+				rotatedBlocks[lastBlockIdx - 1][3] -= 38;
+				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 3][2] -= 19;
+					rotatedBlocks[lastBlockIdx - 1][3] += 38;
+					rotatedBlocks[lastBlockIdx - 1][2] += 19;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else if (rotateQuarterCount === 1) {
+				let howManyRight = 0;
+				rotatedBlocks[lastBlockIdx - 1][3] += 38;
+				rotatedBlocks[lastBlockIdx - 1][2] += 19;
+				rotatedBlocks[lastBlockIdx - 2][3] += 38;
+				rotatedBlocks[lastBlockIdx - 2][2] += 19;
+				if (_rightSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] -= 19;
+					}
+					howManyRight++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 1][3] -= 38;
+					rotatedBlocks[lastBlockIdx - 1][2] -= 19;
+					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+					while (howManyRight !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] += 19;
+						}
+						howManyRight--;
+					}
+				} else {
+					rotateQuarterCount++;
+				}
+			} else if (rotateQuarterCount === 2) {
+				rotatedBlocks[lastBlockIdx - 3][2] -= 38;
+				rotatedBlocks[lastBlockIdx][3] += 38;
+				rotatedBlocks[lastBlockIdx][2] -= 38;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 3][2] += 38;
+					rotatedBlocks[lastBlockIdx][3] -= 38;
+					rotatedBlocks[lastBlockIdx][2] += 38;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else {
+				let howManyleft = 0;
+				rotatedBlocks[lastBlockIdx - 3][2] += 19;
+				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
+				rotatedBlocks[lastBlockIdx][3] -= 38;
+				rotatedBlocks[lastBlockIdx][2] += 38;
+				if (_leftSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] += 19;
+					}
+					howManyleft++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 3][2] -= 19;
+					rotatedBlocks[lastBlockIdx - 2][3] += 38;
+					rotatedBlocks[lastBlockIdx - 2][2] += 19;
+					rotatedBlocks[lastBlockIdx][3] += 38;
+					rotatedBlocks[lastBlockIdx][2] -= 38;
+					while (howManyleft !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] -= 19;
+						}
+						howManyleft--;
+					}
+				} else {
+					rotateQuarterCount = 0;
+				}
+			}
+		}
+		if (blockShape === 5) {
+			//반대리을 돌리기
+			if (rotateQuarterCount === 0) {
+				rotatedBlocks[lastBlockIdx - 2][3] += 38;
+				rotatedBlocks[lastBlockIdx][2] -= 38;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+					rotatedBlocks[lastBlockIdx][2] += 38;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else {
+				let howManyleft = 0;
+				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+				rotatedBlocks[lastBlockIdx][2] += 38;
+				if (_leftSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] += 19;
+					}
+					howManyleft++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] += 38;
+					rotatedBlocks[lastBlockIdx][2] -= 38;
+					while (howManyleft !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] -= 19;
+						}
+						howManyleft--;
+					}
+				} else {
+					rotateQuarterCount = 0;
+				}
+			}
+		}
+		if (blockShape === 6) {
+			//리을 돌리기
+			if (rotateQuarterCount === 0) {
+				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+				rotatedBlocks[lastBlockIdx][2] -= 38;
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] += 38;
+					rotatedBlocks[lastBlockIdx][2] += 38;
+				} else {
+					rotateQuarterCount++;
+				}
+			} else {
+				let howManyRight = 0;
+				rotatedBlocks[lastBlockIdx - 2][3] += 38;
+				rotatedBlocks[lastBlockIdx][2] += 38;
+				if (_rightSide(rotatedBlocks) === 0) {
+					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+						rotatedBlocks[j][3] -= 19;
+					}
+					howManyRight++;
+				}
+				if (isOverlapped(rotatedBlocks) === 0) {
+					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
+					rotatedBlocks[lastBlockIdx][2] -= 38;
+					while (howManyRight !== 0) {
+						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
+							rotatedBlocks[j][3] += 19;
+						}
+						howManyRight--;
+					}
+				} else {
+					rotateQuarterCount = 0;
+				}
+			}
+		}
+
+		updateBlocks(rotatedBlocks);
 	};
 
 	const _rightSide = (blocks) => {
@@ -1391,18 +1400,14 @@ const Game = ({
 				})}
 			</ChatingBox>
 			<InputBox
-				ref={(el) => (this._input = el)}
-				onChange={(e) => {
-					this.setState({
-						text: e.target.value,
-					});
-				}}
+				ref={inputEl}
+				onChange={(e) => setChatingInputText(e.target.value)}
 			/>
 			<SendButton
 				onClick={() => {
-					sendMessage(text);
-					this._input.value = "";
-					text = " ";
+					sendMessage(chatingInputText);
+					inputEl.value = "";
+					setChatingInputText(" ");
 				}}
 				key="12"
 			>
