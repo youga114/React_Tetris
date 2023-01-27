@@ -1,15 +1,37 @@
 /** @jsx jsx */
-import React, {
-	Component,
-	useEffect,
-	useState,
-	useCallback,
-	useRef,
-} from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
 import styled from "@emotion/styled";
 import { jsx, css } from "@emotion/react";
+
+const KEY_CODE = {
+	ENTER: 13,
+	SPACE: 32,
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	DOWN: 40,
+};
+
+const BLOCK_SHAPE = {
+	SQUARE: 0,
+	LINEAR: 1,
+	FALCI_SHAPE: 2,
+	REVERSE_FALCI_SHAPE: 3,
+	MOUNTINE_SHAPE: 4,
+	BENT_UP_LINE: 5,
+	BENT_DOWN_LINE: 6,
+};
+
+const BLOCK_SIZE = {
+	WIDTH: 19,
+	HEIGHT: 19,
+};
+
+const GAME_WINDOW_SIZE = {
+	WIDTH: 190,
+	HEIGHT: 380,
+};
 
 const Body = styled.div`
 	background-color: rgb(66, 66, 66);
@@ -23,8 +45,8 @@ const MyGameWindow = styled.div`
 	border-color: blue;
 	border-style: solid;
 	background-color: black;
-	width: 190px;
-	height: 380px;
+	width: ${GAME_WINDOW_SIZE.WIDTH}px;
+	height: ${GAME_WINDOW_SIZE.HEIGHT}px;
 	left: 740px;
 	top: 140px;
 	overflow: hidden;
@@ -280,33 +302,9 @@ const EnemyRanking = styled.div`
 	top: 95px;
 `;
 
-const KEY_CODE = {
-	ENTER: 13,
-	SPACE: 32,
-	LEFT: 37,
-	UP: 38,
-	RIGHT: 39,
-	DOWN: 40,
-};
-
-const BLOCK_SHAPE = {
-	SQUARE: 0,
-	LINEAR: 1,
-	FALCI_SHAPE: 2,
-	REVERSE_FALCI_SHAPE: 3,
-	MOUNTINE_SHAPE: 4,
-	BENT_UP_LINE: 5,
-	BENT_DOWN_LINE: 6,
-};
-
-const BLOCK_SIZE = {
-	WIDTH: 19,
-	HEIGHT: 19,
-};
-
-let rotateQuarterCount = 0;
 let blockKey = 1;
 let upLineCount = 1;
+let dropMilliseconds = 300;
 
 const createWaitingBlock = () => {
 	let blocks = [];
@@ -325,9 +323,9 @@ const createWaitingBlock = () => {
 			blocks.push([4, BLOCK_SHAPE.LINEAR, 30, 60, "purple"]);
 			break;
 		case BLOCK_SHAPE.FALCI_SHAPE:
-			blocks.push([1, BLOCK_SHAPE.FALCI_SHAPE, 20, 31, "pink"]);
-			blocks.push([2, BLOCK_SHAPE.FALCI_SHAPE, 20, 12, "pink"]);
-			blocks.push([3, BLOCK_SHAPE.FALCI_SHAPE, 20, 50, "pink"]);
+			blocks.push([1, BLOCK_SHAPE.FALCI_SHAPE, 20, 50, "pink"]);
+			blocks.push([2, BLOCK_SHAPE.FALCI_SHAPE, 20, 31, "pink"]);
+			blocks.push([3, BLOCK_SHAPE.FALCI_SHAPE, 20, 12, "pink"]);
 			blocks.push([4, BLOCK_SHAPE.FALCI_SHAPE, 39, 50, "pink"]);
 			break;
 		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
@@ -413,18 +411,20 @@ const makeMainBlock = (blockID) => {
 	return blocks;
 };
 
-const isReachedBottom = (blocks) => {
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		if (blocks[i][2] >= 380 - BLOCK_SIZE.HEIGHT) {
+const isOverd = (blocks) => {
+	for (let i = blocks.length - 4; i < blocks.length; ++i) {
+		if (
+			blocks[i][2] >= GAME_WINDOW_SIZE.HEIGHT ||
+			blocks[i][3] >= GAME_WINDOW_SIZE.WIDTH ||
+			blocks[i][3] < 0
+		) {
 			return true;
 		}
-	}
 
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		for (let j = 0; j < blocks.length - 4; j++) {
+		for (let j = 0; j < blocks.length - 4; ++j) {
 			if (
-				blocks[i][3] === blocks[j][3] &&
-				blocks[i][2] + BLOCK_SIZE.HEIGHT === blocks[j][2]
+				blocks[i][2] === blocks[j][2] &&
+				blocks[i][3] === blocks[j][3]
 			) {
 				return true;
 			}
@@ -432,83 +432,6 @@ const isReachedBottom = (blocks) => {
 	}
 
 	return false;
-};
-
-const isReachedLeft = (blocks) => {
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		if (blocks[i][3] - 19 < 0) {
-			return true;
-		}
-	}
-
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		for (let j = 0; j < blocks.length - 4; j++) {
-			if (
-				blocks[i][3] - 19 === blocks[j][3] &&
-				blocks[i][2] === blocks[j][2]
-			) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-};
-
-const isReachedRight = (blocks) => {
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		if (blocks[i][3] + 19 >= 190) {
-			return true;
-		}
-	}
-
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		for (let j = 0; j < blocks.length - 4; j++) {
-			if (
-				blocks[i][3] + 19 === blocks[j][3] &&
-				blocks[i][2] === blocks[j][2]
-			) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-};
-
-const isReachedDown = (blocks) => {
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		if (blocks[i][2] >= 380 - BLOCK_SIZE.HEIGHT) {
-			return true;
-		}
-	}
-
-	for (let i = blocks.length - 4; i < blocks.length; i++) {
-		for (let j = 0; j < blocks.length - 4; j++) {
-			if (
-				blocks[i][3] === blocks[j][3] &&
-				blocks[i][2] + BLOCK_SIZE.HEIGHT === blocks[j][2]
-			) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-};
-
-const isOverlapped = (blocks) => {
-	for (let i = 0; i < blocks.length - 4; i++) {
-		for (let j = blocks.length - 4; j < blocks.length; j++) {
-			if (
-				blocks[j][2] === blocks[i][2] &&
-				blocks[j][3] === blocks[i][3]
-			) {
-				return false;
-			}
-		}
-	}
-	return true;
 };
 
 const Game = ({
@@ -546,9 +469,9 @@ const Game = ({
 	const timeIntervalId = useRef(0);
 	const downBlockRef = useRef();
 	const inputEl = useRef(null);
-	const getGameControllKeyRef = useRef();
+	const getGameControllKey = useRef();
 	const gameControllKeyListener = useRef((event) => {
-		getGameControllKeyRef.current(event);
+		getGameControllKey.current(event);
 	});
 
 	useEffect(() => {
@@ -583,7 +506,6 @@ const Game = ({
 		);
 
 		blockKey = 1;
-		rotateQuarterCount = 0;
 
 		setRank("");
 		setBlocks(makeMainBlock(createWaitingBlock()[0][1]));
@@ -592,33 +514,74 @@ const Game = ({
 
 		timeIntervalId.current = setInterval(() => {
 			downBlockRef.current();
-		}, 300);
+		}, dropMilliseconds);
 
 		start();
 	};
 
-	const createNextBlocks = () => {
+	const downBlock = () => {
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			blocks[i][2] += BLOCK_SIZE.HEIGHT;
+		}
+
+		if (isOverd(blocks) === false) {
+			setBlocks(blocks.map((block) => block.slice()));
+
+			return true;
+		}
+
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			blocks[i][2] -= BLOCK_SIZE.HEIGHT;
+		}
+
 		clearFilledLine();
-		rotateQuarterCount = 0;
-		setBlocks([...blocks, ...makeMainBlock(firstWaitingBlock[0][1])]);
+
+		blocks.push(...makeMainBlock(firstWaitingBlock[0][1]));
+
+		setBlocks(blocks.map((block) => block.slice()));
 		setFirstWaitingBlock(secondWaitingBlock);
 		setSecondWaitingBlock(createWaitingBlock());
 
-		let length = blocks.length;
-		for (let i = 0; i < length - 4; i++) {
-			for (let j = length - 4; j < length; j++) {
-				if (
-					blocks[i][2] === blocks[j][2] &&
-					blocks[i][3] === blocks[j][3]
-				) {
-					finishGame(personNum);
-					return;
+		if (isOverd(blocks) === true) {
+			finishGame();
+		}
+
+		down();
+
+		return false;
+	};
+
+	downBlockRef.current = downBlock;
+
+	const clearFilledLine = () => {
+		let cloneBlocks = blocks.map((block) => block.slice());
+
+		for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
+			let sameHeightBlockIdx = [];
+			let blockHeight = cloneBlocks[i][2];
+			for (let j = 0; j < blocks.length; j++) {
+				if (blocks[j][2] === blockHeight) {
+					sameHeightBlockIdx.push(j);
+				}
+			}
+			if (sameHeightBlockIdx.length > 9) {
+				for (let j = 0; j < blocks.length; j++) {
+					if (blocks[j][2] < blockHeight) {
+						blocks[j][2] += BLOCK_SIZE.HEIGHT;
+					}
+				}
+				for (let k = 9; k >= 0; k--) {
+					blocks.splice(sameHeightBlockIdx[k], 1);
 				}
 			}
 		}
+
+		setBlocks(blocks.map((block) => block.slice()));
+		addLine();
+		updateBlocks(blocks.map((block) => block.slice()));
 	};
 
-	const finishGame = (personNum) => {
+	const finishGame = () => {
 		setRank(personNum);
 		window.removeEventListener(
 			"keydown",
@@ -627,90 +590,19 @@ const Game = ({
 		);
 		clearInterval(timeIntervalId.current);
 
-		let deadBlocks = blocks.slice();
-		for (let i = 0; i < deadBlocks.length; i++) {
-			deadBlocks[i][4] = "rgb(166,166,166)";
+		for (let i = 0; i < blocks.length; i++) {
+			blocks[i][4] = "rgb(166,166,166)";
 		}
 
-		end(deadBlocks);
-		setBlocks(deadBlocks);
-	};
+		setBlocks(blocks.map((block) => block.slice()));
 
-	const downBlock = () => {
-		let lowerdBlocks = blocks.slice();
-		let length = lowerdBlocks.length;
-		let flag = 0;
-		for (let i = 0; i < length - 4; i++) {
-			for (let j = length - 4; j < length; j++) {
-				if (
-					lowerdBlocks[i][3] === lowerdBlocks[j][3] &&
-					lowerdBlocks[i][2] ===
-						lowerdBlocks[j][2] + BLOCK_SIZE.HEIGHT
-				) {
-					flag = 1;
-					break;
-				}
-			}
-			if (flag === 1) {
-				break;
-			}
-		}
-
-		if (flag === 0) {
-			for (let i = length - 4; i < length; i++) {
-				if (lowerdBlocks[i][2] + BLOCK_SIZE.HEIGHT >= 380) {
-					flag = 1;
-				}
-			}
-		}
-
-		if (flag === 1) {
-			createNextBlocks();
-		} else {
-			for (let i = 0; i < 4; i++) {
-				lowerdBlocks[length - 1 - i][2] += BLOCK_SIZE.HEIGHT;
-			}
-			setBlocks(lowerdBlocks);
-		}
-
-		down();
-	};
-
-	downBlockRef.current = downBlock;
-
-	const clearFilledLine = () => {
-		let clearedBlocks = blocks.slice();
-
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			let sameHeightBlockIdx = [];
-			let blockHeight = blocks[i][2];
-			for (let j = 0; j < blocks.length; j++) {
-				blockHeight = blocks[i][2];
-				if (blocks[j][2] === blockHeight) {
-					sameHeightBlockIdx.push(j);
-				}
-			}
-			if (sameHeightBlockIdx.length > 9) {
-				for (let k = 9; k >= 0; k--) {
-					clearedBlocks.splice(sameHeightBlockIdx[k], 1);
-				}
-				for (let j = 0; j < blocks.length; j++) {
-					if (blocks[j][2] < blockHeight) {
-						blocks[j][2] += BLOCK_SIZE.HEIGHT;
-					}
-				}
-				addLine();
-			}
-		}
-
-		updateBlocks(clearedBlocks);
+		end(blocks.map((block) => block.slice()));
 	};
 
 	const upLine = () => {
 		let emptyBlockIdx = Math.floor(Math.random() * 10);
 
 		if (upLineCount > personNum - 2) {
-			//유저의 공격받은 upLineCount가 방에서 살아남은 인원에 비례
 			for (let i = 0; i < blocks.length - 4; i++) {
 				blocks[i][2] -= BLOCK_SIZE.HEIGHT;
 			}
@@ -737,15 +629,16 @@ const Game = ({
 					}
 				}
 			}
+
 			upLineCount = 1;
-		} else {
-			upLineCount++;
+			return;
 		}
+
+		upLineCount += 1;
 	};
 
-	const getGameControllKey = (event) => {
+	getGameControllKey.current = (event) => {
 		let keyCode = 0;
-		let flag2 = 0;
 		if (event === null) {
 			keyCode = window.event.keyCode;
 			window.event.preventDefault();
@@ -754,463 +647,85 @@ const Game = ({
 			event.preventDefault();
 		}
 
-		let length = blocks.length;
+		let movedBlocks = blocks.map((block) => block.slice());
+
 		switch (keyCode) {
 			case KEY_CODE.SPACE:
-				while (isReachedBottom(blocks) === false) {
-					for (let i = length - 4; i < length; i++) {
-						blocks[i][2] += BLOCK_SIZE.HEIGHT;
-					}
-				}
-
-				setBlocks(blocks.slice());
-				createNextBlocks();
+				while (downBlock());
 				break;
 			case KEY_CODE.LEFT:
-				if (isReachedLeft(blocks) === false) {
-					for (let i = length - 4; i < length; i++) {
-						blocks[i][3] -= 19;
-					}
-
-					setBlocks(blocks.slice());
+				for (
+					let i = movedBlocks.length - 4;
+					i < movedBlocks.length;
+					i++
+				) {
+					movedBlocks[i][3] -= BLOCK_SIZE.WIDTH;
 				}
+
+				if (isOverd(movedBlocks) === true) {
+					return;
+				}
+
+				setBlocks(movedBlocks);
 				break;
 			case KEY_CODE.UP:
 				rotateBlock();
 				break;
 			case KEY_CODE.RIGHT:
-				if (isReachedRight(blocks) === false) {
-					for (let i = length - 4; i < length; i++) {
-						blocks[i][3] += 19;
-					}
-
-					setBlocks(blocks.slice());
+				for (
+					let i = movedBlocks.length - 4;
+					i < movedBlocks.length;
+					i++
+				) {
+					movedBlocks[i][3] += BLOCK_SIZE.WIDTH;
 				}
+
+				if (isOverd(movedBlocks) === true) {
+					return;
+				}
+
+				setBlocks(movedBlocks);
 				break;
 			case KEY_CODE.DOWN:
-				if (isReachedDown(blocks) === false) {
-					for (let i = length - 4; i < length; i++) {
-						//현재 움직이는 블록이 맽밑에 있지 않고 바로 밑칸에 다른 블록이 없다면 밑으로 한칸 이동
-						blocks[i][2] += BLOCK_SIZE.HEIGHT;
-					}
-
-					setBlocks(blocks.slice());
-				}
+				downBlock();
 				break;
 			default:
 				break;
 		}
 	};
 
-	getGameControllKeyRef.current = getGameControllKey;
-
 	const rotateBlock = () => {
-		let lastBlockIdx = blocks.length - 1;
-		let blockShape = blocks[blocks.length - 1][1];
-		let rotatedBlocks = blocks.slice();
+		for (let i = blocks.length - 3; i < blocks.length; ++i) {
+			let x = blocks[i][3] - blocks[blocks.length - 4][3],
+				y = blocks[i][2] - blocks[blocks.length - 4][2];
+			blocks[i][2] = blocks[blocks.length - 4][2] + x;
+			blocks[i][3] = blocks[blocks.length - 4][3] - y;
+		}
 
-		if (blockShape === 4) {
-			//엿모양 돌리기
-			if (rotateQuarterCount === 0) {
-				rotatedBlocks[lastBlockIdx][3] -= 19;
-				rotatedBlocks[lastBlockIdx - 1][3] -= 38;
-				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx][3] += 19;
-					rotatedBlocks[lastBlockIdx - 1][3] += 38;
-					rotatedBlocks[lastBlockIdx - 1][2] += 19;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else if (rotateQuarterCount === 1) {
-				let howManyRight = 0;
-				rotatedBlocks[lastBlockIdx - 1][3] += 19;
-				rotatedBlocks[lastBlockIdx - 1][2] += 38;
-				rotatedBlocks[lastBlockIdx - 2][3] += 38;
-				rotatedBlocks[lastBlockIdx - 2][2] += 19;
-				if (_rightSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 1][3] -= 19;
-					rotatedBlocks[lastBlockIdx - 1][2] -= 38;
-					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-					while (howManyRight !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					rotateQuarterCount++;
-				}
-			} else if (rotateQuarterCount === 2) {
-				rotatedBlocks[lastBlockIdx - 1][3] += 19;
-				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
-				rotatedBlocks[lastBlockIdx][3] += 38;
-				rotatedBlocks[lastBlockIdx][2] -= 38;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 1][3] -= 19;
-					rotatedBlocks[lastBlockIdx - 1][2] += 19;
-					rotatedBlocks[lastBlockIdx][3] -= 38;
-					rotatedBlocks[lastBlockIdx][2] += 38;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else {
-				let howManyleft = 0;
-				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-				rotatedBlocks[lastBlockIdx][3] -= 19;
-				rotatedBlocks[lastBlockIdx][2] += 38;
-				if (_leftSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] += 38;
-					rotatedBlocks[lastBlockIdx - 2][2] += 19;
-					rotatedBlocks[lastBlockIdx][3] += 19;
-					rotatedBlocks[lastBlockIdx][2] -= 38;
-					while (howManyleft !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					rotateQuarterCount = 0;
-				}
-			}
-		}
-		if (blockShape === 1) {
-			//직선돌리기
-			if (rotateQuarterCount === 0) {
-				rotatedBlocks[lastBlockIdx - 2][3] += 19;
-				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-				rotatedBlocks[lastBlockIdx - 1][3] -= 19;
-				rotatedBlocks[lastBlockIdx - 1][2] -= 38;
-				rotatedBlocks[lastBlockIdx][3] -= 38;
-				rotatedBlocks[lastBlockIdx][2] -= 57;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] -= 19;
-					rotatedBlocks[lastBlockIdx - 2][2] += 19;
-					rotatedBlocks[lastBlockIdx - 1][3] += 19;
-					rotatedBlocks[lastBlockIdx - 1][2] += 38;
-					rotatedBlocks[lastBlockIdx][3] += 38;
-					rotatedBlocks[lastBlockIdx][2] += 57;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else {
-				let howManyleft = 0;
-				let howManyRight = 0;
-				rotatedBlocks[lastBlockIdx - 2][3] -= 19;
-				rotatedBlocks[lastBlockIdx - 2][2] += 19;
-				rotatedBlocks[lastBlockIdx - 1][3] += 19;
-				rotatedBlocks[lastBlockIdx - 1][2] += 38;
-				rotatedBlocks[lastBlockIdx][3] += 38;
-				rotatedBlocks[lastBlockIdx][2] += 57;
-				if (_leftSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (_rightSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] += 19;
-					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-					rotatedBlocks[lastBlockIdx - 1][3] -= 19;
-					rotatedBlocks[lastBlockIdx - 1][2] -= 38;
-					rotatedBlocks[lastBlockIdx][3] -= 38;
-					rotatedBlocks[lastBlockIdx][2] -= 57;
-					while (howManyleft !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-					while (howManyRight !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					rotateQuarterCount = 0;
-				}
-			}
-		}
-		if (blockShape === 2) {
-			//기억돌리기
-			if (rotateQuarterCount === 0) {
-				rotatedBlocks[lastBlockIdx - 1][3] -= 38;
-				rotatedBlocks[lastBlockIdx - 3][2] -= 19;
-				rotatedBlocks[lastBlockIdx - 1][2] += 19;
-				rotatedBlocks[lastBlockIdx][3] -= 38;
-				rotatedBlocks[lastBlockIdx][2] -= 38;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 3][2] += 19;
-					rotatedBlocks[lastBlockIdx - 1][3] += 38;
-					rotatedBlocks[lastBlockIdx - 1][2] -= 19;
-					rotatedBlocks[lastBlockIdx][3] += 38;
-					rotatedBlocks[lastBlockIdx][2] += 38;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else if (rotateQuarterCount === 1) {
-				let howManyRight = 0;
-				rotatedBlocks[lastBlockIdx - 3][2] += 38;
-				rotatedBlocks[lastBlockIdx][3] += 38;
-				rotatedBlocks[lastBlockIdx][2] += 38;
-				if (_rightSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 3][2] -= 38;
-					rotatedBlocks[lastBlockIdx][3] -= 38;
-					rotatedBlocks[lastBlockIdx][2] -= 38;
-					while (howManyRight !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					rotateQuarterCount++;
-				}
-			} else if (rotateQuarterCount === 2) {
-				rotatedBlocks[lastBlockIdx - 2][3] += 38;
-				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-				rotatedBlocks[lastBlockIdx - 1][3] += 38;
-				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-					rotatedBlocks[lastBlockIdx - 2][2] += 19;
-					rotatedBlocks[lastBlockIdx - 1][3] -= 38;
-					rotatedBlocks[lastBlockIdx - 1][2] += 19;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else {
-				let howManyleft = 0;
-				rotatedBlocks[lastBlockIdx - 3][2] -= 19;
-				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-				rotatedBlocks[lastBlockIdx - 2][2] += 19;
-				if (_leftSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 3][2] += 19;
-					rotatedBlocks[lastBlockIdx - 2][3] += 38;
-					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-					while (howManyleft !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					rotateQuarterCount = 0;
-				}
-			}
-		}
-		if (blockShape === 3) {
-			//반대기억돌리기
-			if (rotateQuarterCount === 0) {
-				rotatedBlocks[lastBlockIdx - 3][2] += 19;
-				rotatedBlocks[lastBlockIdx - 1][3] -= 38;
-				rotatedBlocks[lastBlockIdx - 1][2] -= 19;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 3][2] -= 19;
-					rotatedBlocks[lastBlockIdx - 1][3] += 38;
-					rotatedBlocks[lastBlockIdx - 1][2] += 19;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else if (rotateQuarterCount === 1) {
-				let howManyRight = 0;
-				rotatedBlocks[lastBlockIdx - 1][3] += 38;
-				rotatedBlocks[lastBlockIdx - 1][2] += 19;
-				rotatedBlocks[lastBlockIdx - 2][3] += 38;
-				rotatedBlocks[lastBlockIdx - 2][2] += 19;
-				if (_rightSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 1][3] -= 38;
-					rotatedBlocks[lastBlockIdx - 1][2] -= 19;
-					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-					rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-					while (howManyRight !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					rotateQuarterCount++;
-				}
-			} else if (rotateQuarterCount === 2) {
-				rotatedBlocks[lastBlockIdx - 3][2] -= 38;
-				rotatedBlocks[lastBlockIdx][3] += 38;
-				rotatedBlocks[lastBlockIdx][2] -= 38;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 3][2] += 38;
-					rotatedBlocks[lastBlockIdx][3] -= 38;
-					rotatedBlocks[lastBlockIdx][2] += 38;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else {
-				let howManyleft = 0;
-				rotatedBlocks[lastBlockIdx - 3][2] += 19;
-				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-				rotatedBlocks[lastBlockIdx - 2][2] -= 19;
-				rotatedBlocks[lastBlockIdx][3] -= 38;
-				rotatedBlocks[lastBlockIdx][2] += 38;
-				if (_leftSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 3][2] -= 19;
-					rotatedBlocks[lastBlockIdx - 2][3] += 38;
-					rotatedBlocks[lastBlockIdx - 2][2] += 19;
-					rotatedBlocks[lastBlockIdx][3] += 38;
-					rotatedBlocks[lastBlockIdx][2] -= 38;
-					while (howManyleft !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					rotateQuarterCount = 0;
-				}
-			}
-		}
-		if (blockShape === 5) {
-			//반대리을 돌리기
-			if (rotateQuarterCount === 0) {
-				rotatedBlocks[lastBlockIdx - 2][3] += 38;
-				rotatedBlocks[lastBlockIdx][2] -= 38;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-					rotatedBlocks[lastBlockIdx][2] += 38;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else {
-				let howManyleft = 0;
-				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-				rotatedBlocks[lastBlockIdx][2] += 38;
-				if (_leftSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] += 19;
-					}
-					howManyleft++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] += 38;
-					rotatedBlocks[lastBlockIdx][2] -= 38;
-					while (howManyleft !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] -= 19;
-						}
-						howManyleft--;
-					}
-				} else {
-					rotateQuarterCount = 0;
-				}
-			}
-		}
-		if (blockShape === 6) {
-			//리을 돌리기
-			if (rotateQuarterCount === 0) {
-				rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-				rotatedBlocks[lastBlockIdx][2] -= 38;
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] += 38;
-					rotatedBlocks[lastBlockIdx][2] += 38;
-				} else {
-					rotateQuarterCount++;
-				}
-			} else {
-				let howManyRight = 0;
-				rotatedBlocks[lastBlockIdx - 2][3] += 38;
-				rotatedBlocks[lastBlockIdx][2] += 38;
-				if (_rightSide(rotatedBlocks) === 0) {
-					for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-						rotatedBlocks[j][3] -= 19;
-					}
-					howManyRight++;
-				}
-				if (isOverlapped(rotatedBlocks) === 0) {
-					rotatedBlocks[lastBlockIdx - 2][3] -= 38;
-					rotatedBlocks[lastBlockIdx][2] -= 38;
-					while (howManyRight !== 0) {
-						for (let j = lastBlockIdx - 3; j <= lastBlockIdx; j++) {
-							rotatedBlocks[j][3] += 19;
-						}
-						howManyRight--;
-					}
-				} else {
-					rotateQuarterCount = 0;
-				}
+		if (isOverd(blocks) === true) {
+			for (let i = blocks.length - 4; i < blocks.length; i++) {
+				blocks[i][3] += BLOCK_SIZE.WIDTH;
 			}
 		}
 
-		updateBlocks(rotatedBlocks);
-	};
-
-	const _rightSide = (blocks) => {
-		//현재 움직이는 블록이 모양을 변경 했을 때 오른쪽 벽을 넘어가는지 확인하는 함수
-		for (let j = blocks.length - 4; j < blocks.length; j++) {
-			if (blocks[j][3] >= 190) {
-				return 0; //넘어가면 false
+		if (isOverd(blocks) === true) {
+			for (let i = blocks.length - 4; i < blocks.length; i++) {
+				blocks[i][3] -= BLOCK_SIZE.WIDTH * 2;
 			}
 		}
-		return 1; //넘어가지 않으면 true
-	};
 
-	const _leftSide = (blocks) => {
-		//현재 움직이는 블록이 모양을 변경 했을 때 왼쪽 벽을 넘어가는지 확인하는 함수
-		for (let j = blocks.length - 4; j < blocks.length; j++) {
-			if (blocks[j][3] < 0) {
-				return 0; //넘어가면 false
-			}
+		if (isOverd(blocks) === true) {
+			return;
 		}
-		return 1; //넘어가지 않으면 true
+
+		setBlocks(blocks.map((block) => block.slice()));
+		updateBlocks(blocks.map((block) => block.slice()));
 	};
 
 	return (
 		<Body>
 			<MyGameWindow key="1">
-				{blocks.map((item, index) => {
+				{blocks.map((item) => {
 					let blockStyle = {
 						top: item[2],
 						left: item[3],
@@ -1218,7 +733,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={BlockStyle}
 							style={blockStyle}
 						/>
@@ -1227,7 +742,7 @@ const Game = ({
 				{<Ranking>{rank}</Ranking>}
 			</MyGameWindow>
 			<FirstPreviewWindow key="2">
-				{firstWaitingBlock.map((item, index) => {
+				{firstWaitingBlock.map((item) => {
 					let blockStyle = {
 						top: item[2],
 						left: item[3],
@@ -1235,7 +750,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={BlockStyle}
 							style={blockStyle}
 						/>
@@ -1243,7 +758,7 @@ const Game = ({
 				})}
 			</FirstPreviewWindow>
 			<SecondPreviewWindow key="3">
-				{secondWaitingBlock.map((item, index) => {
+				{secondWaitingBlock.map((item) => {
 					let blockStyle = {
 						top: item[2],
 						left: item[3],
@@ -1251,7 +766,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={BlockStyle}
 							style={blockStyle}
 						/>
@@ -1259,7 +774,7 @@ const Game = ({
 				})}
 			</SecondPreviewWindow>
 			<EnemyWindow1 key="4">
-				{blocks2.map((item, index) => {
+				{blocks2.map((item) => {
 					let blockStyle = {
 						top: 13 * (item[2] / 19),
 						left: 13 * (item[3] / 19),
@@ -1267,7 +782,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1276,7 +791,7 @@ const Game = ({
 				{<div className="rank2">{enemyRank2}</div>}
 			</EnemyWindow1>
 			<EnemyWindow2 key="5">
-				{blocks3.map((item, index) => {
+				{blocks3.map((item) => {
 					let blockStyle = {
 						top: 13 * (item[2] / 19),
 						left: 13 * (item[3] / 19),
@@ -1284,7 +799,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1293,7 +808,7 @@ const Game = ({
 				{<EnemyRanking>{enemyRank3}</EnemyRanking>}
 			</EnemyWindow2>
 			<EnemyWindow3 key="6">
-				{blocks4.map((item, index) => {
+				{blocks4.map((item) => {
 					let blockStyle = {
 						top: 13 * (item[2] / 19),
 						left: 13 * (item[3] / 19),
@@ -1301,7 +816,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1310,7 +825,7 @@ const Game = ({
 				{<EnemyRanking>{enemyRank4}</EnemyRanking>}
 			</EnemyWindow3>
 			<EnemyWindow4 key="7">
-				{blocks5.map((item, index) => {
+				{blocks5.map((item) => {
 					let blockStyle = {
 						top: 13 * (item[2] / 19),
 						left: 13 * (item[3] / 19),
@@ -1318,7 +833,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
@@ -1327,7 +842,7 @@ const Game = ({
 				{<EnemyRanking>{enemyRank5}</EnemyRanking>}
 			</EnemyWindow4>
 			<EnemyWindow5 key="8">
-				{blocks6.map((item, index) => {
+				{blocks6.map((item) => {
 					let blockStyle = {
 						top: 13 * (item[2] / 19),
 						left: 13 * (item[3] / 19),
@@ -1335,7 +850,7 @@ const Game = ({
 					};
 					return (
 						<div
-							key={`${item[0]}-${index}`}
+							key={item[0]}
 							css={EnemyBlockStyle}
 							style={blockStyle}
 						/>
