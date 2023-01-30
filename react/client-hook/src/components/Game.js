@@ -3,7 +3,6 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { jsx, css } from "@emotion/react";
-import backgroundImage from "../img/background.jpg";
 
 const KEY_CODE = {
 	ENTER: 13,
@@ -49,119 +48,95 @@ const NUMBER_OF_BLOCKS = 4;
 const Body = styled.div`
 	height: 100vh;
 	width: 100vw;
-	margin: 0px;
-	background-image: url(${backgroundImage});
-	background-size: cover;
+	margin: 10vh 10vw;
+	display: flex;
+	justify-content: center;
 `;
-const TetrisTemplate = styled.div`
-	width: 512px;
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: auto;
+const Left = styled.div`
+	margin: 5vh 5vw;
+	width: 40vw;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
 `;
+const EnemyWindow1 = styled.div`
+	border-width: 6px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	overflow: hidden;
+`;
+const EnemyWindow2 = styled.div`
+	border-width: 6px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	overflow: hidden;
+`;
+const EnemyWindow3 = styled.div`
+	border-width: 6px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	overflow: hidden;
+`;
+const EnemyWindow4 = styled.div`
+	border-width: 6px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	overflow: hidden;
+`;
+const EnemyWindow5 = styled.div`
+	border-width: 6px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: 130px;
+	height: 260px;
+	overflow: hidden;
+`;
+
 const GameWindow = styled.div`
 	position: relative;
 	border-width: ${GAME_WINDOW.BORDER_WIDTH}px;
-	border-color: blue;
+	border-color: skyblue;
 	border-style: solid;
 	background-color: black;
 	width: ${GAME_WINDOW.WIDTH}px;
 	height: ${GAME_WINDOW.HEIGHT}px;
-	left: ${GAME_WINDOW.LEFT}px;
-	top: ${GAME_WINDOW.TOP}px;
 	overflow: hidden;
 `;
 const FirstPreviewWindow = styled.div`
 	position: relative;
 	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
-	border-color: blue;
+	border-color: skyblue;
 	border-style: solid;
 	background-color: black;
 	width: ${PREVIEW_WINDOW.WIDTH}px;
 	height: ${PREVIEW_WINDOW.HEIGHT}px;
-	left: ${GAME_WINDOW.LEFT -
-	(PREVIEW_WINDOW.WIDTH + 2 * PREVIEW_WINDOW.BORDER_WIDTH)}px;
-	top: ${GAME_WINDOW.TOP}px;
 	overflow: hidden;
 `;
 const SecondPreviewWindow = styled.div`
 	position: relative;
 	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
-	border-color: blue;
+	border-color: skyblue;
 	border-style: solid;
 	background-color: black;
 	width: ${PREVIEW_WINDOW.WIDTH}px;
 	height: ${PREVIEW_WINDOW.HEIGHT}px;
-	left: ${GAME_WINDOW.LEFT -
-	(PREVIEW_WINDOW.WIDTH + 2 * PREVIEW_WINDOW.BORDER_WIDTH)}px;
-	top: ${GAME_WINDOW.TOP +
-	(PREVIEW_WINDOW.HEIGHT + 2 * PREVIEW_WINDOW.BORDER_WIDTH)}px;
-	overflow: hidden;
-`;
-const EnemyWindow1 = styled.div`
-	position: relative;
-	border-width: 6px;
-	border-color: blue;
-	border-style: solid;
-	background-color: black;
-	width: 130px;
-	height: 260px;
-	left: 40px;
-	top: 40px;
-	overflow: hidden;
-`;
-const EnemyWindow2 = styled.div`
-	position: relative;
-	border-width: 6px;
-	border-color: blue;
-	border-style: solid;
-	background-color: black;
-	width: 130px;
-	height: 260px;
-	left: 40px;
-	top: 390px;
-	overflow: hidden;
-`;
-const EnemyWindow3 = styled.div`
-	position: absolute;
-	border-width: 6px;
-	border-color: blue;
-	border-style: solid;
-	background-color: black;
-	width: 130px;
-	height: 260px;
-	left: 210px;
-	top: 40px;
-	overflow: hidden;
-`;
-const EnemyWindow4 = styled.div`
-	position: relative;
-	border-width: 6px;
-	border-color: blue;
-	border-style: solid;
-	background-color: black;
-	width: 130px;
-	height: 260px;
-	left: 210px;
-	top: 390px;
-	overflow: hidden;
-`;
-const EnemyWindow5 = styled.div`
-	position: relative;
-	border-width: 6px;
-	border-color: blue;
-	border-style: solid;
-	background-color: black;
-	width: 130px;
-	height: 260px;
-	left: 380px;
-	top: 390px;
 	overflow: hidden;
 `;
 const Id = styled.div`
 	position: relative;
-	top: 114px;
-	left: 740px;
 	width: 205px;
 	height: 20px;
 	text-align: center;
@@ -171,8 +146,6 @@ const Id = styled.div`
 `;
 const You1 = styled.div`
 	position: relative;
-	top: 16px;
-	left: 40px;
 	height: 20px;
 	width: 136px;
 	text-align: center;
@@ -182,8 +155,6 @@ const You1 = styled.div`
 `;
 const You2 = css`
 	position: relative;
-	top: 366px;
-	left: 40px;
 	height: 20px;
 	width: 136px;
 	text-align: center;
@@ -193,8 +164,6 @@ const You2 = css`
 `;
 const You3 = css`
 	position: relative;
-	top: 16px;
-	left: 210px;
 	height: 20px;
 	width: 136px;
 	text-align: center;
@@ -204,8 +173,6 @@ const You3 = css`
 `;
 const You4 = css`
 	position: relative;
-	top: 366px;
-	left: 210px;
 	height: 20px;
 	width: 136px;
 	text-align: center;
@@ -215,8 +182,6 @@ const You4 = css`
 `;
 const You5 = css`
 	position: relative;
-	top: 366px;
-	left: 380px;
 	height: 20px;
 	width: 136px;
 	text-align: center;
@@ -233,8 +198,6 @@ const StartButton = styled.button`
 	background-color: skyblue;
 	width: 80px;
 	height: 30px;
-	left: 1010px;
-	top: 425px;
 	overflow: hidden;
 	text-align: center;
 	font-size: 18px;
@@ -248,8 +211,6 @@ const ExitButton = styled.button`
 	background-color: skyblue;
 	width: 80px;
 	height: 30px;
-	left: 1110px;
-	top: 425px;
 	overflow: hidden;
 	text-align: center;
 	font-size: 18px;
@@ -262,8 +223,6 @@ const ChatingBox = styled.div`
 	border-style: solid;
 	height: 200px;
 	position: absolute;
-	top: 140px;
-	left: 1000px;
 	font-size: 10px;
 	overflow: auto;
 	z-index: 500;
@@ -274,16 +233,12 @@ const InputBox = styled.input`
 	width: 170px;
 	height: 20px;
 	font-size: 10px;
-	top: 342px;
-	left: 1000px;
 	z-index: 150;
 `;
 const SendButton = styled.button`
 	position: relative;
 	width: 34px;
 	height: 25px;
-	left: 1171px;
-	top: 342px;
 	font-size: 14px;
 	color: black;
 	text-align: center;
@@ -291,17 +246,17 @@ const SendButton = styled.button`
 	z-index: 100;
 `;
 const BlockStyle = css`
-	position: relative;
+	position: absolute;
 	border-width: ${BLOCK.BORDER_WIDTH}px;
 	border-color: white;
 	border-style: outset;
 	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
 	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
-	left: 76px;
-	top: -19px;
+	left: ${GAME_WINDOW.WIDTH / 2 - BLOCK.WIDTH / 2}px;
+	top: ${-BLOCK.HEIGHT}px;
 `;
 const EnemyBlockStyle = css`
-	position: relative;
+	position: absolute;
 	border-width: 1px;
 	border-color: white;
 	border-style: outset;
@@ -311,14 +266,14 @@ const EnemyBlockStyle = css`
 	top: -19px;
 `;
 const Ranking = styled.div`
-	position: relative;
+	position: absolute;
 	color: white;
 	font-size: 80px;
 	left: 75px;
 	top: 135px;
 `;
 const EnemyRanking = styled.div`
-	position: relative;
+	position: absolute;
 	color: white;
 	font-size: 50px;
 	left: 45px;
@@ -900,56 +855,34 @@ const Game = ({
 
 	return (
 		<Body>
-			<TetrisTemplate>
-				<GameWindow key="1">
-					{blocks.map((item) => {
-						let blockStyle = {
-							top: item[2],
-							left: item[3],
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={BlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<Ranking>{rank}</Ranking>}
-				</GameWindow>
-				<FirstPreviewWindow key="2">
-					{firstWaitingBlock.map((item) => {
-						let blockStyle = {
-							top: item[2],
-							left: item[3],
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={BlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-				</FirstPreviewWindow>
-				<SecondPreviewWindow key="3">
-					{secondWaitingBlock.map((item) => {
-						let blockStyle = {
-							top: item[2],
-							left: item[3],
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={BlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-				</SecondPreviewWindow>
+			<Left>
+				{/* {users.map((user, index) => {
+					if (index === 0) {
+						if (user === me) {
+							return <Id key="10">★{user}</Id>;
+						} else {
+							return <You1 key="10">★{user}</You1>;
+						}
+					} else {
+						if (user === me) {
+							return <Id key="10">{user}</Id>;
+						} else {
+							if (myNum < index) {
+								return (
+									<div css={`you${index}`} key="10">
+										{user}
+									</div>
+								);
+							} else {
+								return (
+									<div css={`you${index + 1}`} key="10">
+										{user}
+									</div>
+								);
+							}
+						}
+					}
+				})} */}
 				<EnemyWindow1 key="4">
 					{blocks2.map((item) => {
 						let blockStyle = {
@@ -1035,43 +968,59 @@ const Game = ({
 					})}
 					{<EnemyRanking>{enemyRank6}</EnemyRanking>}
 				</EnemyWindow5>
-				{state !== "게임중" && users[0] === me && (
-					<StartButton onClick={initialize}>시작하기</StartButton>
-				)}
-				{state === "대기중" ? (
-					<Link to="/" onClick={leave}>
-						<ExitButton>돌아가기</ExitButton>
-					</Link>
-				) : (
-					<ExitButton key="9">돌아가기</ExitButton>
-				)}
-				{users.map((user, index) => {
-					if (index === 0) {
-						if (user === me) {
-							return <Id key="10">★{user}</Id>;
-						} else {
-							return <You1 key="10">★{user}</You1>;
-						}
-					} else {
-						if (user === me) {
-							return <Id key="10">{user}</Id>;
-						} else {
-							if (myNum < index) {
-								return (
-									<div css={`you${index}`} key="10">
-										{user}
-									</div>
-								);
-							} else {
-								return (
-									<div css={`you${index + 1}`} key="10">
-										{user}
-									</div>
-								);
-							}
-						}
-					}
-				})}
+			</Left>
+			<div>
+				<GameWindow key="1">
+					{blocks.map((item) => {
+						let blockStyle = {
+							top: item[2],
+							left: item[3],
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={BlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<Ranking>{rank}</Ranking>}
+				</GameWindow>
+				<FirstPreviewWindow key="2">
+					{firstWaitingBlock.map((item) => {
+						let blockStyle = {
+							top: item[2],
+							left: item[3],
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={BlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+				</FirstPreviewWindow>
+				<SecondPreviewWindow key="3">
+					{secondWaitingBlock.map((item) => {
+						let blockStyle = {
+							top: item[2],
+							left: item[3],
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={BlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+				</SecondPreviewWindow>
+			</div>
+			<div>
 				<ChatingBox key="11">
 					{chatings.map((chat) => {
 						if (chat[1] === "join") {
@@ -1105,11 +1054,21 @@ const Game = ({
 				>
 					전송
 				</SendButton>
-				<a href="https://kr.freepik.com/free-vector/arizona-night-desert-landscape-natural-wild-west-background-with-coyote-pack-silhouettes-run-on-through-cacti-and-rocks-under-cloudy-sky-with-full-moon-shining-game-scene-cartoon-vector-illustration_21050353.htm#query=game%20background&position=3&from_view=keyword">
-					작가 upklyak
-				</a>{" "}
-				출처 Freepik
-			</TetrisTemplate>
+				{state !== "게임중" && users[0] === me && (
+					<StartButton onClick={initialize}>시작하기</StartButton>
+				)}
+				{state === "대기중" ? (
+					<Link to="/" onClick={leave}>
+						<ExitButton>돌아가기</ExitButton>
+					</Link>
+				) : (
+					<ExitButton key="9">돌아가기</ExitButton>
+				)}
+			</div>
+			<a href="https://kr.freepik.com/free-vector/arizona-night-desert-landscape-natural-wild-west-background-with-coyote-pack-silhouettes-run-on-through-cacti-and-rocks-under-cloudy-sky-with-full-moon-shining-game-scene-cartoon-vector-illustration_21050353.htm#query=game%20background&position=3&from_view=keyword">
+				작가 upklyak
+			</a>{" "}
+			출처 Freepik
 		</Body>
 	);
 };
