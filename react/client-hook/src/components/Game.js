@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { jsx, css } from "@emotion/react";
+import backgroundImage from "../img/background.jpg";
 
 const KEY_CODE = {
 	ENTER: 13,
@@ -46,13 +47,20 @@ const PREVIEW_WINDOW = {
 const NUMBER_OF_BLOCKS = 4;
 
 const Body = styled.div`
-	background-color: rgb(66, 66, 66);
 	height: 100vh;
 	width: 100vw;
 	margin: 0px;
+	background-image: url(${backgroundImage});
+	background-size: cover;
+`;
+const TetrisTemplate = styled.div`
+	width: 512px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: auto;
 `;
 const GameWindow = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: ${GAME_WINDOW.BORDER_WIDTH}px;
 	border-color: blue;
 	border-style: solid;
@@ -64,7 +72,7 @@ const GameWindow = styled.div`
 	overflow: hidden;
 `;
 const FirstPreviewWindow = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
 	border-color: blue;
 	border-style: solid;
@@ -77,7 +85,7 @@ const FirstPreviewWindow = styled.div`
 	overflow: hidden;
 `;
 const SecondPreviewWindow = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
 	border-color: blue;
 	border-style: solid;
@@ -91,7 +99,7 @@ const SecondPreviewWindow = styled.div`
 	overflow: hidden;
 `;
 const EnemyWindow1 = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: 6px;
 	border-color: blue;
 	border-style: solid;
@@ -103,7 +111,7 @@ const EnemyWindow1 = styled.div`
 	overflow: hidden;
 `;
 const EnemyWindow2 = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: 6px;
 	border-color: blue;
 	border-style: solid;
@@ -127,7 +135,7 @@ const EnemyWindow3 = styled.div`
 	overflow: hidden;
 `;
 const EnemyWindow4 = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: 6px;
 	border-color: blue;
 	border-style: solid;
@@ -139,7 +147,7 @@ const EnemyWindow4 = styled.div`
 	overflow: hidden;
 `;
 const EnemyWindow5 = styled.div`
-	position: absolute;
+	position: relative;
 	border-width: 6px;
 	border-color: blue;
 	border-style: solid;
@@ -151,7 +159,7 @@ const EnemyWindow5 = styled.div`
 	overflow: hidden;
 `;
 const Id = styled.div`
-	position: absolute;
+	position: relative;
 	top: 114px;
 	left: 740px;
 	width: 205px;
@@ -162,7 +170,7 @@ const Id = styled.div`
 	border-style: solid;
 `;
 const You1 = styled.div`
-	position: absolute;
+	position: relative;
 	top: 16px;
 	left: 40px;
 	height: 20px;
@@ -173,7 +181,7 @@ const You1 = styled.div`
 	background-color: white;
 `;
 const You2 = css`
-	position: absolute;
+	position: relative;
 	top: 366px;
 	left: 40px;
 	height: 20px;
@@ -184,7 +192,7 @@ const You2 = css`
 	background-color: white;
 `;
 const You3 = css`
-	position: absolute;
+	position: relative;
 	top: 16px;
 	left: 210px;
 	height: 20px;
@@ -195,7 +203,7 @@ const You3 = css`
 	background-color: white;
 `;
 const You4 = css`
-	position: absolute;
+	position: relative;
 	top: 366px;
 	left: 210px;
 	height: 20px;
@@ -206,7 +214,7 @@ const You4 = css`
 	background-color: white;
 `;
 const You5 = css`
-	position: absolute;
+	position: relative;
 	top: 366px;
 	left: 380px;
 	height: 20px;
@@ -218,7 +226,7 @@ const You5 = css`
 `;
 const StartButton = styled.button`
 	padding: 0;
-	position: absolute;
+	position: relative;
 	border-width: 4px;
 	border-style: outset;
 	border-color: skyblue;
@@ -233,7 +241,7 @@ const StartButton = styled.button`
 `;
 const ExitButton = styled.button`
 	padding: 0;
-	position: absolute;
+	position: relative;
 	border-width: 4px;
 	border-style: outset;
 	border-color: skyblue;
@@ -248,7 +256,7 @@ const ExitButton = styled.button`
 `;
 const ChatingBox = styled.div`
 	text-align: left;
-	position: absolute;
+	position: relative;
 	background-color: rgb(212, 244, 250);
 	width: 200px;
 	border-style: solid;
@@ -261,7 +269,7 @@ const ChatingBox = styled.div`
 	z-index: 500;
 `;
 const InputBox = styled.input`
-	position: absolute;
+	position: relative;
 	border-style: solid;
 	width: 170px;
 	height: 20px;
@@ -271,7 +279,7 @@ const InputBox = styled.input`
 	z-index: 150;
 `;
 const SendButton = styled.button`
-	position: absolute;
+	position: relative;
 	width: 34px;
 	height: 25px;
 	left: 1171px;
@@ -283,7 +291,7 @@ const SendButton = styled.button`
 	z-index: 100;
 `;
 const BlockStyle = css`
-	position: absolute;
+	position: relative;
 	border-width: ${BLOCK.BORDER_WIDTH}px;
 	border-color: white;
 	border-style: outset;
@@ -293,7 +301,7 @@ const BlockStyle = css`
 	top: -19px;
 `;
 const EnemyBlockStyle = css`
-	position: absolute;
+	position: relative;
 	border-width: 1px;
 	border-color: white;
 	border-style: outset;
@@ -303,14 +311,14 @@ const EnemyBlockStyle = css`
 	top: -19px;
 `;
 const Ranking = styled.div`
-	position: absolute;
+	position: relative;
 	color: white;
 	font-size: 80px;
 	left: 75px;
 	top: 135px;
 `;
 const EnemyRanking = styled.div`
-	position: absolute;
+	position: relative;
 	color: white;
 	font-size: 50px;
 	left: 45px;
@@ -322,10 +330,8 @@ let upLineCount = 1;
 let dropMilliseconds = 300;
 
 const createPreviewBlock = () => {
-	const PREVIEW_WINDOW_CENTER_X =
-		PREVIEW_WINDOW.WIDTH / 2 + PREVIEW_WINDOW.BORDER_WIDTH;
-	const PREVIEW_WINDOW_CENTER_Y =
-		PREVIEW_WINDOW.HEIGHT / 2 + PREVIEW_WINDOW.BORDER_WIDTH;
+	const PREVIEW_WINDOW_CENTER_X = PREVIEW_WINDOW.WIDTH / 2;
+	const PREVIEW_WINDOW_CENTER_Y = PREVIEW_WINDOW.HEIGHT / 2;
 
 	switch (Math.floor(Math.random() * 7)) {
 		case BLOCK_SHAPE.SQUARE:
@@ -334,20 +340,13 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.SQUARE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
 					"red",
 				],
 				[
 					blockKey++,
 					BLOCK_SHAPE.SQUARE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"red",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.SQUARE,
-					PREVIEW_WINDOW_CENTER_Y,
 					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"red",
 				],
@@ -355,7 +354,14 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.SQUARE,
 					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					"red",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.SQUARE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"red",
 				],
 			];
@@ -365,13 +371,6 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.LINEAR,
 					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
-					"purple",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.LINEAR,
-					PREVIEW_WINDOW_CENTER_Y,
 					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"purple",
 				],
@@ -379,14 +378,21 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.LINEAR,
 					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
 					"purple",
 				],
 				[
 					blockKey++,
 					BLOCK_SHAPE.LINEAR,
 					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH * 2,
+					PREVIEW_WINDOW_CENTER_X,
+					"purple",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.LINEAR,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
 					"purple",
 				],
 			];
@@ -396,7 +402,7 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.FALCI_SHAPE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"pink",
 				],
 				[
@@ -410,14 +416,14 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.FALCI_SHAPE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
 					"pink",
 				],
 				[
 					blockKey++,
 					BLOCK_SHAPE.FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y + BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X,
 					"pink",
 				],
 			];
@@ -427,28 +433,28 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"yellow",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					"yellow",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
 					PREVIEW_WINDOW_CENTER_X,
 					"yellow",
 				],
 				[
 					blockKey++,
 					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"yellow",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
-					"yellow",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y + BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
 					"yellow",
 				],
 			];
@@ -458,13 +464,6 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.MOUNTINE_SHAPE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"orange",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.MOUNTINE_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
 					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"orange",
 				],
@@ -472,14 +471,21 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.MOUNTINE_SHAPE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					"orange",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.MOUNTINE_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
 					"orange",
 				],
 				[
 					blockKey++,
 					BLOCK_SHAPE.MOUNTINE_SHAPE,
 					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"orange",
 				],
 			];
@@ -489,6 +495,20 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.BENT_UP_LINE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"green",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_UP_LINE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					"green",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_UP_LINE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
 					PREVIEW_WINDOW_CENTER_X,
 					"green",
 				],
@@ -497,20 +517,6 @@ const createPreviewBlock = () => {
 					BLOCK_SHAPE.BENT_UP_LINE,
 					PREVIEW_WINDOW_CENTER_Y,
 					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"green",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_UP_LINE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
-					"green",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_UP_LINE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
 					"green",
 				],
 			];
@@ -520,20 +526,6 @@ const createPreviewBlock = () => {
 					blockKey++,
 					BLOCK_SHAPE.BENT_DOWN_LINE,
 					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"blue",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_DOWN_LINE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
-					"blue",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_DOWN_LINE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
 					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"blue",
 				],
@@ -542,6 +534,20 @@ const createPreviewBlock = () => {
 					BLOCK_SHAPE.BENT_DOWN_LINE,
 					PREVIEW_WINDOW_CENTER_Y,
 					PREVIEW_WINDOW_CENTER_X,
+					"blue",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_DOWN_LINE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					"blue",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_DOWN_LINE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
 					"blue",
 				],
 			];
@@ -552,64 +558,9 @@ const createPreviewBlock = () => {
 
 const getMainBlock = (blocks) => {
 	blocks.forEach((block) => {
-		block[2] +=
-			GAME_WINDOW.WIDTH / 2 +
-			GAME_WINDOW.BORDER_WIDTH -
-			PREVIEW_WINDOW.WIDTH / 2 -
-			PREVIEW_WINDOW.BORDER_WIDTH;
-		block[3] +=
-			GAME_WINDOW.HEIGHT / 2 +
-			GAME_WINDOW.BORDER_WIDTH -
-			PREVIEW_WINDOW.HEIGHT / 2 -
-			PREVIEW_WINDOW.BORDER_WIDTH;
+		block[3] += GAME_WINDOW.WIDTH / 2 - PREVIEW_WINDOW.WIDTH / 2;
+		block[2] -= PREVIEW_WINDOW.HEIGHT / 2;
 	});
-
-	// switch (blockID) {
-	// 	case BLOCK_SHAPE.SQUARE:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "red"]);
-	// 		blocks.push([blockKey++, blockID, -19, 95, "red"]);
-	// 		blocks.push([blockKey++, blockID, 0, 76, "red"]);
-	// 		blocks.push([blockKey++, blockID, 0, 95, "red"]);
-	// 		break;
-	// 	case BLOCK_SHAPE.LINEAR:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "purple"]);
-	// 		blocks.push([blockKey++, blockID, -19, 57, "purple"]);
-	// 		blocks.push([blockKey++, blockID, -19, 95, "purple"]);
-	// 		blocks.push([blockKey++, blockID, -19, 114, "purple"]);
-	// 		break;
-	// 	case BLOCK_SHAPE.FALCI_SHAPE:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "pink"]);
-	// 		blocks.push([blockKey++, blockID, -19, 57, "pink"]);
-	// 		blocks.push([blockKey++, blockID, -19, 95, "pink"]);
-	// 		blocks.push([blockKey++, blockID, 0, 95, "pink"]);
-	// 		break;
-	// 	case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "yellow"]);
-	// 		blocks.push([blockKey++, blockID, -19, 57, "yellow"]);
-	// 		blocks.push([blockKey++, blockID, -19, 95, "yellow"]);
-	// 		blocks.push([blockKey++, blockID, 0, 57, "yellow"]);
-	// 		break;
-	// 	case BLOCK_SHAPE.MOUNTINE_SHAPE:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "orange"]);
-	// 		blocks.push([blockKey++, blockID, -19, 57, "orange"]);
-	// 		blocks.push([blockKey++, blockID, -19, 95, "orange"]);
-	// 		blocks.push([blockKey++, blockID, 0, 76, "orange"]);
-	// 		break;
-	// 	case BLOCK_SHAPE.BENT_UP_LINE:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "green"]);
-	// 		blocks.push([blockKey++, blockID, 0, 57, "green"]);
-	// 		blocks.push([blockKey++, blockID, -19, 95, "green"]);
-	// 		blocks.push([blockKey++, blockID, 0, 76, "green"]);
-	// 		break;
-	// 	case BLOCK_SHAPE.BENT_DOWN_LINE:
-	// 		blocks.push([blockKey++, blockID, -19, 76, "blue"]);
-	// 		blocks.push([blockKey++, blockID, 0, 95, "blue"]);
-	// 		blocks.push([blockKey++, blockID, -19, 57, "blue"]);
-	// 		blocks.push([blockKey++, blockID, 0, 76, "blue"]);
-	// 		break;
-	// 	default:
-	// 		break;
-	// }
 
 	return blocks;
 };
@@ -701,7 +652,7 @@ const Game = ({
 		}
 	});
 
-	const initialize = () => {
+	const initialize = useCallback(() => {
 		window.addEventListener(
 			"keydown",
 			gameControllKeyListener.current,
@@ -720,9 +671,9 @@ const Game = ({
 		}, dropMilliseconds);
 
 		start();
-	};
+	});
 
-	const downBlock = () => {
+	const downBlock = useCallback(() => {
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
 			blocks[i][2] += BLOCK.HEIGHT;
 		}
@@ -752,11 +703,11 @@ const Game = ({
 		down();
 
 		return false;
-	};
+	}, [blocks]);
 
 	downBlockRef.current = downBlock;
 
-	const clearFilledLine = () => {
+	const clearFilledLine = useCallback(() => {
 		let cloneBlocks = blocks.map((block) => block.slice());
 
 		for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
@@ -782,9 +733,9 @@ const Game = ({
 		setBlocks(blocks.map((block) => block.slice()));
 		addLine();
 		updateBlocks(blocks.map((block) => block.slice()));
-	};
+	}, [blocks]);
 
-	const finishGame = () => {
+	const finishGame = useCallback(() => {
 		setRank(personNum);
 		window.removeEventListener(
 			"keydown",
@@ -800,44 +751,45 @@ const Game = ({
 		setBlocks(blocks.map((block) => block.slice()));
 
 		end(blocks.map((block) => block.slice()));
-	};
+	}, [blocks]);
 
 	const upLine = () => {
 		let emptyBlockIdx = Math.floor(Math.random() * 10);
 
-		if (upLineCount > personNum - 2) {
-			for (let i = 0; i < blocks.length - 4; i++) {
-				blocks[i][2] -= BLOCK.HEIGHT;
-			}
-			for (let i = 0; i < 10; i++) {
-				if (emptyBlockIdx !== i) {
-					blocks.splice(0, 0, [blockKey++, "line", 361, 19 * i]); //블록들의 정보를 보관하는 배열에 이 블록들을 앞으로 넣음
-				}
-			}
-			for (let i = blocks.length - 4; i < blocks.length; i++) {
-				for (let j = 0; j < blocks.length - 4; j++) {
-					if (
-						blocks[i][3] === blocks[j][3] &&
-						blocks[i][2] === blocks[j][2]
-					) {
-						//한칸을 올라오는 순간에 현재 떨어지고 있는 블록이 곂친다면
-						for (
-							let k = blocks.length - 4;
-							k < blocks.length;
-							k++
-						) {
-							blocks[k][2] -= BLOCK.HEIGHT; //현재 떨어지고 있는 블록을 한칸씩 올려버림
-						}
-						j -= 1;
-					}
-				}
-			}
-
-			upLineCount = 1;
+		if (upLineCount <= personNum - 2) {
+			upLineCount += 1;
 			return;
 		}
 
-		upLineCount += 1;
+		for (let i = 0; i < blocks.length - 4; i++) {
+			blocks[i][2] -= BLOCK.HEIGHT;
+		}
+		for (let i = 0; i < 10; i++) {
+			if (emptyBlockIdx !== i) {
+				blocks.splice(0, 0, [
+					blockKey++,
+					"line",
+					GAME_WINDOW.HEIGHT - BLOCK.HEIGHT,
+					BLOCK.WIDTH * i,
+					"rgb(166,166,166)",
+				]);
+			}
+		}
+		for (let i = blocks.length - 4; i < blocks.length; i++) {
+			for (let j = 0; j < blocks.length - 4; j++) {
+				if (
+					blocks[i][3] === blocks[j][3] &&
+					blocks[i][2] === blocks[j][2]
+				) {
+					for (let k = blocks.length - 4; k < blocks.length; k++) {
+						blocks[k][2] -= BLOCK.HEIGHT;
+					}
+					j -= 1;
+				}
+			}
+		}
+
+		upLineCount = 1;
 	};
 
 	getGameControllKey.current = (event) => {
@@ -897,249 +849,267 @@ const Game = ({
 		}
 	};
 
-	const rotateBlock = () => {
-		let centerX = 0;
-		let centerY = 0;
-		for (let i = blocks.length - NUMBER_OF_BLOCKS; i < blocks.length; ++i) {
-			centerX += blocks[i][3];
-			centerY += blocks[i][2];
-		}
-		centerX = centerX / 4;
-		centerY = centerY / 4;
-
-		for (let i = blocks.length - NUMBER_OF_BLOCKS; i < blocks.length; ++i) {
-			const dx = blocks[i][3] - centerX;
-			const dy = blocks[i][2] - centerY;
-			blocks[i][2] = centerY + dx;
-			blocks[i][3] = centerX - dy;
-		}
-
-		if (isOverd(blocks) === true) {
-			for (let i = blocks.length - 4; i < blocks.length; i++) {
-				blocks[i][3] += BLOCK.WIDTH;
-			}
-		}
-
-		if (isOverd(blocks) === true) {
-			for (let i = blocks.length - 4; i < blocks.length; i++) {
-				blocks[i][3] -= BLOCK.WIDTH * 2;
-			}
-		}
-
-		if (isOverd(blocks) === true) {
+	const rotateBlock = useCallback(() => {
+		if (blocks[blocks.length - 1][1] === BLOCK_SHAPE.SQUARE) {
 			return;
 		}
 
-		setBlocks(blocks.map((block) => block.slice()));
-		updateBlocks(blocks.map((block) => block.slice()));
-	};
+		let rotatedBlocks = blocks.map((block) => block.slice());
+
+		let centerX = rotatedBlocks[rotatedBlocks.length - 4][3];
+		let centerY = rotatedBlocks[rotatedBlocks.length - 4][2];
+
+		for (
+			let i = rotatedBlocks.length - NUMBER_OF_BLOCKS;
+			i < rotatedBlocks.length;
+			++i
+		) {
+			const dx = rotatedBlocks[i][3] - centerX;
+			const dy = rotatedBlocks[i][2] - centerY;
+			rotatedBlocks[i][2] = centerY + dx;
+			rotatedBlocks[i][3] = centerX - dy;
+		}
+
+		if (isOverd(rotatedBlocks) === true) {
+			for (
+				let i = rotatedBlocks.length - 4;
+				i < rotatedBlocks.length;
+				i++
+			) {
+				rotatedBlocks[i][3] += BLOCK.WIDTH;
+			}
+		}
+
+		if (isOverd(rotatedBlocks) === true) {
+			for (
+				let i = rotatedBlocks.length - 4;
+				i < rotatedBlocks.length;
+				i++
+			) {
+				rotatedBlocks[i][3] -= BLOCK.WIDTH * 2;
+			}
+		}
+
+		if (isOverd(rotatedBlocks) === true) {
+			return;
+		}
+
+		setBlocks(rotatedBlocks);
+		updateBlocks(rotatedBlocks);
+	}, [blocks]);
 
 	return (
 		<Body>
-			<GameWindow key="1">
-				{blocks.map((item) => {
-					let blockStyle = {
-						top: item[2],
-						left: item[3],
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={BlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-				{<Ranking>{rank}</Ranking>}
-			</GameWindow>
-			<FirstPreviewWindow key="2">
-				{firstWaitingBlock.map((item) => {
-					let blockStyle = {
-						top: item[2],
-						left: item[3],
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={BlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-			</FirstPreviewWindow>
-			<SecondPreviewWindow key="3">
-				{secondWaitingBlock.map((item) => {
-					let blockStyle = {
-						top: item[2],
-						left: item[3],
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={BlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-			</SecondPreviewWindow>
-			<EnemyWindow1 key="4">
-				{blocks2.map((item) => {
-					let blockStyle = {
-						top: 13 * (item[2] / 19),
-						left: 13 * (item[3] / 19),
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={EnemyBlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-				{<div className="rank2">{enemyRank2}</div>}
-			</EnemyWindow1>
-			<EnemyWindow2 key="5">
-				{blocks3.map((item) => {
-					let blockStyle = {
-						top: 13 * (item[2] / 19),
-						left: 13 * (item[3] / 19),
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={EnemyBlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-				{<EnemyRanking>{enemyRank3}</EnemyRanking>}
-			</EnemyWindow2>
-			<EnemyWindow3 key="6">
-				{blocks4.map((item) => {
-					let blockStyle = {
-						top: 13 * (item[2] / 19),
-						left: 13 * (item[3] / 19),
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={EnemyBlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-				{<EnemyRanking>{enemyRank4}</EnemyRanking>}
-			</EnemyWindow3>
-			<EnemyWindow4 key="7">
-				{blocks5.map((item) => {
-					let blockStyle = {
-						top: 13 * (item[2] / 19),
-						left: 13 * (item[3] / 19),
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={EnemyBlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-				{<EnemyRanking>{enemyRank5}</EnemyRanking>}
-			</EnemyWindow4>
-			<EnemyWindow5 key="8">
-				{blocks6.map((item) => {
-					let blockStyle = {
-						top: 13 * (item[2] / 19),
-						left: 13 * (item[3] / 19),
-						backgroundColor: item[4],
-					};
-					return (
-						<div
-							key={item[0]}
-							css={EnemyBlockStyle}
-							style={blockStyle}
-						/>
-					);
-				})}
-				{<EnemyRanking>{enemyRank6}</EnemyRanking>}
-			</EnemyWindow5>
-			{state !== "게임중" && users[0] === me && (
-				<StartButton onClick={initialize}>시작하기</StartButton>
-			)}
-			{state === "대기중" ? (
-				<Link to="/" onClick={leave}>
-					<ExitButton>돌아가기</ExitButton>
-				</Link>
-			) : (
-				<ExitButton key="9">돌아가기</ExitButton>
-			)}
-			{users.map((user, index) => {
-				if (index === 0) {
-					if (user === me) {
-						return <Id key="10">★{user}</Id>;
+			<TetrisTemplate>
+				<GameWindow key="1">
+					{blocks.map((item) => {
+						let blockStyle = {
+							top: item[2],
+							left: item[3],
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={BlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<Ranking>{rank}</Ranking>}
+				</GameWindow>
+				<FirstPreviewWindow key="2">
+					{firstWaitingBlock.map((item) => {
+						let blockStyle = {
+							top: item[2],
+							left: item[3],
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={BlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+				</FirstPreviewWindow>
+				<SecondPreviewWindow key="3">
+					{secondWaitingBlock.map((item) => {
+						let blockStyle = {
+							top: item[2],
+							left: item[3],
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={BlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+				</SecondPreviewWindow>
+				<EnemyWindow1 key="4">
+					{blocks2.map((item) => {
+						let blockStyle = {
+							top: 13 * (item[2] / 19),
+							left: 13 * (item[3] / 19),
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={EnemyBlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<div className="rank2">{enemyRank2}</div>}
+				</EnemyWindow1>
+				<EnemyWindow2 key="5">
+					{blocks3.map((item) => {
+						let blockStyle = {
+							top: 13 * (item[2] / 19),
+							left: 13 * (item[3] / 19),
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={EnemyBlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<EnemyRanking>{enemyRank3}</EnemyRanking>}
+				</EnemyWindow2>
+				<EnemyWindow3 key="6">
+					{blocks4.map((item) => {
+						let blockStyle = {
+							top: 13 * (item[2] / 19),
+							left: 13 * (item[3] / 19),
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={EnemyBlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<EnemyRanking>{enemyRank4}</EnemyRanking>}
+				</EnemyWindow3>
+				<EnemyWindow4 key="7">
+					{blocks5.map((item) => {
+						let blockStyle = {
+							top: 13 * (item[2] / 19),
+							left: 13 * (item[3] / 19),
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={EnemyBlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<EnemyRanking>{enemyRank5}</EnemyRanking>}
+				</EnemyWindow4>
+				<EnemyWindow5 key="8">
+					{blocks6.map((item) => {
+						let blockStyle = {
+							top: 13 * (item[2] / 19),
+							left: 13 * (item[3] / 19),
+							backgroundColor: item[4],
+						};
+						return (
+							<div
+								key={item[0]}
+								css={EnemyBlockStyle}
+								style={blockStyle}
+							/>
+						);
+					})}
+					{<EnemyRanking>{enemyRank6}</EnemyRanking>}
+				</EnemyWindow5>
+				{state !== "게임중" && users[0] === me && (
+					<StartButton onClick={initialize}>시작하기</StartButton>
+				)}
+				{state === "대기중" ? (
+					<Link to="/" onClick={leave}>
+						<ExitButton>돌아가기</ExitButton>
+					</Link>
+				) : (
+					<ExitButton key="9">돌아가기</ExitButton>
+				)}
+				{users.map((user, index) => {
+					if (index === 0) {
+						if (user === me) {
+							return <Id key="10">★{user}</Id>;
+						} else {
+							return <You1 key="10">★{user}</You1>;
+						}
 					} else {
-						return <You1 key="10">★{user}</You1>;
+						if (user === me) {
+							return <Id key="10">{user}</Id>;
+						} else {
+							if (myNum < index) {
+								return (
+									<div css={`you${index}`} key="10">
+										{user}
+									</div>
+								);
+							} else {
+								return (
+									<div css={`you${index + 1}`} key="10">
+										{user}
+									</div>
+								);
+							}
+						}
 					}
-				} else {
-					if (user === me) {
-						return <Id key="10">{user}</Id>;
-					} else {
-						if (myNum < index) {
+				})}
+				<ChatingBox key="11">
+					{chatings.map((chat) => {
+						if (chat[1] === "join") {
+							return <div key={chat[0]}>{chat[2]}</div>;
+						} else if (chat[1] === "me") {
 							return (
-								<div css={`you${index}`} key="10">
-									{user}
+								<div key={chat[0]}>
+									{me}>{chat[2]}
 								</div>
 							);
 						} else {
 							return (
-								<div css={`you${index + 1}`} key="10">
-									{user}
+								<div key={chat[0]}>
+									{chat[1]}>{chat[2]}
 								</div>
 							);
 						}
-					}
-				}
-			})}
-			<ChatingBox key="11">
-				{chatings.map((chat) => {
-					if (chat[1] === "join") {
-						return <div key={chat[0]}>{chat[2]}</div>;
-					} else if (chat[1] === "me") {
-						return (
-							<div key={chat[0]}>
-								{me}>{chat[2]}
-							</div>
-						);
-					} else {
-						return (
-							<div key={chat[0]}>
-								{chat[1]}>{chat[2]}
-							</div>
-						);
-					}
-				})}
-			</ChatingBox>
-			<InputBox
-				ref={inputEl}
-				onChange={(e) => setChatingInputText(e.target.value)}
-			/>
-			<SendButton
-				onClick={() => {
-					sendMessage(chatingInputText);
-					inputEl.value = "";
-					setChatingInputText(" ");
-				}}
-				key="12"
-			>
-				전송
-			</SendButton>
+					})}
+				</ChatingBox>
+				<InputBox
+					ref={inputEl}
+					onChange={(e) => setChatingInputText(e.target.value)}
+				/>
+				<SendButton
+					onClick={() => {
+						sendMessage(chatingInputText);
+						inputEl.value = "";
+						setChatingInputText(" ");
+					}}
+					key="12"
+				>
+					전송
+				</SendButton>
+				<a href="https://kr.freepik.com/free-vector/arizona-night-desert-landscape-natural-wild-west-background-with-coyote-pack-silhouettes-run-on-through-cacti-and-rocks-under-cloudy-sky-with-full-moon-shining-game-scene-cartoon-vector-illustration_21050353.htm#query=game%20background&position=3&from_view=keyword">
+					작가 upklyak
+				</a>{" "}
+				출처 Freepik
+			</TetrisTemplate>
 		</Body>
 	);
 };
