@@ -23,15 +23,27 @@ const BLOCK_SHAPE = {
 	BENT_DOWN_LINE: 6,
 };
 
-const BLOCK_SIZE = {
-	WIDTH: 19,
-	HEIGHT: 19,
+const BLOCK = {
+	WIDTH: 20,
+	HEIGHT: 20,
+	BORDER_WIDTH: 2,
 };
 
-const GAME_WINDOW_SIZE = {
-	WIDTH: 190,
-	HEIGHT: 380,
+const GAME_WINDOW = {
+	LEFT: 740,
+	TOP: 140,
+	WIDTH: BLOCK.WIDTH * 10,
+	HEIGHT: BLOCK.HEIGHT * 20,
+	BORDER_WIDTH: 10,
 };
+
+const PREVIEW_WINDOW = {
+	WIDTH: BLOCK.WIDTH * 4,
+	HEIGHT: BLOCK.HEIGHT * 4,
+	BORDER_WIDTH: 5,
+};
+
+const NUMBER_OF_BLOCKS = 4;
 
 const Body = styled.div`
 	background-color: rgb(66, 66, 66);
@@ -39,40 +51,43 @@ const Body = styled.div`
 	width: 100vw;
 	margin: 0px;
 `;
-const MyGameWindow = styled.div`
+const GameWindow = styled.div`
 	position: absolute;
-	border-width: 10px;
+	border-width: ${GAME_WINDOW.BORDER_WIDTH}px;
 	border-color: blue;
 	border-style: solid;
 	background-color: black;
-	width: ${GAME_WINDOW_SIZE.WIDTH}px;
-	height: ${GAME_WINDOW_SIZE.HEIGHT}px;
-	left: 740px;
-	top: 140px;
+	width: ${GAME_WINDOW.WIDTH}px;
+	height: ${GAME_WINDOW.HEIGHT}px;
+	left: ${GAME_WINDOW.LEFT}px;
+	top: ${GAME_WINDOW.TOP}px;
 	overflow: hidden;
 `;
 const FirstPreviewWindow = styled.div`
 	position: absolute;
-	border-width: 5px;
+	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
 	border-color: blue;
 	border-style: solid;
 	background-color: black;
-	width: 80px;
-	height: 80px;
-	left: 660px;
-	top: 140px;
+	width: ${PREVIEW_WINDOW.WIDTH}px;
+	height: ${PREVIEW_WINDOW.HEIGHT}px;
+	left: ${GAME_WINDOW.LEFT -
+	(PREVIEW_WINDOW.WIDTH + 2 * PREVIEW_WINDOW.BORDER_WIDTH)}px;
+	top: ${GAME_WINDOW.TOP}px;
 	overflow: hidden;
 `;
 const SecondPreviewWindow = styled.div`
 	position: absolute;
-	border-width: 5px;
+	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
 	border-color: blue;
 	border-style: solid;
 	background-color: black;
-	width: 80px;
-	height: 80px;
-	left: 660px;
-	top: 220px;
+	width: ${PREVIEW_WINDOW.WIDTH}px;
+	height: ${PREVIEW_WINDOW.HEIGHT}px;
+	left: ${GAME_WINDOW.LEFT -
+	(PREVIEW_WINDOW.WIDTH + 2 * PREVIEW_WINDOW.BORDER_WIDTH)}px;
+	top: ${GAME_WINDOW.TOP +
+	(PREVIEW_WINDOW.HEIGHT + 2 * PREVIEW_WINDOW.BORDER_WIDTH)}px;
 	overflow: hidden;
 `;
 const EnemyWindow1 = styled.div`
@@ -269,11 +284,11 @@ const SendButton = styled.button`
 `;
 const BlockStyle = css`
 	position: absolute;
-	border-width: 2px;
+	border-width: ${BLOCK.BORDER_WIDTH}px;
 	border-color: white;
 	border-style: outset;
-	width: 15px;
-	height: 15px;
+	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
+	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
 	left: 76px;
 	top: -19px;
 `;
@@ -306,107 +321,295 @@ let blockKey = 1;
 let upLineCount = 1;
 let dropMilliseconds = 300;
 
-const createWaitingBlock = () => {
-	let blocks = [];
+const createPreviewBlock = () => {
+	const PREVIEW_WINDOW_CENTER_X =
+		PREVIEW_WINDOW.WIDTH / 2 + PREVIEW_WINDOW.BORDER_WIDTH;
+	const PREVIEW_WINDOW_CENTER_Y =
+		PREVIEW_WINDOW.HEIGHT / 2 + PREVIEW_WINDOW.BORDER_WIDTH;
 
 	switch (Math.floor(Math.random() * 7)) {
 		case BLOCK_SHAPE.SQUARE:
-			blocks.push([1, BLOCK_SHAPE.SQUARE, 19, 24, "red"]);
-			blocks.push([2, BLOCK_SHAPE.SQUARE, 19, 43, "red"]);
-			blocks.push([3, BLOCK_SHAPE.SQUARE, 38, 24, "red"]);
-			blocks.push([4, BLOCK_SHAPE.SQUARE, 38, 43, "red"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.SQUARE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"red",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.SQUARE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
+					"red",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.SQUARE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"red",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.SQUARE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X,
+					"red",
+				],
+			];
 		case BLOCK_SHAPE.LINEAR:
-			blocks.push([1, BLOCK_SHAPE.LINEAR, 30, 22, "purple"]);
-			blocks.push([2, BLOCK_SHAPE.LINEAR, 30, 3, "purple"]);
-			blocks.push([3, BLOCK_SHAPE.LINEAR, 30, 41, "purple"]);
-			blocks.push([4, BLOCK_SHAPE.LINEAR, 30, 60, "purple"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.LINEAR,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X,
+					"purple",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.LINEAR,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"purple",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.LINEAR,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"purple",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.LINEAR,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH * 2,
+					"purple",
+				],
+			];
 		case BLOCK_SHAPE.FALCI_SHAPE:
-			blocks.push([1, BLOCK_SHAPE.FALCI_SHAPE, 20, 50, "pink"]);
-			blocks.push([2, BLOCK_SHAPE.FALCI_SHAPE, 20, 31, "pink"]);
-			blocks.push([3, BLOCK_SHAPE.FALCI_SHAPE, 20, 12, "pink"]);
-			blocks.push([4, BLOCK_SHAPE.FALCI_SHAPE, 39, 50, "pink"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"pink",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
+					"pink",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"pink",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y + BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"pink",
+				],
+			];
 		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
-			blocks.push([1, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 20, 31, "yellow"]);
-			blocks.push([2, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 20, 12, "yellow"]);
-			blocks.push([3, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 20, 50, "yellow"]);
-			blocks.push([4, BLOCK_SHAPE.REVERSE_FALCI_SHAPE, 39, 12, "yellow"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
+					"yellow",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"yellow",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"yellow",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y + BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"yellow",
+				],
+			];
 		case BLOCK_SHAPE.MOUNTINE_SHAPE:
-			blocks.push([1, BLOCK_SHAPE.MOUNTINE_SHAPE, 20, 31, "orange"]);
-			blocks.push([2, BLOCK_SHAPE.MOUNTINE_SHAPE, 20, 12, "orange"]);
-			blocks.push([3, BLOCK_SHAPE.MOUNTINE_SHAPE, 20, 50, "orange"]);
-			blocks.push([4, BLOCK_SHAPE.MOUNTINE_SHAPE, 39, 31, "orange"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.MOUNTINE_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
+					"orange",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.MOUNTINE_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"orange",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.MOUNTINE_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"orange",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.MOUNTINE_SHAPE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X,
+					"orange",
+				],
+			];
 		case BLOCK_SHAPE.BENT_UP_LINE:
-			blocks.push([1, BLOCK_SHAPE.BENT_UP_LINE, 20, 31, "green"]);
-			blocks.push([2, BLOCK_SHAPE.BENT_UP_LINE, 39, 12, "green"]);
-			blocks.push([3, BLOCK_SHAPE.BENT_UP_LINE, 20, 50, "green"]);
-			blocks.push([4, BLOCK_SHAPE.BENT_UP_LINE, 39, 31, "green"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_UP_LINE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
+					"green",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_UP_LINE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"green",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_UP_LINE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"green",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_UP_LINE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X,
+					"green",
+				],
+			];
 		case BLOCK_SHAPE.BENT_DOWN_LINE:
-			blocks.push([1, BLOCK_SHAPE.BENT_DOWN_LINE, 20, 31, "blue"]);
-			blocks.push([2, BLOCK_SHAPE.BENT_DOWN_LINE, 39, 50, "blue"]);
-			blocks.push([3, BLOCK_SHAPE.BENT_DOWN_LINE, 20, 12, "blue"]);
-			blocks.push([4, BLOCK_SHAPE.BENT_DOWN_LINE, 39, 31, "blue"]);
-			break;
+			return [
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_DOWN_LINE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X,
+					"blue",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_DOWN_LINE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					"blue",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_DOWN_LINE,
+					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					"blue",
+				],
+				[
+					blockKey++,
+					BLOCK_SHAPE.BENT_DOWN_LINE,
+					PREVIEW_WINDOW_CENTER_Y,
+					PREVIEW_WINDOW_CENTER_X,
+					"blue",
+				],
+			];
 		default:
-			break;
+			return [];
 	}
-
-	return blocks;
 };
 
-const makeMainBlock = (blockID) => {
-	let blocks = [];
-	switch (blockID) {
-		case BLOCK_SHAPE.SQUARE:
-			blocks.push([blockKey++, blockID, -19, 76, "red"]);
-			blocks.push([blockKey++, blockID, -19, 95, "red"]);
-			blocks.push([blockKey++, blockID, 0, 76, "red"]);
-			blocks.push([blockKey++, blockID, 0, 95, "red"]);
-			break;
-		case BLOCK_SHAPE.LINEAR:
-			blocks.push([blockKey++, blockID, -19, 76, "purple"]);
-			blocks.push([blockKey++, blockID, -19, 57, "purple"]);
-			blocks.push([blockKey++, blockID, -19, 95, "purple"]);
-			blocks.push([blockKey++, blockID, -19, 114, "purple"]);
-			break;
-		case BLOCK_SHAPE.FALCI_SHAPE:
-			blocks.push([blockKey++, blockID, -19, 76, "pink"]);
-			blocks.push([blockKey++, blockID, -19, 57, "pink"]);
-			blocks.push([blockKey++, blockID, -19, 95, "pink"]);
-			blocks.push([blockKey++, blockID, 0, 95, "pink"]);
-			break;
-		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
-			blocks.push([blockKey++, blockID, -19, 76, "yellow"]);
-			blocks.push([blockKey++, blockID, -19, 57, "yellow"]);
-			blocks.push([blockKey++, blockID, -19, 95, "yellow"]);
-			blocks.push([blockKey++, blockID, 0, 57, "yellow"]);
-			break;
-		case BLOCK_SHAPE.MOUNTINE_SHAPE:
-			blocks.push([blockKey++, blockID, -19, 76, "orange"]);
-			blocks.push([blockKey++, blockID, -19, 57, "orange"]);
-			blocks.push([blockKey++, blockID, -19, 95, "orange"]);
-			blocks.push([blockKey++, blockID, 0, 76, "orange"]);
-			break;
-		case BLOCK_SHAPE.BENT_UP_LINE:
-			blocks.push([blockKey++, blockID, -19, 76, "green"]);
-			blocks.push([blockKey++, blockID, 0, 57, "green"]);
-			blocks.push([blockKey++, blockID, -19, 95, "green"]);
-			blocks.push([blockKey++, blockID, 0, 76, "green"]);
-			break;
-		case BLOCK_SHAPE.BENT_DOWN_LINE:
-			blocks.push([blockKey++, blockID, -19, 76, "blue"]);
-			blocks.push([blockKey++, blockID, 0, 95, "blue"]);
-			blocks.push([blockKey++, blockID, -19, 57, "blue"]);
-			blocks.push([blockKey++, blockID, 0, 76, "blue"]);
-			break;
-		default:
-			break;
-	}
+const getMainBlock = (blocks) => {
+	blocks.forEach((block) => {
+		block[2] +=
+			GAME_WINDOW.WIDTH / 2 +
+			GAME_WINDOW.BORDER_WIDTH -
+			PREVIEW_WINDOW.WIDTH / 2 -
+			PREVIEW_WINDOW.BORDER_WIDTH;
+		block[3] +=
+			GAME_WINDOW.HEIGHT / 2 +
+			GAME_WINDOW.BORDER_WIDTH -
+			PREVIEW_WINDOW.HEIGHT / 2 -
+			PREVIEW_WINDOW.BORDER_WIDTH;
+	});
+
+	// switch (blockID) {
+	// 	case BLOCK_SHAPE.SQUARE:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "red"]);
+	// 		blocks.push([blockKey++, blockID, -19, 95, "red"]);
+	// 		blocks.push([blockKey++, blockID, 0, 76, "red"]);
+	// 		blocks.push([blockKey++, blockID, 0, 95, "red"]);
+	// 		break;
+	// 	case BLOCK_SHAPE.LINEAR:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "purple"]);
+	// 		blocks.push([blockKey++, blockID, -19, 57, "purple"]);
+	// 		blocks.push([blockKey++, blockID, -19, 95, "purple"]);
+	// 		blocks.push([blockKey++, blockID, -19, 114, "purple"]);
+	// 		break;
+	// 	case BLOCK_SHAPE.FALCI_SHAPE:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "pink"]);
+	// 		blocks.push([blockKey++, blockID, -19, 57, "pink"]);
+	// 		blocks.push([blockKey++, blockID, -19, 95, "pink"]);
+	// 		blocks.push([blockKey++, blockID, 0, 95, "pink"]);
+	// 		break;
+	// 	case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "yellow"]);
+	// 		blocks.push([blockKey++, blockID, -19, 57, "yellow"]);
+	// 		blocks.push([blockKey++, blockID, -19, 95, "yellow"]);
+	// 		blocks.push([blockKey++, blockID, 0, 57, "yellow"]);
+	// 		break;
+	// 	case BLOCK_SHAPE.MOUNTINE_SHAPE:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "orange"]);
+	// 		blocks.push([blockKey++, blockID, -19, 57, "orange"]);
+	// 		blocks.push([blockKey++, blockID, -19, 95, "orange"]);
+	// 		blocks.push([blockKey++, blockID, 0, 76, "orange"]);
+	// 		break;
+	// 	case BLOCK_SHAPE.BENT_UP_LINE:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "green"]);
+	// 		blocks.push([blockKey++, blockID, 0, 57, "green"]);
+	// 		blocks.push([blockKey++, blockID, -19, 95, "green"]);
+	// 		blocks.push([blockKey++, blockID, 0, 76, "green"]);
+	// 		break;
+	// 	case BLOCK_SHAPE.BENT_DOWN_LINE:
+	// 		blocks.push([blockKey++, blockID, -19, 76, "blue"]);
+	// 		blocks.push([blockKey++, blockID, 0, 95, "blue"]);
+	// 		blocks.push([blockKey++, blockID, -19, 57, "blue"]);
+	// 		blocks.push([blockKey++, blockID, 0, 76, "blue"]);
+	// 		break;
+	// 	default:
+	// 		break;
+	// }
 
 	return blocks;
 };
@@ -414,8 +617,8 @@ const makeMainBlock = (blockID) => {
 const isOverd = (blocks) => {
 	for (let i = blocks.length - 4; i < blocks.length; ++i) {
 		if (
-			blocks[i][2] >= GAME_WINDOW_SIZE.HEIGHT ||
-			blocks[i][3] >= GAME_WINDOW_SIZE.WIDTH ||
+			blocks[i][2] >= BLOCK.HEIGHT * 20 ||
+			blocks[i][3] >= BLOCK.WIDTH * 10 ||
 			blocks[i][3] < 0
 		) {
 			return true;
@@ -508,9 +711,9 @@ const Game = ({
 		blockKey = 1;
 
 		setRank("");
-		setBlocks(makeMainBlock(createWaitingBlock()[0][1]));
-		setFirstWaitingBlock(createWaitingBlock());
-		setSecondWaitingBlock(createWaitingBlock());
+		setBlocks(getMainBlock(createPreviewBlock()));
+		setFirstWaitingBlock(createPreviewBlock());
+		setSecondWaitingBlock(createPreviewBlock());
 
 		timeIntervalId.current = setInterval(() => {
 			downBlockRef.current();
@@ -521,7 +724,7 @@ const Game = ({
 
 	const downBlock = () => {
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			blocks[i][2] += BLOCK_SIZE.HEIGHT;
+			blocks[i][2] += BLOCK.HEIGHT;
 		}
 
 		if (isOverd(blocks) === false) {
@@ -531,16 +734,16 @@ const Game = ({
 		}
 
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			blocks[i][2] -= BLOCK_SIZE.HEIGHT;
+			blocks[i][2] -= BLOCK.HEIGHT;
 		}
 
 		clearFilledLine();
 
-		blocks.push(...makeMainBlock(firstWaitingBlock[0][1]));
+		blocks.push(...getMainBlock(firstWaitingBlock));
 
 		setBlocks(blocks.map((block) => block.slice()));
 		setFirstWaitingBlock(secondWaitingBlock);
-		setSecondWaitingBlock(createWaitingBlock());
+		setSecondWaitingBlock(createPreviewBlock());
 
 		if (isOverd(blocks) === true) {
 			finishGame();
@@ -567,7 +770,7 @@ const Game = ({
 			if (sameHeightBlockIdx.length > 9) {
 				for (let j = 0; j < blocks.length; j++) {
 					if (blocks[j][2] < blockHeight) {
-						blocks[j][2] += BLOCK_SIZE.HEIGHT;
+						blocks[j][2] += BLOCK.HEIGHT;
 					}
 				}
 				for (let k = 9; k >= 0; k--) {
@@ -604,7 +807,7 @@ const Game = ({
 
 		if (upLineCount > personNum - 2) {
 			for (let i = 0; i < blocks.length - 4; i++) {
-				blocks[i][2] -= BLOCK_SIZE.HEIGHT;
+				blocks[i][2] -= BLOCK.HEIGHT;
 			}
 			for (let i = 0; i < 10; i++) {
 				if (emptyBlockIdx !== i) {
@@ -623,7 +826,7 @@ const Game = ({
 							k < blocks.length;
 							k++
 						) {
-							blocks[k][2] -= BLOCK_SIZE.HEIGHT; //현재 떨어지고 있는 블록을 한칸씩 올려버림
+							blocks[k][2] -= BLOCK.HEIGHT; //현재 떨어지고 있는 블록을 한칸씩 올려버림
 						}
 						j -= 1;
 					}
@@ -659,7 +862,7 @@ const Game = ({
 					i < movedBlocks.length;
 					i++
 				) {
-					movedBlocks[i][3] -= BLOCK_SIZE.WIDTH;
+					movedBlocks[i][3] -= BLOCK.WIDTH;
 				}
 
 				if (isOverd(movedBlocks) === true) {
@@ -677,7 +880,7 @@ const Game = ({
 					i < movedBlocks.length;
 					i++
 				) {
-					movedBlocks[i][3] += BLOCK_SIZE.WIDTH;
+					movedBlocks[i][3] += BLOCK.WIDTH;
 				}
 
 				if (isOverd(movedBlocks) === true) {
@@ -695,22 +898,31 @@ const Game = ({
 	};
 
 	const rotateBlock = () => {
-		for (let i = blocks.length - 3; i < blocks.length; ++i) {
-			let x = blocks[i][3] - blocks[blocks.length - 4][3],
-				y = blocks[i][2] - blocks[blocks.length - 4][2];
-			blocks[i][2] = blocks[blocks.length - 4][2] + x;
-			blocks[i][3] = blocks[blocks.length - 4][3] - y;
+		let centerX = 0;
+		let centerY = 0;
+		for (let i = blocks.length - NUMBER_OF_BLOCKS; i < blocks.length; ++i) {
+			centerX += blocks[i][3];
+			centerY += blocks[i][2];
+		}
+		centerX = centerX / 4;
+		centerY = centerY / 4;
+
+		for (let i = blocks.length - NUMBER_OF_BLOCKS; i < blocks.length; ++i) {
+			const dx = blocks[i][3] - centerX;
+			const dy = blocks[i][2] - centerY;
+			blocks[i][2] = centerY + dx;
+			blocks[i][3] = centerX - dy;
 		}
 
 		if (isOverd(blocks) === true) {
 			for (let i = blocks.length - 4; i < blocks.length; i++) {
-				blocks[i][3] += BLOCK_SIZE.WIDTH;
+				blocks[i][3] += BLOCK.WIDTH;
 			}
 		}
 
 		if (isOverd(blocks) === true) {
 			for (let i = blocks.length - 4; i < blocks.length; i++) {
-				blocks[i][3] -= BLOCK_SIZE.WIDTH * 2;
+				blocks[i][3] -= BLOCK.WIDTH * 2;
 			}
 		}
 
@@ -724,7 +936,7 @@ const Game = ({
 
 	return (
 		<Body>
-			<MyGameWindow key="1">
+			<GameWindow key="1">
 				{blocks.map((item) => {
 					let blockStyle = {
 						top: item[2],
@@ -740,7 +952,7 @@ const Game = ({
 					);
 				})}
 				{<Ranking>{rank}</Ranking>}
-			</MyGameWindow>
+			</GameWindow>
 			<FirstPreviewWindow key="2">
 				{firstWaitingBlock.map((item) => {
 					let blockStyle = {
