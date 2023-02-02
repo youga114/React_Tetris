@@ -1,6 +1,17 @@
 import http from "http";
 import { Server } from "socket.io";
 
+const ENTER_GAME = "ENTER_GAME";
+const LEAVE_GAME = "LEAVE_GAME";
+const GET_GAMES = "GET_GAMES";
+const JOIN_USER = "JOIN_USER";
+const CHAT = "CHAT";
+const LEAVE_USER = "LEAVE_USER";
+const START = "START";
+const SET_BLOCKS = "SET_BLOCKS";
+const END_GAME_USER = "END_GAME_USER";
+const UP_LINE = "UP_LINE";
+
 const socket = (server: http.Server) => {
     const LOBBY = "lobby";
 
@@ -40,7 +51,7 @@ const socket = (server: http.Server) => {
         socket.join(LOBBY);
         io.sockets
             .to(socket.id)
-            .emit("action", { type: "getGames", data: games });
+            .emit("action", { type: GET_GAMES, data: games });
 
         socket.on("action", (action) => {
             switch (action.type) {
@@ -62,9 +73,9 @@ const socket = (server: http.Server) => {
                     socket.join(action.data.name);
                     socket.broadcast
                         .in(LOBBY)
-                        .emit("action", { type: "getGames", data: games });
+                        .emit("action", { type: GET_GAMES, data: games });
                     io.sockets.to(socket.id).emit("action", {
-                        type: "enterGame",
+                        type: ENTER_GAME,
                         data: {
                             user: [action.data.master],
                             roomName: action.data.name,
@@ -86,14 +97,14 @@ const socket = (server: http.Server) => {
                     socket.leave(LOBBY);
                     socket.join(games[i].name);
                     socket.broadcast.in(games[i].name).emit("action", {
-                        type: "joinUser",
+                        type: JOIN_USER,
                         data: { users: users[i], joinPerson: action.data.user },
                     });
                     socket.broadcast
                         .in(LOBBY)
-                        .emit("action", { type: "getGames", data: games });
+                        .emit("action", { type: GET_GAMES, data: games });
                     io.sockets.to(socket.id).emit("action", {
-                        type: "enterGame",
+                        type: ENTER_GAME,
                         data: {
                             user: users[i],
                             roomName: games[i].name,
@@ -103,14 +114,14 @@ const socket = (server: http.Server) => {
                     break;
                 case "server/chat":
                     socket.broadcast.in(action.data.roomName).emit("action", {
-                        type: "chat",
+                        type: CHAT,
                         data: {
                             content: action.data.content,
                             speaker: action.data.speaker,
                         },
                     });
                     io.sockets.to(socket.id).emit("action", {
-                        type: "chat",
+                        type: CHAT,
                         data: { content: action.data.content, speaker: "me" },
                     });
                     break;
@@ -136,7 +147,7 @@ const socket = (server: http.Server) => {
                                 socket.broadcast
                                     .in(games[i].name)
                                     .emit("action", {
-                                        type: "someoneExit",
+                                        type: LEAVE_USER,
                                         data: {
                                             users: users[i],
                                             exitPerson: action.data.user,
@@ -145,12 +156,12 @@ const socket = (server: http.Server) => {
                                     });
                             }
                             io.sockets.in(LOBBY).emit("action", {
-                                type: "getGames",
+                                type: GET_GAMES,
                                 data: games,
                             });
                             io.sockets
                                 .to(socket.id)
-                                .emit("action", { type: "roomExit", data: "" });
+                                .emit("action", { type: LEAVE_GAME, data: "" });
                             break;
                         }
                     }
@@ -163,28 +174,25 @@ const socket = (server: http.Server) => {
                         }
                     }
                     io.sockets.in(action.data.roomName).emit("action", {
-                        type: "start",
+                        type: START,
                         data: { numberOfUsers: games[i].numberOfUsers },
                     });
                     io.sockets
                         .in(LOBBY)
-                        .emit("action", { type: "getGames", data: games });
+                        .emit("action", { type: GET_GAMES, data: games });
                     break;
                 case "server/blocks":
                     socket.broadcast.in(action.data.roomName).emit("action", {
-                        type: "blocks",
+                        type: SET_BLOCKS,
                         data: {
-                            blocks: action.data.blocks,
-                            enemyNum: action.data.myNum,
+                            userBlocks: action.data.userBlocks,
+                            user: action.data.user,
                         },
                     });
                     break;
                 case "server/gameset":
-                    io.sockets
-                        .to(socket.id)
-                        .emit("action", { type: "gameset2" });
                     socket.broadcast.in(action.data.roomName).emit("action", {
-                        type: "gameset",
+                        type: END_GAME_USER,
                         data: {
                             blocks: action.data.blocks,
                             enemyNum: action.data.myNum,
@@ -200,17 +208,12 @@ const socket = (server: http.Server) => {
                         }
                         io.sockets
                             .in(LOBBY)
-                            .emit("action", { type: "getGames", data: games });
+                            .emit("action", { type: GET_GAMES, data: games });
                     }
-                    break;
-                case "server/gamesetTome":
-                    io.sockets
-                        .to(socket.id)
-                        .emit("action", { type: "gamesetTome" });
                     break;
                 case "server/lineup":
                     socket.broadcast.in(action.data.roomName).emit("action", {
-                        type: "lineup",
+                        type: UP_LINE,
                         data: { randomVar: action.data.randomVar },
                     });
                     break;

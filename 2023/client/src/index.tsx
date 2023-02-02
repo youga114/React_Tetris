@@ -6,7 +6,7 @@ import { createStore, applyMiddleware } from "redux";
 import { Provider } from "react-redux";
 import createSocketIoMiddleware from "redux-socket.io";
 import { io } from "socket.io-client";
-import rootReducer from "./reducers";
+import rootReducer from "./modules";
 
 const socketIoMiddleware = createSocketIoMiddleware(io(), "server/");
 

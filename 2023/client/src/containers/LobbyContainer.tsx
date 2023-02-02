@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import Lobby from "../components/Lobby";
-import { RootState } from "../reducers";
+import { RootState } from "../modules";
 
 const LobbyContainer = () => {
 	const games = useSelector((state: RootState) => state.lobby.rooms);

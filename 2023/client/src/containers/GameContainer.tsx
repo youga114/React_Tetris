@@ -67,7 +67,7 @@ const GameContainer = () => {
 		});
 		if (personNum === 1) {
 			dispatch({
-				type: "server/gamesetTome",
+				type: "END_GAME",
 				data: { rank: personNum },
 			});
 		}
@@ -99,8 +99,8 @@ const GameContainer = () => {
 			type: "server/blocks",
 			data: {
 				roomName: roomName,
-				blocks: blocks,
-				myNum: myNum,
+				userBlocks: blocks[0],
+				user: me,
 			},
 		});
 	});

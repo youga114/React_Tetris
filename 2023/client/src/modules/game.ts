@@ -1,110 +1,102 @@
+import { ENTER_GAME } from "./account";
+
 let chatKey = 0;
 
-function insertItem(array, action) {
-	let newArray = array.slice();
-	newArray.splice(newArray.length, 0, [
-		"chat" + chatKey++,
-		action.data.speaker,
-		action.data.content,
-	]);
-	return newArray;
-}
+const JOIN_USER = "JOIN_USER";
+const CHAT = "CHAT";
+const LEAVE_USER = "LEAVE_USER";
+const START = "START";
+const SET_BLOCKS = "SET_BLOCKS";
+const END_GAME_USER = "END_GAME_USER";
+const END_GAME = "END_GAME";
+const UP_LINE = "UP_LINE";
 
-const initialState = {
-	users: [],
-	chatings: [],
-	myNum: 0,
-	state: "대기중",
-	personNum: 1,
-	// blocks: [],
-	// blocks2: [],
-	// blocks3: [],
-	// blocks4: [],
-	// blocks5: [],
-	// blocks6: [],
-	// enemyRank2: "",
-	// enemyRank3: "",
-	// enemyRank4: "",
-	// enemyRank5: "",
-	// enemyRank6: "",
-	gameset: 1,
-	lineup: 0,
+type GameState = {
+	myNum: number;
+	state: string;
+	users: {
+		name: string;
+		blocks: [];
+	}[];
+	chatings: {
+		chatingKey: string;
+		name: string | null;
+		text: string;
+	}[];
+	personNum: number;
+	lineUp: number;
 };
 
-function reducer(state = initialState, action) {
+const initialState: GameState = {
+	myNum: 0,
+	state: "대기중",
+	users: [],
+	chatings: [],
+	personNum: 1,
+	lineUp: 0,
+};
+
+function reducer(state: GameState = initialState, action): GameState {
 	switch (action.type) {
-		case "getGames":
-			return { ...state, rooms: action.data };
-		case "enterGame":
+		case ENTER_GAME:
 			return {
 				...state,
 				users: action.data.user,
 				chatings: [],
 				myNum: action.data.myNum,
 			};
-		case "joinUser":
-			let chatContent = state.chatings;
-			chatContent.push([
-				"chat" + chatKey++,
-				"join",
-				action.data.joinPerson + "님이 입장하셨습니다.",
-			]);
+		case JOIN_USER:
 			return {
 				...state,
 				users: action.data.users,
-				chatings: chatContent,
+				chatings: [
+					...state.chatings,
+					{
+						chatingKey: "chat" + chatKey++,
+						name: null,
+						text: action.data.joinPerson + "님이 입장하셨습니다.",
+					},
+				],
 			};
-		case "chat":
+		case CHAT:
 			return {
 				...state,
-				chatings: insertItem(state.chatings, action),
+				chatings: state.chatings.concat(action.data.chatings),
 			};
-		case "someoneExit":
+		case LEAVE_USER:
 			if (action.data.someoneNum < state.myNum) {
 				state.myNum--;
 			}
-			var chatContent2 = state.chatings;
-			chatContent2.push([
-				"chat" + chatKey++,
-				"join",
-				action.data.exitPerson + "님이 퇴장하셨습니다.",
-			]);
 			return {
 				...state,
 				users: action.data.users,
-				chatings: chatContent2,
+				chatings: [
+					...state.chatings,
+					{
+						chatingKey: "chat" + chatKey++,
+						name: null,
+						text: action.data.exitPerson + "님이 퇴장하셨습니다.",
+					},
+				],
 				myNum: state.myNum,
 			};
-		case "roomExit":
-			return {
-				...state,
-				users: [],
-				chatings: [],
-				roomName: "lobby",
-			};
-		case "start":
+		case START:
 			return {
 				...state,
 				state: "게임중",
+				users: [
+					{
+						name: me,
+						blocks: [],
+					},
+				],
 				personNum: action.data.personNum,
-				// enemyRank2: "",
-				// enemyRank3: "",
-				// enemyRank4: "",
-				// enemyRank5: "",
-				// enemyRank6: "",
-				blocks: [],
-				// blocks2: [],
-				// blocks3: [],
-				// blocks4: [],
-				// blocks5: [],
-				// blocks6: [],
-				gameset: 0,
 			};
-		case "blocks":
-			let enemyNum = action.data.enemyNum;
-			if (enemyNum > state.myNum) {
-				enemyNum--;
-			}
+		case SET_BLOCKS:
+			let user = action.data.user;
+
+			state.blocks.forEach((block) => {});
+
 			if (enemyNum === 0) {
 				return {
 					...state,
@@ -133,7 +125,7 @@ function reducer(state = initialState, action) {
 			} else {
 				return state;
 			}
-		case "gameset":
+		case END_GAME_USER:
 			enemyNum = action.data.enemyNum;
 			if (enemyNum > state.myNum) {
 				enemyNum--;
@@ -222,16 +214,14 @@ function reducer(state = initialState, action) {
 					return state;
 				}
 			}
-		case "gameset2":
-			return { ...state, gameset: 1 };
-		case "gamesetTome":
+		case END_GAME:
 			return {
 				...state,
 				state: "대기중",
 				personNum: --state.personNum,
 			};
-		case "lineup":
-			if (state.gameset === 0) {
+		case UP_LINE:
+			if (state.state === "게임중") {
 				return {
 					...state,
 					lineup: ++state.lineup,
