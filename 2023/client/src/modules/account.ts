@@ -1,14 +1,8 @@
-export const ENTER_GAME = "ENTER_GAME";
+import { Reducer } from "react";
+import { AnyAction } from "redux";
+
+const ENTER_GAME = "ENTER_GAME";
 const LEAVE_GAME = "LEAVE_GAME";
-
-const enterGame = (roomName: string) => ({
-	type: ENTER_GAME,
-	data: {
-		roomName,
-	},
-});
-
-type AccountAction = ReturnType<typeof enterGame>;
 
 type AccountState = {
 	me: string;
@@ -20,10 +14,10 @@ const initialState: AccountState = {
 	roomName: "lobby",
 };
 
-function account(
+const account: Reducer<AccountState, AnyAction> = (
 	state: AccountState = initialState,
-	action: AccountAction
-): AccountState {
+	action: AnyAction
+) => {
 	switch (action.type) {
 		case ENTER_GAME:
 			return {
@@ -38,6 +32,6 @@ function account(
 		default:
 			return state;
 	}
-}
+};
 
 export default account;

@@ -35,14 +35,14 @@ const GameContainer = () => {
 				roomName: roomName,
 			},
 		});
-	});
+	}, []);
 
 	const start = useCallback(() => {
 		dispatch({
 			type: "server/start",
 			data: { roomName: roomName },
 		});
-	});
+	}, []);
 
 	const leave = useCallback(() => {
 		dispatch({
@@ -53,7 +53,7 @@ const GameContainer = () => {
 				someoneNum: myNum,
 			},
 		});
-	});
+	}, []);
 
 	const end = useCallback(() => {
 		dispatch({
@@ -71,7 +71,7 @@ const GameContainer = () => {
 				data: { rank: personNum },
 			});
 		}
-	});
+	}, []);
 
 	const down = useCallback(() => {
 		dispatch({
@@ -82,7 +82,7 @@ const GameContainer = () => {
 				myNum: myNum,
 			},
 		});
-	});
+	}, []);
 
 	const addLine = useCallback(() => {
 		dispatch({
@@ -92,7 +92,7 @@ const GameContainer = () => {
 				randomVar: randomVar,
 			},
 		});
-	});
+	}, []);
 
 	const updateBlocks = useCallback(() => {
 		dispatch({
@@ -103,7 +103,7 @@ const GameContainer = () => {
 				user: me,
 			},
 		});
-	});
+	}, []);
 
 	return (
 		<Game

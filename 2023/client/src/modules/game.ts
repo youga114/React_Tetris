@@ -1,7 +1,9 @@
-import { ENTER_GAME } from "./account";
+import { Reducer } from "react";
+import { AnyAction } from "redux";
 
 let chatKey = 0;
 
+const ENTER_GAME = "ENTER_GAME";
 const JOIN_USER = "JOIN_USER";
 const CHAT = "CHAT";
 const LEAVE_USER = "LEAVE_USER";
@@ -36,12 +38,15 @@ const initialState: GameState = {
 	lineUp: 0,
 };
 
-function reducer(state: GameState = initialState, action): GameState {
+const game: Reducer<GameState, AnyAction> = (
+	state: GameState = initialState,
+	action: AnyAction
+) => {
 	switch (action.type) {
 		case ENTER_GAME:
 			return {
 				...state,
-				users: action.data.user,
+				users: action.data.users,
 				chatings: [],
 				myNum: action.data.myNum,
 			};
@@ -86,7 +91,7 @@ function reducer(state: GameState = initialState, action): GameState {
 				state: "게임중",
 				users: [
 					{
-						name: me,
+						name: action.data.name,
 						blocks: [],
 					},
 				],
@@ -95,125 +100,17 @@ function reducer(state: GameState = initialState, action): GameState {
 		case SET_BLOCKS:
 			let user = action.data.user;
 
-			state.blocks.forEach((block) => {});
+			for (let i = 0; i < state.users.length; ++i) {
+				if (user === state.users[i].name) {
+					state.users[i].blocks = action.data.blocks;
+					break;
+				}
+			}
 
-			if (enemyNum === 0) {
-				return {
-					...state,
-					blocks2: action.data.blocks,
-				};
-			} else if (enemyNum === 1) {
-				return {
-					...state,
-					blocks3: action.data.blocks,
-				};
-			} else if (enemyNum === 2) {
-				return {
-					...state,
-					blocks4: action.data.blocks,
-				};
-			} else if (enemyNum === 3) {
-				return {
-					...state,
-					blocks5: action.data.blocks,
-				};
-			} else if (enemyNum === 4) {
-				return {
-					...state,
-					blocks6: action.data.blocks,
-				};
-			} else {
-				return state;
-			}
+			return state;
+
 		case END_GAME_USER:
-			enemyNum = action.data.enemyNum;
-			if (enemyNum > state.myNum) {
-				enemyNum--;
-			}
-			if (state.personNum < 3) {
-				if (enemyNum === 0) {
-					return {
-						...state,
-						blocks2: action.data.blocks,
-						enemyRank2: action.data.enemyRank,
-						personNum: --state.personNum,
-						state: "대기중",
-					};
-				} else if (enemyNum === 1) {
-					return {
-						...state,
-						blocks3: action.data.blocks,
-						enemyRank3: action.data.enemyRank,
-						personNum: --state.personNum,
-						state: "대기중",
-					};
-				} else if (enemyNum === 2) {
-					return {
-						...state,
-						blocks4: action.data.blocks,
-						enemyRank4: action.data.enemyRank,
-						personNum: --state.personNum,
-						state: "대기중",
-					};
-				} else if (enemyNum === 3) {
-					return {
-						...state,
-						blocks5: action.data.blocks,
-						enemyRank5: action.data.enemyRank,
-						personNum: --state.personNum,
-						state: "대기중",
-					};
-				} else if (enemyNum === 4) {
-					return {
-						...state,
-						blocks6: action.data.blocks,
-						enemyRank6: action.data.enemyRank,
-						personNum: --state.personNum,
-						state: "대기중",
-					};
-				} else {
-					return state;
-				}
-			} else {
-				if (enemyNum === 0) {
-					return {
-						...state,
-						blocks2: action.data.blocks,
-						enemyRank2: action.data.enemyRank,
-						personNum: --state.personNum,
-					};
-				} else if (enemyNum === 1) {
-					return {
-						...state,
-						blocks3: action.data.blocks,
-						enemyRank3: action.data.enemyRank,
-						personNum: --state.personNum,
-					};
-				} else if (enemyNum === 2) {
-					return {
-						...state,
-						blocks4: action.data.blocks,
-						enemyRank4: action.data.enemyRank,
-						personNum: --state.personNum,
-					};
-				} else if (enemyNum === 3) {
-					return {
-						...state,
-						blocks5: action.data.blocks,
-						enemyRank5: action.data.enemyRank,
-						personNum: --state.personNum,
-					};
-				} else if (enemyNum === 4) {
-					return {
-						...state,
-						blocks6: action.data.blocks,
-						enemyRank6: action.data.enemyRank,
-						personNum: --state.personNum,
-					};
-				} else {
-					return state;
-				}
-			}
+			return state;
 		case END_GAME:
 			return {
 				...state,
@@ -224,14 +121,13 @@ function reducer(state: GameState = initialState, action): GameState {
 			if (state.state === "게임중") {
 				return {
 					...state,
-					lineup: ++state.lineup,
-					randomVar: action.data.randomVar,
+					lineUp: ++state.lineUp,
 				};
 			}
 			return state;
 		default:
 			return state;
 	}
-}
+};
 
-export default reducer;
+export default game;
