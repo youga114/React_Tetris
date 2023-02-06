@@ -1,4 +1,3 @@
-import { Reducer } from "react";
 import { AnyAction } from "redux";
 
 const ENTER_GAME = "ENTER_GAME";
@@ -14,10 +13,7 @@ const initialState: AccountState = {
 	roomName: "lobby",
 };
 
-const account: Reducer<AccountState, AnyAction> = (
-	state: AccountState = initialState,
-	action: AnyAction
-) => {
+const account = (state: AccountState = initialState, action: AnyAction) => {
 	switch (action.type) {
 		case ENTER_GAME:
 			return {

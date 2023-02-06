@@ -4,6 +4,14 @@ import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { jsx, css } from "@emotion/react";
 
+type BLOCKS = {
+	key: number,
+	shape: number,
+	y: number,
+	x: number,
+	color: string
+}[];
+
 const KEY_CODE = {
 	ENTER: 13,
 	SPACE: 32,
@@ -21,6 +29,7 @@ const BLOCK_SHAPE = {
 	MOUNTINE_SHAPE: 4,
 	BENT_UP_LINE: 5,
 	BENT_DOWN_LINE: 6,
+	DEAD: 7
 };
 
 const BLOCK = {
@@ -262,256 +271,256 @@ let blockKey = 1;
 let upLineCount = 1;
 let dropMilliseconds = 300;
 
-const createPreviewBlock = () => {
+const createPreviewBlock: () => BLOCKS = () => {
 	const PREVIEW_WINDOW_CENTER_X = PREVIEW_WINDOW.WIDTH / 2;
 	const PREVIEW_WINDOW_CENTER_Y = PREVIEW_WINDOW.HEIGHT / 2;
 
 	switch (Math.floor(Math.random() * 7)) {
 		case BLOCK_SHAPE.SQUARE:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.SQUARE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"red",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.SQUARE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"red",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.SQUARE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"red",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.SQUARE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"red",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "red",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "red",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "red",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "red",
+				},
 			];
 		case BLOCK_SHAPE.LINEAR:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.LINEAR,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"purple",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.LINEAR,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"purple",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.LINEAR,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
-					"purple",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.LINEAR,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
-					"purple",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "purple",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "purple",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "purple",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					color: "purple",
+				},
 			];
 		case BLOCK_SHAPE.FALCI_SHAPE:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"pink",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"pink",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"pink",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
-					"pink",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "pink",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "pink",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "pink",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "pink",
+				},
 			];
 		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"yellow",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"yellow",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"yellow",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"yellow",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "yellow",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "yellow",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "yellow",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "yellow",
+				},
 			];
 		case BLOCK_SHAPE.MOUNTINE_SHAPE:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.MOUNTINE_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"orange",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.MOUNTINE_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"orange",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.MOUNTINE_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"orange",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.MOUNTINE_SHAPE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"orange",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "orange",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "orange",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "orange",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "orange",
+				},
 			];
 		case BLOCK_SHAPE.BENT_UP_LINE:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_UP_LINE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"green",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_UP_LINE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"green",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_UP_LINE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X,
-					"green",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_UP_LINE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"green",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "green",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "green",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "green",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "green",
+				},
 			];
 		case BLOCK_SHAPE.BENT_DOWN_LINE:
 			return [
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_DOWN_LINE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"blue",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_DOWN_LINE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X,
-					"blue",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_DOWN_LINE,
-					PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
-					"blue",
-				],
-				[
-					blockKey++,
-					BLOCK_SHAPE.BENT_DOWN_LINE,
-					PREVIEW_WINDOW_CENTER_Y,
-					PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
-					"blue",
-				],
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "blue",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X,
+					color: "blue",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					color: "blue",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: PREVIEW_WINDOW_CENTER_Y,
+					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					color: "blue",
+				},
 			];
 		default:
 			return [];
 	}
 };
 
-const getMainBlock = (blocks) => {
+const getMainBlock = (blocks: BLOCKS) => {
 	blocks.forEach((block) => {
-		block[3] += GAME_WINDOW.WIDTH / 2 - PREVIEW_WINDOW.WIDTH / 2;
-		block[2] -= PREVIEW_WINDOW.HEIGHT / 2;
+		block.x += GAME_WINDOW.WIDTH / 2 - PREVIEW_WINDOW.WIDTH / 2;
+		block.y -= PREVIEW_WINDOW.HEIGHT / 2;
 	});
 
 	return blocks;
 };
 
-const isOverd = (blocks) => {
+const isOverd = (blocks: BLOCKS) => {
 	for (let i = blocks.length - 4; i < blocks.length; ++i) {
 		if (
-			blocks[i][2] >= BLOCK.HEIGHT * 20 ||
-			blocks[i][3] >= BLOCK.WIDTH * 10 ||
-			blocks[i][3] < 0
+			blocks[i].y >= BLOCK.HEIGHT * 20 ||
+			blocks[i].x >= BLOCK.WIDTH * 10 ||
+			blocks[i].x < 0
 		) {
 			return true;
 		}
 
 		for (let j = 0; j < blocks.length - 4; ++j) {
 			if (
-				blocks[i][2] === blocks[j][2] &&
-				blocks[i][3] === blocks[j][3]
+				blocks[i].y === blocks[j].y &&
+				blocks[i].x === blocks[j].x
 			) {
 				return true;
 			}
@@ -525,40 +534,46 @@ const Game = ({
 	users,
 	me,
 	chatings,
-	myNum,
 	state,
 	personNum,
-	lineup,
-	blocks2,
-	blocks3,
-	blocks4,
-	blocks5,
-	blocks6,
-	enemyRank2,
-	enemyRank3,
-	enemyRank4,
-	enemyRank5,
-	enemyRank6,
 	sendMessage,
 	leave,
 	start,
 	end,
-	down,
 	addLine,
 	updateBlocks,
+}: {
+	users: {
+		name: string,
+		blocks: BLOCKS
+	}[],
+	me: string,
+	chatings: {
+		chatingKey: string;
+		name: string | null;
+		text: string;
+	}[],
+	state: string,
+	personNum: number,
+	sendMessage: (text: string) => void,
+	leave: () => void,
+	start: () => void,
+	end: (blocks: BLOCKS) => void,
+	addLine: () => void,
+	updateBlocks: (blocks: BLOCKS) => void
 }) => {
-	const [blocks, setBlocks] = useState([]);
-	const [firstWaitingBlock, setFirstWaitingBlock] = useState([]);
-	const [secondWaitingBlock, setSecondWaitingBlock] = useState([]);
+	const [blocks, setBlocks] = useState<BLOCKS>([]);
+	const [firstWaitingBlock, setFirstWaitingBlock] = useState<BLOCKS>([]);
+	const [secondWaitingBlock, setSecondWaitingBlock] = useState<BLOCKS>([]);
 	const [chatingInputText, setChatingInputText] = useState("");
 	const [rank, setRank] = useState("");
 
-	const timeIntervalId = useRef(0);
-	const downBlockRef = useRef();
-	const inputEl = useRef(null);
-	const getGameControllKey = useRef();
-	const gameControllKeyListener = useRef((event) => {
-		getGameControllKey.current(event);
+	const timeIntervalId = useRef<NodeJS.Timer>();
+	const downBlockRef = useRef<() => void>();
+	const inputEl = useRef<HTMLInputElement>();
+	const getGameControllKey = useRef<(event: KeyboardEvent) => {}>();
+	const gameControllKeyListener = useRef((event: KeyboardEvent) => {
+		getGameControllKey.current?.(event);
 	});
 
 	useEffect(() => {
@@ -568,22 +583,17 @@ const Game = ({
 		};
 	}, []);
 
-	const getChatingEnterKey = useCallback((event) => {
-		let keyCode = 0;
-		if (event == null) {
-			keyCode = window.event.keyCode;
-			window.event.preventDefault();
-		} else {
-			keyCode = event.keyCode;
-		}
+	const getChatingEnterKey = useCallback((event: KeyboardEvent) => {
+		let keyCode = event.keyCode;
+		
 		switch (keyCode) {
 			case KEY_CODE.ENTER:
-				sendMessage();
+				sendMessage(inputEl.current?.value ?? "");
 				break;
 			default:
 				return;
 		}
-	});
+	}, []);
 
 	const initialize = useCallback(() => {
 		window.addEventListener(
@@ -600,32 +610,32 @@ const Game = ({
 		setSecondWaitingBlock(createPreviewBlock());
 
 		timeIntervalId.current = setInterval(() => {
-			downBlockRef.current();
+			downBlockRef.current?.();
 		}, dropMilliseconds);
 
 		start();
-	});
+	}, []);
 
 	const downBlock = useCallback(() => {
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			blocks[i][2] += BLOCK.HEIGHT;
+			blocks[i].y += BLOCK.HEIGHT;
 		}
 
 		if (isOverd(blocks) === false) {
-			setBlocks(blocks.map((block) => block.slice()));
+			setBlocks(blocks.map((block) => { return {...block} }))
 
 			return true;
 		}
 
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			blocks[i][2] -= BLOCK.HEIGHT;
+			blocks[i].y -= BLOCK.HEIGHT;
 		}
 
 		clearFilledLine();
 
 		blocks.push(...getMainBlock(firstWaitingBlock));
 
-		setBlocks(blocks.map((block) => block.slice()));
+		setBlocks(blocks.map((block) => { return {...block}}));
 		setFirstWaitingBlock(secondWaitingBlock);
 		setSecondWaitingBlock(createPreviewBlock());
 
@@ -633,7 +643,7 @@ const Game = ({
 			finishGame();
 		}
 
-		down();
+		updateBlocks(blocks);
 
 		return false;
 	}, [blocks]);
@@ -641,20 +651,20 @@ const Game = ({
 	downBlockRef.current = downBlock;
 
 	const clearFilledLine = useCallback(() => {
-		let cloneBlocks = blocks.map((block) => block.slice());
+		let cloneBlocks = blocks.map((block) => { return {...block}});
 
 		for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
 			let sameHeightBlockIdx = [];
-			let blockHeight = cloneBlocks[i][2];
+			let blockHeight = cloneBlocks[i].y;
 			for (let j = 0; j < blocks.length; j++) {
-				if (blocks[j][2] === blockHeight) {
+				if (blocks[j].y === blockHeight) {
 					sameHeightBlockIdx.push(j);
 				}
 			}
 			if (sameHeightBlockIdx.length > 9) {
 				for (let j = 0; j < blocks.length; j++) {
-					if (blocks[j][2] < blockHeight) {
-						blocks[j][2] += BLOCK.HEIGHT;
+					if (blocks[j].y < blockHeight) {
+						blocks[j].y += BLOCK.HEIGHT;
 					}
 				}
 				for (let k = 9; k >= 0; k--) {
@@ -663,13 +673,13 @@ const Game = ({
 			}
 		}
 
-		setBlocks(blocks.map((block) => block.slice()));
+		setBlocks(blocks.map((block) => { return {...block}}));
 		addLine();
-		updateBlocks(blocks.map((block) => block.slice()));
+		updateBlocks(blocks.map((block) => { return {...block}}));
 	}, [blocks]);
 
 	const finishGame = useCallback(() => {
-		setRank(personNum);
+		setRank(personNum.toString());
 		window.removeEventListener(
 			"keydown",
 			gameControllKeyListener.current,
@@ -678,12 +688,12 @@ const Game = ({
 		clearInterval(timeIntervalId.current);
 
 		for (let i = 0; i < blocks.length; i++) {
-			blocks[i][4] = "rgb(166,166,166)";
+			blocks[i].color = "rgb(166,166,166)";
 		}
 
-		setBlocks(blocks.map((block) => block.slice()));
+		setBlocks(blocks.map((block) => { return {...block}}));
 
-		end(blocks.map((block) => block.slice()));
+		end(blocks.map((block) => { return {...block}}));
 	}, [blocks]);
 
 	const upLine = () => {
@@ -695,27 +705,27 @@ const Game = ({
 		}
 
 		for (let i = 0; i < blocks.length - 4; i++) {
-			blocks[i][2] -= BLOCK.HEIGHT;
+			blocks[i].y -= BLOCK.HEIGHT;
 		}
 		for (let i = 0; i < 10; i++) {
 			if (emptyBlockIdx !== i) {
-				blocks.splice(0, 0, [
-					blockKey++,
-					"line",
-					GAME_WINDOW.HEIGHT - BLOCK.HEIGHT,
-					BLOCK.WIDTH * i,
-					"rgb(166,166,166)",
-				]);
+				blocks.splice(0, 0, {
+					key: blockKey++,
+					shape: BLOCK_SHAPE.DEAD,
+					y: GAME_WINDOW.HEIGHT - BLOCK.HEIGHT,
+					x: BLOCK.WIDTH * i,
+					color: "rgb(166,166,166)",
+				});
 			}
 		}
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
 			for (let j = 0; j < blocks.length - 4; j++) {
 				if (
-					blocks[i][3] === blocks[j][3] &&
-					blocks[i][2] === blocks[j][2]
+					blocks[i].x === blocks[j].x &&
+					blocks[i].y === blocks[j].y
 				) {
 					for (let k = blocks.length - 4; k < blocks.length; k++) {
-						blocks[k][2] -= BLOCK.HEIGHT;
+						blocks[k].y -= BLOCK.HEIGHT;
 					}
 					j -= 1;
 				}
@@ -725,7 +735,7 @@ const Game = ({
 		upLineCount = 1;
 	};
 
-	getGameControllKey.current = (event) => {
+	getGameControllKey?.current = (event) => {
 		let keyCode = 0;
 		if (event === null) {
 			keyCode = window.event.keyCode;

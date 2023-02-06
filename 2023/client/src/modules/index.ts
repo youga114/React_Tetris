@@ -3,7 +3,11 @@ import account from "./account";
 import lobby from "./lobby";
 import game from "./game";
 
-const rootReducer = combineReducers({
+const rootReducer = combineReducers<{
+	account: ReturnType<typeof account>;
+	lobby: ReturnType<typeof lobby>;
+	game: ReturnType<typeof game>;
+}>({
 	account,
 	lobby,
 	game,

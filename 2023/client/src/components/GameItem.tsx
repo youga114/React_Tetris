@@ -36,6 +36,11 @@ const LinkWrapper = ({
 	numberOfPeople,
 	onJoin,
 	children,
+}: {
+	gameNum: number;
+	numberOfPeople: number;
+	onJoin: () => void;
+	children: JSX.Element;
 }) => {
 	if (numberOfPeople < 6) {
 		return (
@@ -60,6 +65,13 @@ const GameItem = ({
 	master,
 	state,
 	onJoin,
+}: {
+	gameNum: number;
+	numberOfPeople: number;
+	title: string;
+	master: string;
+	state: string;
+	onJoin: () => void;
 }) => {
 	return (
 		<LinkWrapper
@@ -67,16 +79,9 @@ const GameItem = ({
 			numberOfPeople={numberOfPeople}
 			onJoin={onJoin}
 		>
-			<div
-				css={
-					state === "대기중"
-						? waitingGame
-						: playingGame
-				}
-			>
-				방제 : {title} &nbsp;&nbsp;&nbsp;인원 :{" "}
-				{numberOfPeople}/6 &nbsp;&nbsp;방장 :{" "}
-				{master} &nbsp;&nbsp;상태 : {state}
+			<div css={state === "대기중" ? waitingGame : playingGame}>
+				방제 : {title} &nbsp;&nbsp;&nbsp;인원 : {numberOfPeople}/6
+				&nbsp;&nbsp;방장 : {master} &nbsp;&nbsp;상태 : {state}
 			</div>
 		</LinkWrapper>
 	);

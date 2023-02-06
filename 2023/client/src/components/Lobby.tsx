@@ -31,7 +31,21 @@ const CreateGameButton = styled.button`
 	left: 400px;
 `;
 
-const Lobby = ({ games, me, onCreate }) => {
+const Lobby = ({
+	games,
+	me,
+	onCreate,
+}: {
+	games: {
+		gameNumber: number;
+		numberOfUsers: number;
+		name: string;
+		master: string;
+		state: string;
+	}[];
+	me: string;
+	onCreate: () => void;
+}) => {
 	return (
 		<div>
 			<Link to="/tetris">
@@ -42,9 +56,9 @@ const Lobby = ({ games, me, onCreate }) => {
 			<GameList>
 				{games.map((game) => (
 					<GameItemContainer
-						key={game.roomNum}
-						gameNum={game.roomNum}
-						numberOfPeople={game.personNum}
+						key={game.gameNumber}
+						gameNum={game.gameNumber}
+						numberOfPeople={game.numberOfUsers}
 						title={game.name}
 						master={game.master}
 						state={game.state}
