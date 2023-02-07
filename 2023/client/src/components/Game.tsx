@@ -40,13 +40,13 @@ const BLOCK = {
 const GAME_WINDOW = {
 	WIDTH: BLOCK.WIDTH * 10,
 	HEIGHT: BLOCK.HEIGHT * 20,
-	BORDER_WIDTH: 10,
+	BORDER_WIDTH: 5,
 };
 
 const PREVIEW_WINDOW = {
 	WIDTH: BLOCK.WIDTH * 4,
 	HEIGHT: BLOCK.HEIGHT * 4,
-	BORDER_WIDTH: 5,
+	BORDER_WIDTH: 1,
 };
 
 const ENEMY_BLOCK = {
@@ -64,7 +64,7 @@ const ENEMY_WINDOW = {
 const NUMBER_OF_BLOCKS = 4;
 
 const Body = styled.div`
-	height: 100vh;
+	height: 80vh;
 	width: 100vw;
 	margin: 5vh 5vw;
 	display: flex;
@@ -72,7 +72,7 @@ const Body = styled.div`
 `;
 const Left = styled.div`
 	margin: 5vh 3vw;
-	width: 50%;
+	width: 600px;
 	display: flex;
 	justify-content: start;
 	flex-wrap: wrap;
@@ -132,12 +132,17 @@ const You5 = css`
 	border-style: solid;
 	background-color: white;
 `;
-const Center = styled.div`
-	margin: 5vh 5vw;
-	width: 30%;
+const RowCenter = styled.div`
+	margin: 5vh 3vw;
+	width: 500px;
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
+	align-items: center;
+`;
+const ColCenter = styled.div`
+	display: flex;
+	justify-content: center;
 `;
 const GameWindow = styled.div`
 	position: relative;
@@ -149,17 +154,16 @@ const GameWindow = styled.div`
 	height: ${GAME_WINDOW.HEIGHT}px;
 	overflow: hidden;
 `;
-const FirstPreviewWindow = styled.div`
+const PreviewWindows = styled.div`
 	position: relative;
-	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
 	border-color: skyblue;
 	border-style: solid;
 	background-color: black;
 	width: ${PREVIEW_WINDOW.WIDTH}px;
-	height: ${PREVIEW_WINDOW.HEIGHT}px;
+	height: ${PREVIEW_WINDOW.HEIGHT * 2 + PREVIEW_WINDOW.BORDER_WIDTH * 4}px;
 	overflow: hidden;
 `;
-const SecondPreviewWindow = styled.div`
+const PreviewWindow = styled.div`
 	position: relative;
 	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
 	border-color: skyblue;
@@ -574,7 +578,7 @@ const Game = ({
 	const [chatingInputText, setChatingInputText] = useState("");
 	const [rank, setRank] = useState("");
 
-	const timeIntervalId = useRef<NodeJS.Timer>();
+	const timeIntervalId = useRef<number>();
 	const downBlockRef = useRef<() => void>();
 	const inputEl = useRef<HTMLInputElement>(null);
 	const getGameControllKey = useRef<(event: KeyboardEvent) => void>();
@@ -889,27 +893,14 @@ const Game = ({
 	return (
 		<Body>
 			<Left>
-				{() => {
-					let userNum = 1;
-					users.map((user, index) => {
-						let name = user.name;
-
-						if (index === 0) {
-							name = "★" + name;
-						}
-
-						if (user.name === me) {
-							return <Id>{name}</Id>;
-						}
-
-						return <div css={`you${userNum++}`}>{name}</div>;
-					});
-				}}
 				{users.map((user, index) => {
-					if (user.name === me) {
-						return;
-					}
-
+					return (
+						<div css={`you${index + 1}`} key={index}>
+							{user.name}
+						</div>
+					);
+				})}
+				{users.map((user, index) => {
 					return (
 						<EnemyWindow key={`EnemyWindow${index}`}>
 							{user.blocks.map((block) => {
@@ -935,57 +926,61 @@ const Game = ({
 					);
 				})}
 			</Left>
-			<Center>
-				<GameWindow key="1">
-					{blocks.map((item) => {
-						let blockStyle = {
-							top: item.y,
-							left: item.x,
-							backgroundColor: item.color,
-						};
-						return (
-							<div
-								key={item.key}
-								css={BlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<Ranking>{rank}</Ranking>}
-				</GameWindow>
-				<FirstPreviewWindow key="2">
-					{firstWaitingBlock.map((item) => {
-						let blockStyle = {
-							top: item.y,
-							left: item.x,
-							backgroundColor: item.color,
-						};
-						return (
-							<div
-								key={item.key}
-								css={BlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-				</FirstPreviewWindow>
-				<SecondPreviewWindow key="3">
-					{secondWaitingBlock.map((item) => {
-						let blockStyle = {
-							top: item.y,
-							left: item.x,
-							backgroundColor: item.color,
-						};
-						return (
-							<div
-								key={item.key}
-								css={BlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-				</SecondPreviewWindow>
-			</Center>
+			<RowCenter>
+				<ColCenter>
+					<PreviewWindows>
+						<PreviewWindow key="2">
+							{firstWaitingBlock.map((item) => {
+								let blockStyle = {
+									top: item.y,
+									left: item.x,
+									backgroundColor: item.color,
+								};
+								return (
+									<div
+										key={item.key}
+										css={BlockStyle}
+										style={blockStyle}
+									/>
+								);
+							})}
+						</PreviewWindow>
+						<PreviewWindow key="3">
+							{secondWaitingBlock.map((item) => {
+								let blockStyle = {
+									top: item.y,
+									left: item.x,
+									backgroundColor: item.color,
+								};
+								return (
+									<div
+										key={item.key}
+										css={BlockStyle}
+										style={blockStyle}
+									/>
+								);
+							})}
+						</PreviewWindow>
+					</PreviewWindows>
+					<GameWindow key="1">
+						{blocks.map((item) => {
+							let blockStyle = {
+								top: item.y,
+								left: item.x,
+								backgroundColor: item.color,
+							};
+							return (
+								<div
+									key={item.key}
+									css={BlockStyle}
+									style={blockStyle}
+								/>
+							);
+						})}
+						{<Ranking>{rank}</Ranking>}
+					</GameWindow>
+				</ColCenter>
+			</RowCenter>
 			<Right>
 				<ChatingBox key="11">
 					{chatings.map((chat) => {
@@ -1013,7 +1008,7 @@ const Game = ({
 				<SendButton onClick={clearChatingInput} key="12">
 					전송
 				</SendButton>
-				{state !== "게임중" && users[0].name === me && (
+				{state !== "게임중" && users[0]?.name === me && (
 					<StartButton onClick={initialize}>시작하기</StartButton>
 				)}
 				{state === "대기중" ? (

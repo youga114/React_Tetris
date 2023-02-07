@@ -3,32 +3,37 @@ import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import GameItemContainer from "../containers/GameItemContainer";
 
+const Body = styled.div`
+	height: 100vh;
+	width: 100vw;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+`;
+
 const GameList = styled.div`
-	position: absolute;
 	border-style: double;
 	border-color: black;
 	border-width: 4px;
-	background-color: black;
+	background-color: rgb(250, 250, 250);
+	opacity: 0.8;
 	width: 500px;
-	height: 400px;
-	top: 100px;
-	left: 400px;
+	height: 70%;
 	overflow-y: scroll;
 `;
 
 const Greeting = styled.div`
-	position: absolute;
-	top: 530px;
-	left: 400px;
 	width: 500px;
 	text-align: center;
 	font-size: 30px;
+	color: yellow;
 `;
 
-const CreateGameButton = styled.button`
-	position: absolute;
-	top: 70px;
-	left: 400px;
+const CreateGameDiv = styled.div`
+	justify-content: flex-start;
+	width: 500px;
 `;
 
 const Lobby = ({
@@ -47,11 +52,11 @@ const Lobby = ({
 	onCreate: () => void;
 }) => {
 	return (
-		<div>
+		<Body>
 			<Link to="/tetris">
-				<CreateGameButton onClick={onCreate}>
-					방 만들기
-				</CreateGameButton>
+				<CreateGameDiv>
+					<button onClick={onCreate}>방 만들기</button>
+				</CreateGameDiv>
 			</Link>
 			<GameList>
 				{games.map((game) => (
@@ -65,8 +70,8 @@ const Lobby = ({
 					/>
 				))}
 			</GameList>
-			<Greeting>{me}님 안녕하세요!</Greeting>
-		</div>
+			<Greeting>ID: {me}</Greeting>
+		</Body>
 	);
 };
 

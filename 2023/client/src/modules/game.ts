@@ -32,7 +32,32 @@ type GameState = {
 const initialState: GameState = {
 	myNum: 0,
 	state: "대기중",
-	users: [],
+	users: [
+		{
+			name: "",
+			blocks: [],
+		},
+		{
+			name: "",
+			blocks: [],
+		},
+		{
+			name: "",
+			blocks: [],
+		},
+		{
+			name: "",
+			blocks: [],
+		},
+		{
+			name: "",
+			blocks: [],
+		},
+		{
+			name: "",
+			blocks: [],
+		},
+	],
 	chatings: [],
 	personNum: 1,
 	lineUp: 0,
