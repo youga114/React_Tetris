@@ -1,8 +1,7 @@
-/** @jsx jsx */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
-import { jsx, css } from "@emotion/react";
+import { css } from "@emotion/react";
 
 type BLOCKS = {
 	key: number;

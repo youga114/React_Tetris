@@ -8,7 +8,7 @@ const GameList = styled.div`
 	border-style: double;
 	border-color: black;
 	border-width: 4px;
-	background-color: white;
+	background-color: black;
 	width: 500px;
 	height: 400px;
 	top: 100px;

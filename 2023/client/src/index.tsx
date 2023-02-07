@@ -10,7 +10,6 @@ import rootReducer from "./modules";
 
 const socketIoMiddleware = createSocketIoMiddleware(io(), "server/");
 
-// let store = applyMiddleware(socketIoMiddleware)(createStore)(rootReducer);
 let store = createStore(rootReducer, applyMiddleware(socketIoMiddleware));
 
 ReactDOM.render(
