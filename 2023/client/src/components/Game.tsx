@@ -5,11 +5,11 @@ import styled from "@emotion/styled";
 import { jsx, css } from "@emotion/react";
 
 type BLOCKS = {
-	key: number,
-	shape: number,
-	y: number,
-	x: number,
-	color: string
+	key: number;
+	shape: number;
+	y: number;
+	x: number;
+	color: string;
 }[];
 
 const KEY_CODE = {
@@ -29,7 +29,7 @@ const BLOCK_SHAPE = {
 	MOUNTINE_SHAPE: 4,
 	BENT_UP_LINE: 5,
 	BENT_DOWN_LINE: 6,
-	DEAD: 7
+	DEAD: 7,
 };
 
 const BLOCK = {
@@ -39,8 +39,6 @@ const BLOCK = {
 };
 
 const GAME_WINDOW = {
-	LEFT: 740,
-	TOP: 140,
 	WIDTH: BLOCK.WIDTH * 10,
 	HEIGHT: BLOCK.HEIGHT * 20,
 	BORDER_WIDTH: 10,
@@ -50,6 +48,18 @@ const PREVIEW_WINDOW = {
 	WIDTH: BLOCK.WIDTH * 4,
 	HEIGHT: BLOCK.HEIGHT * 4,
 	BORDER_WIDTH: 5,
+};
+
+const ENEMY_BLOCK = {
+	WIDTH: 13,
+	HEIGHT: 13,
+	BORDER_WIDTH: 1,
+};
+
+const ENEMY_WINDOW = {
+	WIDTH: ENEMY_BLOCK.WIDTH * 10,
+	HEIGHT: ENEMY_BLOCK.HEIGHT * 20,
+	BORDER_WIDTH: 6,
 };
 
 const NUMBER_OF_BLOCKS = 4;
@@ -69,12 +79,12 @@ const Left = styled.div`
 	flex-wrap: wrap;
 `;
 const EnemyWindow = styled.div`
-	border-width: 6px;
+	border-width: ${ENEMY_WINDOW.BORDER_WIDTH}px;
 	border-color: skyblue;
 	border-style: solid;
 	background-color: black;
-	width: 130px;
-	height: 260px;
+	width: ${ENEMY_WINDOW.WIDTH}px;
+	height: ${ENEMY_WINDOW.HEIGHT}px;
 	overflow: hidden;
 	margin: 1vh 1vw;
 `;
@@ -244,13 +254,13 @@ const BlockStyle = css`
 `;
 const EnemyBlockStyle = css`
 	position: absolute;
-	border-width: 1px;
+	border-width: ${ENEMY_BLOCK.BORDER_WIDTH}px;
 	border-color: white;
 	border-style: outset;
-	width: 11px;
-	height: 11px;
+	width: ${ENEMY_BLOCK.WIDTH - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
+	height: ${ENEMY_BLOCK.HEIGHT - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
 	left: 76px;
-	top: -19px;
+	top: ${-ENEMY_BLOCK.HEIGHT}px;
 `;
 const Ranking = styled.div`
 	position: absolute;
@@ -518,10 +528,7 @@ const isOverd = (blocks: BLOCKS) => {
 		}
 
 		for (let j = 0; j < blocks.length - 4; ++j) {
-			if (
-				blocks[i].y === blocks[j].y &&
-				blocks[i].x === blocks[j].x
-			) {
+			if (blocks[i].y === blocks[j].y && blocks[i].x === blocks[j].x) {
 				return true;
 			}
 		}
@@ -544,23 +551,23 @@ const Game = ({
 	updateBlocks,
 }: {
 	users: {
-		name: string,
-		blocks: BLOCKS
-	}[],
-	me: string,
+		name: string;
+		blocks: BLOCKS;
+	}[];
+	me: string;
 	chatings: {
 		chatingKey: string;
 		name: string | null;
 		text: string;
-	}[],
-	state: string,
-	personNum: number,
-	sendMessage: (text: string) => void,
-	leave: () => void,
-	start: () => void,
-	end: (blocks: BLOCKS) => void,
-	addLine: () => void,
-	updateBlocks: (blocks: BLOCKS) => void
+	}[];
+	state: string;
+	personNum: number;
+	sendMessage: (text: string) => void;
+	leave: () => void;
+	start: () => void;
+	end: (blocks: BLOCKS) => void;
+	addLine: () => void;
+	updateBlocks: (blocks: BLOCKS) => void;
 }) => {
 	const [blocks, setBlocks] = useState<BLOCKS>([]);
 	const [firstWaitingBlock, setFirstWaitingBlock] = useState<BLOCKS>([]);
@@ -570,8 +577,8 @@ const Game = ({
 
 	const timeIntervalId = useRef<NodeJS.Timer>();
 	const downBlockRef = useRef<() => void>();
-	const inputEl = useRef<HTMLInputElement>();
-	const getGameControllKey = useRef<(event: KeyboardEvent) => {}>();
+	const inputEl = useRef<HTMLInputElement>(null);
+	const getGameControllKey = useRef<(event: KeyboardEvent) => void>();
 	const gameControllKeyListener = useRef((event: KeyboardEvent) => {
 		getGameControllKey.current?.(event);
 	});
@@ -585,15 +592,24 @@ const Game = ({
 
 	const getChatingEnterKey = useCallback((event: KeyboardEvent) => {
 		let keyCode = event.keyCode;
-		
+
 		switch (keyCode) {
 			case KEY_CODE.ENTER:
-				sendMessage(inputEl.current?.value ?? "");
+				clearChatingInput();
 				break;
 			default:
 				return;
 		}
 	}, []);
+
+	const clearChatingInput = useCallback(() => {
+		sendMessage(chatingInputText);
+		setChatingInputText(" ");
+
+		if (inputEl.current != null) {
+			inputEl.current.value = "";
+		}
+	}, [chatingInputText]);
 
 	const initialize = useCallback(() => {
 		window.addEventListener(
@@ -622,7 +638,11 @@ const Game = ({
 		}
 
 		if (isOverd(blocks) === false) {
-			setBlocks(blocks.map((block) => { return {...block} }))
+			setBlocks(
+				blocks.map((block) => {
+					return { ...block };
+				})
+			);
 
 			return true;
 		}
@@ -635,7 +655,11 @@ const Game = ({
 
 		blocks.push(...getMainBlock(firstWaitingBlock));
 
-		setBlocks(blocks.map((block) => { return {...block}}));
+		setBlocks(
+			blocks.map((block) => {
+				return { ...block };
+			})
+		);
 		setFirstWaitingBlock(secondWaitingBlock);
 		setSecondWaitingBlock(createPreviewBlock());
 
@@ -651,7 +675,9 @@ const Game = ({
 	downBlockRef.current = downBlock;
 
 	const clearFilledLine = useCallback(() => {
-		let cloneBlocks = blocks.map((block) => { return {...block}});
+		let cloneBlocks = blocks.map((block) => {
+			return { ...block };
+		});
 
 		for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
 			let sameHeightBlockIdx = [];
@@ -673,9 +699,17 @@ const Game = ({
 			}
 		}
 
-		setBlocks(blocks.map((block) => { return {...block}}));
+		setBlocks(
+			blocks.map((block) => {
+				return { ...block };
+			})
+		);
 		addLine();
-		updateBlocks(blocks.map((block) => { return {...block}}));
+		updateBlocks(
+			blocks.map((block) => {
+				return { ...block };
+			})
+		);
 	}, [blocks]);
 
 	const finishGame = useCallback(() => {
@@ -691,9 +725,17 @@ const Game = ({
 			blocks[i].color = "rgb(166,166,166)";
 		}
 
-		setBlocks(blocks.map((block) => { return {...block}}));
+		setBlocks(
+			blocks.map((block) => {
+				return { ...block };
+			})
+		);
 
-		end(blocks.map((block) => { return {...block}}));
+		end(
+			blocks.map((block) => {
+				return { ...block };
+			})
+		);
 	}, [blocks]);
 
 	const upLine = () => {
@@ -735,17 +777,19 @@ const Game = ({
 		upLineCount = 1;
 	};
 
-	getGameControllKey?.current = (event) => {
+	getGameControllKey.current = (event) => {
 		let keyCode = 0;
-		if (event === null) {
-			keyCode = window.event.keyCode;
-			window.event.preventDefault();
-		} else {
-			keyCode = event.keyCode;
-			event.preventDefault();
-		}
+		// if (event === null) {
+		// 	keyCode = window.event?.keyCode;
+		// 	window.event?.preventDefault();
+		// } else {
+		keyCode = event.keyCode;
+		event.preventDefault();
+		// }
 
-		let movedBlocks = blocks.map((block) => block.slice());
+		let movedBlocks = blocks.map((block) => {
+			return { ...block };
+		});
 
 		switch (keyCode) {
 			case KEY_CODE.SPACE:
@@ -757,7 +801,7 @@ const Game = ({
 					i < movedBlocks.length;
 					i++
 				) {
-					movedBlocks[i][3] -= BLOCK.WIDTH;
+					movedBlocks[i].x -= BLOCK.WIDTH;
 				}
 
 				if (isOverd(movedBlocks) === true) {
@@ -775,7 +819,7 @@ const Game = ({
 					i < movedBlocks.length;
 					i++
 				) {
-					movedBlocks[i][3] += BLOCK.WIDTH;
+					movedBlocks[i].x += BLOCK.WIDTH;
 				}
 
 				if (isOverd(movedBlocks) === true) {
@@ -793,24 +837,26 @@ const Game = ({
 	};
 
 	const rotateBlock = useCallback(() => {
-		if (blocks[blocks.length - 1][1] === BLOCK_SHAPE.SQUARE) {
+		if (blocks[blocks.length - 1].shape === BLOCK_SHAPE.SQUARE) {
 			return;
 		}
 
-		let rotatedBlocks = blocks.map((block) => block.slice());
+		let rotatedBlocks = blocks.map((block) => {
+			return { ...block };
+		});
 
-		let centerX = rotatedBlocks[rotatedBlocks.length - 4][3];
-		let centerY = rotatedBlocks[rotatedBlocks.length - 4][2];
+		let centerX = rotatedBlocks[rotatedBlocks.length - 4].x;
+		let centerY = rotatedBlocks[rotatedBlocks.length - 4].y;
 
 		for (
 			let i = rotatedBlocks.length - NUMBER_OF_BLOCKS;
 			i < rotatedBlocks.length;
 			++i
 		) {
-			const dx = rotatedBlocks[i][3] - centerX;
-			const dy = rotatedBlocks[i][2] - centerY;
-			rotatedBlocks[i][2] = centerY + dx;
-			rotatedBlocks[i][3] = centerX - dy;
+			const dx = rotatedBlocks[i].x - centerX;
+			const dy = rotatedBlocks[i].y - centerY;
+			rotatedBlocks[i].y = centerY + dx;
+			rotatedBlocks[i].x = centerX - dy;
 		}
 
 		if (isOverd(rotatedBlocks) === true) {
@@ -819,7 +865,7 @@ const Game = ({
 				i < rotatedBlocks.length;
 				i++
 			) {
-				rotatedBlocks[i][3] += BLOCK.WIDTH;
+				rotatedBlocks[i].x += BLOCK.WIDTH;
 			}
 		}
 
@@ -829,7 +875,7 @@ const Game = ({
 				i < rotatedBlocks.length;
 				i++
 			) {
-				rotatedBlocks[i][3] -= BLOCK.WIDTH * 2;
+				rotatedBlocks[i].x -= BLOCK.WIDTH * 2;
 			}
 		}
 
@@ -844,130 +890,63 @@ const Game = ({
 	return (
 		<Body>
 			<Left>
-				{/* {users.map((user, index) => {
-					if (index === 0) {
-						if (user === me) {
-							return <Id key="10">★{user}</Id>;
-						} else {
-							return <You1 key="10">★{user}</You1>;
+				{() => {
+					let userNum = 1;
+					users.map((user, index) => {
+						let name = user.name;
+
+						if (index === 0) {
+							name = "★" + name;
 						}
-					} else {
-						if (user === me) {
-							return <Id key="10">{user}</Id>;
-						} else {
-							if (myNum < index) {
-								return (
-									<div css={`you${index}`} key="10">
-										{user}
-									</div>
-								);
-							} else {
-								return (
-									<div css={`you${index + 1}`} key="10">
-										{user}
-									</div>
-								);
-							}
+
+						if (user.name === me) {
+							return <Id>{name}</Id>;
 						}
+
+						return <div css={`you${userNum++}`}>{name}</div>;
+					});
+				}}
+				{users.map((user, index) => {
+					if (user.name === me) {
+						return;
 					}
-				})} */}
-				<EnemyWindow key="4">
-					{blocks2.map((item) => {
-						let blockStyle = {
-							top: 13 * (item[2] / 19),
-							left: 13 * (item[3] / 19),
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={EnemyBlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<div className="rank2">{enemyRank2}</div>}
-				</EnemyWindow>
-				<EnemyWindow key="5">
-					{blocks3.map((item) => {
-						let blockStyle = {
-							top: 13 * (item[2] / 19),
-							left: 13 * (item[3] / 19),
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={EnemyBlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<EnemyRanking>{enemyRank3}</EnemyRanking>}
-				</EnemyWindow>
-				<EnemyWindow key="6">
-					{blocks4.map((item) => {
-						let blockStyle = {
-							top: 13 * (item[2] / 19),
-							left: 13 * (item[3] / 19),
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={EnemyBlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<EnemyRanking>{enemyRank4}</EnemyRanking>}
-				</EnemyWindow>
-				<EnemyWindow key="7">
-					{blocks5.map((item) => {
-						let blockStyle = {
-							top: 13 * (item[2] / 19),
-							left: 13 * (item[3] / 19),
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={EnemyBlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<EnemyRanking>{enemyRank5}</EnemyRanking>}
-				</EnemyWindow>
-				<EnemyWindow key="8">
-					{blocks6.map((item) => {
-						let blockStyle = {
-							top: 13 * (item[2] / 19),
-							left: 13 * (item[3] / 19),
-							backgroundColor: item[4],
-						};
-						return (
-							<div
-								key={item[0]}
-								css={EnemyBlockStyle}
-								style={blockStyle}
-							/>
-						);
-					})}
-					{<EnemyRanking>{enemyRank6}</EnemyRanking>}
-				</EnemyWindow>
+
+					return (
+						<EnemyWindow key={`EnemyWindow${index}`}>
+							{user.blocks.map((block) => {
+								let blockStyle = {
+									top:
+										ENEMY_BLOCK.HEIGHT *
+										(block.y / BLOCK.HEIGHT),
+									left:
+										ENEMY_BLOCK.WIDTH *
+										(block.x / BLOCK.WIDTH),
+									backgroundColor: block.color,
+								};
+								return (
+									<div
+										key={block.key}
+										css={EnemyBlockStyle}
+										style={blockStyle}
+									/>
+								);
+							})}
+							{<Ranking>{""}</Ranking>}
+						</EnemyWindow>
+					);
+				})}
 			</Left>
 			<Center>
 				<GameWindow key="1">
 					{blocks.map((item) => {
 						let blockStyle = {
-							top: item[2],
-							left: item[3],
-							backgroundColor: item[4],
+							top: item.y,
+							left: item.x,
+							backgroundColor: item.color,
 						};
 						return (
 							<div
-								key={item[0]}
+								key={item.key}
 								css={BlockStyle}
 								style={blockStyle}
 							/>
@@ -978,13 +957,13 @@ const Game = ({
 				<FirstPreviewWindow key="2">
 					{firstWaitingBlock.map((item) => {
 						let blockStyle = {
-							top: item[2],
-							left: item[3],
-							backgroundColor: item[4],
+							top: item.y,
+							left: item.x,
+							backgroundColor: item.color,
 						};
 						return (
 							<div
-								key={item[0]}
+								key={item.key}
 								css={BlockStyle}
 								style={blockStyle}
 							/>
@@ -994,13 +973,13 @@ const Game = ({
 				<SecondPreviewWindow key="3">
 					{secondWaitingBlock.map((item) => {
 						let blockStyle = {
-							top: item[2],
-							left: item[3],
-							backgroundColor: item[4],
+							top: item.y,
+							left: item.x,
+							backgroundColor: item.color,
 						};
 						return (
 							<div
-								key={item[0]}
+								key={item.key}
 								css={BlockStyle}
 								style={blockStyle}
 							/>
@@ -1011,18 +990,18 @@ const Game = ({
 			<Right>
 				<ChatingBox key="11">
 					{chatings.map((chat) => {
-						if (chat[1] === "join") {
-							return <div key={chat[0]}>{chat[2]}</div>;
-						} else if (chat[1] === "me") {
+						if (chat.name === "join") {
+							return <div key={chat.chatingKey}>{chat.text}</div>;
+						} else if (chat.name === "me") {
 							return (
-								<div key={chat[0]}>
-									{me}>{chat[2]}
+								<div key={chat.chatingKey}>
+									{`${me}>${chat.text}`}
 								</div>
 							);
 						} else {
 							return (
-								<div key={chat[0]}>
-									{chat[1]}>{chat[2]}
+								<div key={chat.chatingKey}>
+									{`${chat.name}>${chat.text}`}
 								</div>
 							);
 						}
@@ -1032,17 +1011,10 @@ const Game = ({
 					ref={inputEl}
 					onChange={(e) => setChatingInputText(e.target.value)}
 				/>
-				<SendButton
-					onClick={() => {
-						sendMessage(chatingInputText);
-						inputEl.value = "";
-						setChatingInputText(" ");
-					}}
-					key="12"
-				>
+				<SendButton onClick={clearChatingInput} key="12">
 					전송
 				</SendButton>
-				{state !== "게임중" && users[0] === me && (
+				{state !== "게임중" && users[0].name === me && (
 					<StartButton onClick={initialize}>시작하기</StartButton>
 				)}
 				{state === "대기중" ? (
