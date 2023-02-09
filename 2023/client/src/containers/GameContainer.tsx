@@ -4,12 +4,10 @@ import { RootState } from "../modules";
 import Game from "../components/Game";
 
 const GameContainer = () => {
-	const users = useSelector((state: RootState) => state.game.users);
-	const me = useSelector((state: RootState) => state.account.me);
-	const chatings = useSelector((state: RootState) => state.game.chatings);
-	const roomName = useSelector((state: RootState) => state.account.roomName);
-	const state = useSelector((state: RootState) => state.game.state);
-	const personNum = useSelector((state: RootState) => state.game.personNum);
+	const { users, chatings, state, numberOfUsers, master } = useSelector(
+		(state: RootState) => state.game
+	);
+	const { me, roomName } = useSelector((state: RootState) => state.account);
 
 	const dispatch = useDispatch();
 	const sendMessage = useCallback((text) => {
@@ -28,7 +26,7 @@ const GameContainer = () => {
 			type: "server/start",
 			data: { roomName: roomName },
 		});
-	}, []);
+	}, [roomName]);
 
 	const leave = useCallback(() => {
 		dispatch({
@@ -47,13 +45,13 @@ const GameContainer = () => {
 				roomName: roomName,
 				blocks: blocks,
 				user: me,
-				rank: personNum,
+				rank: numberOfUsers,
 			},
 		});
-		if (personNum === 1) {
+		if (numberOfUsers === 1) {
 			dispatch({
 				type: "END_GAME",
-				data: { rank: personNum },
+				data: { rank: numberOfUsers },
 			});
 		}
 	}, []);
@@ -85,13 +83,14 @@ const GameContainer = () => {
 			me={me}
 			chatings={chatings}
 			state={state}
-			personNum={personNum}
+			numberOfUsers={numberOfUsers}
 			sendMessage={sendMessage}
 			leave={leave}
 			start={start}
 			end={end}
 			addLine={addLine}
 			updateBlocks={updateBlocks}
+			master={master}
 		/>
 	);
 };

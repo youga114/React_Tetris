@@ -14,7 +14,6 @@ const END_GAME = "END_GAME";
 const UP_LINE = "UP_LINE";
 
 type GameState = {
-	myNum: number;
 	state: string;
 	users: {
 		name: string;
@@ -25,12 +24,12 @@ type GameState = {
 		name: string | null;
 		text: string;
 	}[];
-	personNum: number;
+	numberOfUsers: number;
 	lineUp: number;
+	master: string;
 };
 
 const initialState: GameState = {
-	myNum: 0,
 	state: "대기중",
 	users: [
 		{
@@ -59,21 +58,18 @@ const initialState: GameState = {
 		},
 	],
 	chatings: [],
-	personNum: 1,
+	numberOfUsers: 1,
 	lineUp: 0,
+	master: "",
 };
 
-const game: Reducer<GameState, AnyAction> = (
-	state: GameState = initialState,
-	action: AnyAction
-) => {
+const game = (state: GameState = initialState, action: AnyAction) => {
 	switch (action.type) {
 		case ENTER_GAME:
 			return {
 				...state,
 				users: action.data.users,
-				chatings: [],
-				myNum: action.data.myNum,
+				master: action.data.master,
 			};
 		case JOIN_USER:
 			return {
@@ -94,9 +90,6 @@ const game: Reducer<GameState, AnyAction> = (
 				chatings: state.chatings.concat(action.data.chatings),
 			};
 		case LEAVE_USER:
-			if (action.data.someoneNum < state.myNum) {
-				state.myNum--;
-			}
 			return {
 				...state,
 				users: action.data.users,
@@ -108,19 +101,12 @@ const game: Reducer<GameState, AnyAction> = (
 						text: action.data.exitPerson + "님이 퇴장하셨습니다.",
 					},
 				],
-				myNum: state.myNum,
 			};
 		case START:
 			return {
 				...state,
 				state: "게임중",
-				users: [
-					{
-						name: action.data.name,
-						blocks: [],
-					},
-				],
-				personNum: action.data.personNum,
+				numberOfUsers: action.data.numberOfUsers,
 			};
 		case SET_BLOCKS:
 			let user = action.data.user;
@@ -140,7 +126,7 @@ const game: Reducer<GameState, AnyAction> = (
 			return {
 				...state,
 				state: "대기중",
-				personNum: --state.personNum,
+				numberOfUsers: --state.numberOfUsers,
 			};
 		case UP_LINE:
 			if (state.state === "게임중") {

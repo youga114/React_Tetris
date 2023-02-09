@@ -77,9 +77,9 @@ const socket = (server: http.Server) => {
                     io.sockets.to(socket.id).emit("action", {
                         type: ENTER_GAME,
                         data: {
-                            user: [action.data.master],
+                            users: [],
                             roomName: action.data.name,
-                            myNum: 0,
+                            master: action.data.master,
                         },
                     });
                     break;
@@ -108,7 +108,7 @@ const socket = (server: http.Server) => {
                         data: {
                             user: users[i],
                             roomName: games[i].name,
-                            myNum: users[i].length - 1,
+                            master: games[i].master,
                         },
                     });
                     break;
@@ -167,6 +167,7 @@ const socket = (server: http.Server) => {
                     }
                     break;
                 case "server/start":
+                    console.log(action.data.roomName);
                     for (var i = 0; i < games.length; i++) {
                         if (games[i].name == action.data.roomName) {
                             games[i].state = "게임중";
@@ -195,7 +196,6 @@ const socket = (server: http.Server) => {
                         type: END_GAME_USER,
                         data: {
                             blocks: action.data.blocks,
-                            enemyNum: action.data.myNum,
                             enemyRank: action.data.rank,
                         },
                     });

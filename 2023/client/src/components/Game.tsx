@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
@@ -63,16 +64,16 @@ const ENEMY_WINDOW = {
 
 const NUMBER_OF_BLOCKS = 4;
 
-const Body = styled.div`
+const Body = styled("div")`
 	height: 80vh;
-	width: 100vw;
+	width: 100%;
 	margin: 5vh 5vw;
 	display: flex;
 	justify-content: center;
 `;
 const Left = styled.div`
 	margin: 5vh 3vw;
-	width: 600px;
+	width: 800px;
 	display: flex;
 	justify-content: start;
 	flex-wrap: wrap;
@@ -132,17 +133,13 @@ const You5 = css`
 	border-style: solid;
 	background-color: white;
 `;
-const RowCenter = styled.div`
+const Center = styled.div`
 	margin: 5vh 3vw;
 	width: 500px;
 	display: flex;
 	justify-content: center;
 	flex-wrap: wrap;
 	align-items: center;
-`;
-const ColCenter = styled.div`
-	display: flex;
-	justify-content: center;
 `;
 const GameWindow = styled.div`
 	position: relative;
@@ -184,9 +181,9 @@ const Id = styled.div`
 `;
 const Right = styled.div`
 	margin: 5vh 5vw;
-	width: 20%;
 	display: flex;
 	justify-content: center;
+	align-items: center;
 	flex-wrap: wrap;
 `;
 const StartButton = styled.button`
@@ -196,7 +193,7 @@ const StartButton = styled.button`
 	border-style: outset;
 	border-color: skyblue;
 	background-color: skyblue;
-	width: 80px;
+	width: 153px;
 	height: 30px;
 	overflow: hidden;
 	text-align: center;
@@ -209,7 +206,7 @@ const ExitButton = styled.button`
 	border-style: outset;
 	border-color: skyblue;
 	background-color: skyblue;
-	width: 80px;
+	width: 153px;
 	height: 30px;
 	overflow: hidden;
 	text-align: center;
@@ -217,33 +214,27 @@ const ExitButton = styled.button`
 `;
 const ChatingBox = styled.div`
 	text-align: left;
-	position: relative;
 	background-color: rgb(212, 244, 250);
-	width: 200px;
+	width: 300px;
 	border-style: solid;
 	height: 200px;
-	position: absolute;
-	font-size: 10px;
+	font-size: 12px;
 	overflow: auto;
-	z-index: 500;
 `;
 const InputBox = styled.input`
-	position: relative;
 	border-style: solid;
-	width: 170px;
+	width: 90%;
 	height: 20px;
 	font-size: 10px;
-	z-index: 150;
 `;
 const SendButton = styled.button`
 	position: relative;
-	width: 34px;
+	width: 10%;
 	height: 25px;
 	font-size: 14px;
 	color: black;
 	text-align: center;
 	padding: 0;
-	z-index: 100;
 `;
 const BlockStyle = css`
 	position: absolute;
@@ -278,6 +269,10 @@ const EnemyRanking = styled.div`
 	font-size: 50px;
 	left: 45px;
 	top: 95px;
+`;
+const ColCenter = styled.div`
+	display: flex;
+	justify-content: center;
 `;
 
 let blockKey = 1;
@@ -545,13 +540,14 @@ const Game = ({
 	me,
 	chatings,
 	state,
-	personNum,
+	numberOfUsers,
 	sendMessage,
 	leave,
 	start,
 	end,
 	addLine,
 	updateBlocks,
+	master,
 }: {
 	users: {
 		name: string;
@@ -564,13 +560,14 @@ const Game = ({
 		text: string;
 	}[];
 	state: string;
-	personNum: number;
+	numberOfUsers: number;
 	sendMessage: (text: string) => void;
 	leave: () => void;
 	start: () => void;
 	end: (blocks: BLOCKS) => void;
 	addLine: () => void;
 	updateBlocks: (blocks: BLOCKS) => void;
+	master: string;
 }) => {
 	const [blocks, setBlocks] = useState<BLOCKS>([]);
 	const [firstWaitingBlock, setFirstWaitingBlock] = useState<BLOCKS>([]);
@@ -633,7 +630,7 @@ const Game = ({
 		}, dropMilliseconds);
 
 		start();
-	}, []);
+	}, [start]);
 
 	const downBlock = useCallback(() => {
 		for (let i = blocks.length - 4; i < blocks.length; i++) {
@@ -716,7 +713,7 @@ const Game = ({
 	}, [blocks]);
 
 	const finishGame = useCallback(() => {
-		setRank(personNum.toString());
+		setRank(numberOfUsers.toString());
 		window.removeEventListener(
 			"keydown",
 			gameControllKeyListener.current,
@@ -744,7 +741,7 @@ const Game = ({
 	const upLine = () => {
 		let emptyBlockIdx = Math.floor(Math.random() * 10);
 
-		if (upLineCount <= personNum - 2) {
+		if (upLineCount <= numberOfUsers - 2) {
 			upLineCount += 1;
 			return;
 		}
@@ -926,7 +923,7 @@ const Game = ({
 					);
 				})}
 			</Left>
-			<RowCenter>
+			<Center>
 				<ColCenter>
 					<PreviewWindows>
 						<PreviewWindow key="2">
@@ -980,44 +977,61 @@ const Game = ({
 						{<Ranking>{rank}</Ranking>}
 					</GameWindow>
 				</ColCenter>
-			</RowCenter>
+			</Center>
 			<Right>
-				<ChatingBox key="11">
-					{chatings.map((chat) => {
-						if (chat.name === "join") {
-							return <div key={chat.chatingKey}>{chat.text}</div>;
-						} else if (chat.name === "me") {
-							return (
-								<div key={chat.chatingKey}>
-									{`${me}>${chat.text}`}
-								</div>
-							);
-						} else {
-							return (
-								<div key={chat.chatingKey}>
-									{`${chat.name}>${chat.text}`}
-								</div>
-							);
-						}
-					})}
-				</ChatingBox>
-				<InputBox
-					ref={inputEl}
-					onChange={(e) => setChatingInputText(e.target.value)}
-				/>
-				<SendButton onClick={clearChatingInput} key="12">
-					전송
-				</SendButton>
-				{state !== "게임중" && users[0]?.name === me && (
-					<StartButton onClick={initialize}>시작하기</StartButton>
-				)}
-				{state === "대기중" ? (
-					<Link to="/" onClick={leave}>
-						<ExitButton>돌아가기</ExitButton>
-					</Link>
-				) : (
-					<ExitButton key="9">돌아가기</ExitButton>
-				)}
+				<div>
+					<ChatingBox key="11">
+						{chatings.map((chat) => {
+							if (chat.name === "join") {
+								return (
+									<div key={chat.chatingKey}>{chat.text}</div>
+								);
+							} else if (chat.name === "me") {
+								return (
+									<div key={chat.chatingKey}>
+										{`${me}>${chat.text}`}
+									</div>
+								);
+							} else {
+								return (
+									<div key={chat.chatingKey}>
+										{`${chat.name}>${chat.text}`}
+									</div>
+								);
+							}
+						})}
+					</ChatingBox>
+					<ColCenter>
+						<InputBox
+							ref={inputEl}
+							onChange={(e) =>
+								setChatingInputText(e.target.value)
+							}
+						/>
+						<SendButton onClick={clearChatingInput} key="12">
+							전송
+						</SendButton>
+					</ColCenter>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "end",
+						}}
+					>
+						{state !== "게임중" && master === me && (
+							<StartButton onClick={initialize}>
+								시작하기
+							</StartButton>
+						)}
+						{state === "대기중" ? (
+							<Link to="/" onClick={leave}>
+								<ExitButton>돌아가기</ExitButton>
+							</Link>
+						) : (
+							<ExitButton key="9">돌아가기</ExitButton>
+						)}
+					</div>
+				</div>
 			</Right>
 			<a href="https://kr.freepik.com/free-vector/arizona-night-desert-landscape-natural-wild-west-background-with-coyote-pack-silhouettes-run-on-through-cacti-and-rocks-under-cloudy-sky-with-full-moon-shining-game-scene-cartoon-vector-illustration_21050353.htm#query=game%20background&position=3&from_view=keyword">
 				작가 upklyak

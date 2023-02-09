@@ -11,7 +11,7 @@ const LobbyContainer = () => {
 		dispatch({
 			type: "server/createGame",
 			data: {
-				name: prompt("방 이름을 입력하세요", ""),
+				name: prompt("방 이름을 입력하세요", "") || "",
 				master: me,
 			},
 		});
