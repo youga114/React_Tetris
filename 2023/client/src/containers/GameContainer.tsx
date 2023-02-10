@@ -56,12 +56,13 @@ const GameContainer = () => {
 		}
 	}, []);
 
-	const addLine = useCallback(() => {
+	const addLine = useCallback((upLineCount) => {
 		dispatch({
 			type: "server/lineup",
 			data: {
 				roomName: roomName,
 				randomVar: Math.floor(Math.random() * 10),
+				upLineCount: upLineCount,
 			},
 		});
 	}, []);

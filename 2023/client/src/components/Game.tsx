@@ -524,8 +524,8 @@ const getMainBlock = (blocks: BLOCKS) => {
 const isOverd = (blocks: BLOCKS) => {
 	for (let i = blocks.length - 4; i < blocks.length; ++i) {
 		if (
-			blocks[i].y >= BLOCK.HEIGHT * 20 ||
-			blocks[i].x >= BLOCK.WIDTH * 10 ||
+			blocks[i].y >= GAME_WINDOW.HEIGHT ||
+			blocks[i].x >= GAME_WINDOW.WIDTH ||
 			blocks[i].x < 0
 		) {
 			return true;
@@ -571,7 +571,7 @@ const Game = ({
 	leave: () => void;
 	start: () => void;
 	end: (blocks: BLOCKS) => void;
-	addLine: () => void;
+	addLine: (upLineCount: number) => void;
 	updateBlocks: (blocks: BLOCKS) => void;
 	master: string;
 }) => {
@@ -639,52 +639,47 @@ const Game = ({
 	}, [start]);
 
 	const downBlock = useCallback(() => {
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			blocks[i].y += BLOCK.HEIGHT;
+		let downedBlocks = blocks.map((block) => {
+			return { ...block };
+		});
+
+		for (let i = downedBlocks.length - 4; i < downedBlocks.length; i++) {
+			downedBlocks[i].y += BLOCK.HEIGHT;
 		}
 
-		if (isOverd(blocks) === false) {
-			setBlocks(
-				blocks.map((block) => {
-					return { ...block };
-				})
-			);
+		if (isOverd(downedBlocks) === false) {
+			setBlocks(downedBlocks);
 
-			return true;
+			return;
 		}
 
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			blocks[i].y -= BLOCK.HEIGHT;
+		for (let i = downedBlocks.length - 4; i < downedBlocks.length; i++) {
+			downedBlocks[i].y -= BLOCK.HEIGHT;
 		}
 
-		clearFilledLine();
+		downedBlocks = clearFilledLine(downedBlocks);
 
-		blocks.push(...getMainBlock(waitingBlocks[0]));
-
-		setBlocks(
-			blocks.map((block) => {
-				return { ...block };
-			})
-		);
+		downedBlocks.push(...getMainBlock(waitingBlocks[0]));
 
 		let waitingBlock = [waitingBlocks[1], createPreviewBlock()];
 		setWaitingBlocks(waitingBlock);
 
-		if (isOverd(blocks) === true) {
-			finishGame();
+		if (isOverd(downedBlocks) === true) {
+			downedBlocks = finishGame(downedBlocks);
 		}
 
-		updateBlocks(blocks);
+		updateBlocks(downedBlocks);
 
-		return false;
+		setBlocks(downedBlocks);
 	}, [blocks]);
 
 	downBlockRef.current = downBlock;
 
-	const clearFilledLine = useCallback(() => {
+	const clearFilledLine = useCallback((blocks: BLOCKS) => {
 		let cloneBlocks = blocks.map((block) => {
 			return { ...block };
 		});
+		let clearFilledLineCount = 0;
 
 		for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
 			let sameHeightBlockIdx = [];
@@ -703,23 +698,19 @@ const Game = ({
 				for (let k = 9; k >= 0; k--) {
 					blocks.splice(sameHeightBlockIdx[k], 1);
 				}
+
+				clearFilledLineCount++;
 			}
 		}
 
-		setBlocks(
-			blocks.map((block) => {
-				return { ...block };
-			})
-		);
-		addLine();
-		updateBlocks(
-			blocks.map((block) => {
-				return { ...block };
-			})
-		);
-	}, [blocks]);
+		if (clearFilledLineCount > 0) {
+			addLine(clearFilledLineCount);
+		}
 
-	const finishGame = useCallback(() => {
+		return blocks;
+	}, []);
+
+	const finishGame = useCallback((blocks: BLOCKS) => {
 		setRank(numberOfUsers.toString());
 		window.removeEventListener(
 			"keydown",
@@ -732,18 +723,10 @@ const Game = ({
 			blocks[i].color = "rgb(166,166,166)";
 		}
 
-		setBlocks(
-			blocks.map((block) => {
-				return { ...block };
-			})
-		);
+		end(blocks);
 
-		end(
-			blocks.map((block) => {
-				return { ...block };
-			})
-		);
-	}, [blocks]);
+		return blocks;
+	}, []);
 
 	const upLine = () => {
 		let emptyBlockIdx = Math.floor(Math.random() * 10);
@@ -800,7 +783,42 @@ const Game = ({
 
 		switch (keyCode) {
 			case KEY_CODE.SPACE:
-				while (downBlock());
+				let downedBlocks = blocks.map((block) => {
+					return { ...block };
+				});
+
+				while (isOverd(downedBlocks) === false) {
+					for (
+						let i = downedBlocks.length - 4;
+						i < downedBlocks.length;
+						i++
+					) {
+						downedBlocks[i].y += BLOCK.HEIGHT;
+					}
+				}
+
+				for (
+					let i = downedBlocks.length - 4;
+					i < downedBlocks.length;
+					i++
+				) {
+					downedBlocks[i].y -= BLOCK.HEIGHT;
+				}
+
+				downedBlocks = clearFilledLine(downedBlocks);
+
+				downedBlocks.push(...getMainBlock(waitingBlocks[0]));
+
+				let waitingBlock = [waitingBlocks[1], createPreviewBlock()];
+				setWaitingBlocks(waitingBlock);
+
+				if (isOverd(downedBlocks) === true) {
+					downedBlocks = finishGame(downedBlocks);
+				}
+
+				updateBlocks(downedBlocks);
+
+				setBlocks(downedBlocks);
 				break;
 			case KEY_CODE.LEFT:
 				for (
