@@ -116,13 +116,13 @@ const socket = (server: http.Server) => {
                     socket.broadcast.in(action.data.roomName).emit("action", {
                         type: CHAT,
                         data: {
-                            content: action.data.content,
-                            speaker: action.data.speaker,
+                            text: action.data.text,
+                            user: action.data.user,
                         },
                     });
                     io.sockets.to(socket.id).emit("action", {
                         type: CHAT,
-                        data: { content: action.data.content, speaker: "me" },
+                        data: { text: action.data.text, user: "me" },
                     });
                     break;
                 case "server/exit":
@@ -134,7 +134,9 @@ const socket = (server: http.Server) => {
                     for (var j = 0; j < users[i].length; j++) {
                         if (users[i][j].name == action.data.user) {
                             if (users[i][j].name == games[i].master) {
-                                games[i].master = users[i][j + 1].name;
+                                if (users[i].length > j + 1) {
+                                    games[i].master = users[i][j + 1].name;
+                                }
                             }
                             users[i].splice(j, 1);
                             socket.leave(games[i].name);

@@ -21,7 +21,7 @@ type GameState = {
 	}[];
 	chatings: {
 		chatingKey: string;
-		name: string | null;
+		user: string | null;
 		text: string;
 	}[];
 	numberOfUsers: number;
@@ -54,7 +54,7 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 					...state.chatings,
 					{
 						chatingKey: "chat" + chatKey++,
-						name: null,
+						user: null,
 						text: action.data.joinPerson + "님이 입장하셨습니다.",
 					},
 				],
@@ -72,7 +72,7 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 					...state.chatings,
 					{
 						chatingKey: "chat" + chatKey++,
-						name: null,
+						user: null,
 						text: action.data.exitPerson + "님이 퇴장하셨습니다.",
 					},
 				],

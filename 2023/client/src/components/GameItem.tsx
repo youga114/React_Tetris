@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import React from "react";
 import { Link } from "react-router-dom";
 import { css } from "@emotion/react";
@@ -79,8 +80,8 @@ const GameItem = ({
 			onJoin={onJoin}
 		>
 			<div css={state === "대기중" ? waitingGame : playingGame}>
-				방제 : {title} &nbsp;&nbsp;&nbsp;인원 : {numberOfPeople}/6
-				&nbsp;&nbsp;방장 : {master} &nbsp;&nbsp;상태 : {state}
+				방제 : {title} &nbsp; | &nbsp;인원 : {numberOfPeople}/6 &nbsp; |
+				&nbsp;방장 : {master} &nbsp; | &nbsp;{state}
 			</div>
 		</LinkWrapper>
 	);

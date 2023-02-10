@@ -3,6 +3,7 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import { css } from "@emotion/react";
+import Button from "./Button";
 
 type BLOCKS = {
 	key: number;
@@ -197,32 +198,6 @@ const Right = styled.div`
 	justify-content: center;
 	align-items: center;
 	flex-wrap: wrap;
-`;
-const StartButton = styled.button`
-	padding: 0;
-	position: relative;
-	border-width: 4px;
-	border-style: outset;
-	border-color: skyblue;
-	background-color: skyblue;
-	width: 153px;
-	height: 30px;
-	overflow: hidden;
-	text-align: center;
-	font-size: 18px;
-`;
-const ExitButton = styled.button`
-	padding: 0;
-	position: relative;
-	border-width: 4px;
-	border-style: outset;
-	border-color: skyblue;
-	background-color: skyblue;
-	width: 153px;
-	height: 30px;
-	overflow: hidden;
-	text-align: center;
-	font-size: 18px;
 `;
 const ChatingBox = styled.div`
 	text-align: left;
@@ -562,7 +537,7 @@ const Game = ({
 	me: string;
 	chatings: {
 		chatingKey: string;
-		name: string | null;
+		user: string | null;
 		text: string;
 	}[];
 	state: string;
@@ -908,8 +883,8 @@ const Game = ({
 			return;
 		}
 
-		setBlocks(rotatedBlocks);
 		updateBlocks(rotatedBlocks);
+		setBlocks(rotatedBlocks);
 	}, [blocks]);
 
 	return (
@@ -1007,11 +982,11 @@ const Game = ({
 				<div>
 					<ChatingBox key="11">
 						{chatings.map((chat) => {
-							if (chat.name === "join") {
+							if (chat.user === "join") {
 								return (
 									<div key={chat.chatingKey}>{chat.text}</div>
 								);
-							} else if (chat.name === "me") {
+							} else if (chat.user === "me") {
 								return (
 									<div key={chat.chatingKey}>
 										{`${me}>${chat.text}`}
@@ -1020,7 +995,7 @@ const Game = ({
 							} else {
 								return (
 									<div key={chat.chatingKey}>
-										{`${chat.name}>${chat.text}`}
+										{`${chat.user}>${chat.text}`}
 									</div>
 								);
 							}
@@ -1044,26 +1019,26 @@ const Game = ({
 						}}
 					>
 						{state !== "게임중" && master === me && (
-							<StartButton onClick={initialize}>
-								시작하기
-							</StartButton>
+							<div onClick={initialize}>
+								<Button>시작하기</Button>
+							</div>
 						)}
 						{state === "대기중" ? (
-							<Link to="/" onClick={leave}>
-								<ExitButton>돌아가기</ExitButton>
+							<Link
+								to="/"
+								onClick={leave}
+								style={{ textDecoration: "none" }}
+							>
+								<Button>돌아가기</Button>
 							</Link>
 						) : (
-							<ExitButton key="9">돌아가기</ExitButton>
+							<Button>돌아가기</Button>
 						)}
 					</div>
 				</div>
 			</Right>
-			<a href="https://kr.freepik.com/free-vector/arizona-night-desert-landscape-natural-wild-west-background-with-coyote-pack-silhouettes-run-on-through-cacti-and-rocks-under-cloudy-sky-with-full-moon-shining-game-scene-cartoon-vector-illustration_21050353.htm#query=game%20background&position=3&from_view=keyword">
-				작가 upklyak
-			</a>{" "}
-			출처 Freepik
 		</Body>
 	);
 };
 
-export default Game;
+export default React.memo(Game);

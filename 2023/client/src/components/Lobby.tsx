@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "@emotion/styled";
 import GameItemContainer from "../containers/GameItemContainer";
+import Button from "./Button";
 
 const Body = styled.div`
 	height: 100vh;
@@ -15,9 +16,9 @@ const Body = styled.div`
 
 const GameList = styled.div`
 	border-style: double;
-	border-color: black;
+	border-color: white;
 	border-width: 4px;
-	background-color: rgb(250, 250, 250);
+	background-color: #222;
 	opacity: 0.8;
 	width: 500px;
 	height: 70%;
@@ -34,6 +35,8 @@ const Greeting = styled.div`
 const CreateGameDiv = styled.div`
 	justify-content: flex-start;
 	width: 500px;
+	margin: 5px;
+	display: flex;
 `;
 
 const Lobby = ({
@@ -53,11 +56,15 @@ const Lobby = ({
 }) => {
 	return (
 		<Body>
-			<Link to="/tetris">
-				<CreateGameDiv>
-					<button onClick={onCreate}>방 만들기</button>
-				</CreateGameDiv>
-			</Link>
+			<CreateGameDiv>
+				<Link
+					to="/tetris"
+					style={{ textDecoration: "none" }}
+					onClick={onCreate}
+				>
+					<Button>게임 생성하기</Button>
+				</Link>
+			</CreateGameDiv>
 			<GameList>
 				{games.map((game) => (
 					<GameItemContainer
@@ -70,7 +77,7 @@ const Lobby = ({
 					/>
 				))}
 			</GameList>
-			<Greeting>ID: {me}</Greeting>
+			{/* <Greeting>ID: {me}</Greeting> */}
 		</Body>
 	);
 };

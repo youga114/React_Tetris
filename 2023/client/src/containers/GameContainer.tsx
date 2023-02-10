@@ -14,8 +14,8 @@ const GameContainer = () => {
 		dispatch({
 			type: "server/chat",
 			data: {
-				speaker: me,
-				content: text,
+				user: me,
+				text: text,
 				roomName: roomName,
 			},
 		});
@@ -36,7 +36,7 @@ const GameContainer = () => {
 				user: me,
 			},
 		});
-	}, []);
+	}, [roomName]);
 
 	const end = useCallback((blocks) => {
 		dispatch({
@@ -96,4 +96,4 @@ const GameContainer = () => {
 	);
 };
 
-export default GameContainer;
+export default React.memo(GameContainer);
