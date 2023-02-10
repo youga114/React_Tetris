@@ -45,7 +45,7 @@ const GAME_WINDOW = {
 };
 
 const PREVIEW_WINDOW = {
-	WIDTH: BLOCK.WIDTH * 4,
+	WIDTH: BLOCK.WIDTH * 5,
 	HEIGHT: BLOCK.HEIGHT * 4,
 	BORDER_WIDTH: 1,
 };
@@ -153,9 +153,6 @@ const GameWindow = styled.div`
 `;
 const PreviewWindows = styled.div`
 	position: relative;
-	border-color: skyblue;
-	border-style: solid;
-	background-color: black;
 	width: ${PREVIEW_WINDOW.WIDTH}px;
 	height: ${PREVIEW_WINDOW.HEIGHT * 2 + PREVIEW_WINDOW.BORDER_WIDTH * 4}px;
 	overflow: hidden;
@@ -169,6 +166,21 @@ const PreviewWindow = styled.div`
 	width: ${PREVIEW_WINDOW.WIDTH}px;
 	height: ${PREVIEW_WINDOW.HEIGHT}px;
 	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`;
+const PreviewCenter = styled.div`
+	position: relative;
+	left: ${BLOCK.WIDTH / 2}px;
+`;
+const PreviewBlockStyle = css`
+	position: absolute;
+	border-width: ${BLOCK.BORDER_WIDTH}px;
+	border-color: white;
+	border-style: outset;
+	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
+	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
 `;
 const Id = styled.div`
 	position: relative;
@@ -243,8 +255,6 @@ const BlockStyle = css`
 	border-style: outset;
 	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
 	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
-	left: ${GAME_WINDOW.WIDTH / 2 - BLOCK.WIDTH / 2}px;
-	top: ${-BLOCK.HEIGHT}px;
 `;
 const EnemyBlockStyle = css`
 	position: absolute;
@@ -280,38 +290,35 @@ let upLineCount = 1;
 let dropMilliseconds = 300;
 
 const createPreviewBlock: () => BLOCKS = () => {
-	const PREVIEW_WINDOW_CENTER_X = PREVIEW_WINDOW.WIDTH / 2;
-	const PREVIEW_WINDOW_CENTER_Y = PREVIEW_WINDOW.HEIGHT / 2;
-
 	switch (Math.floor(Math.random() * 7)) {
 		case BLOCK_SHAPE.SQUARE:
 			return [
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
 					color: "red",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: -BLOCK.HEIGHT,
+					x: 0,
 					color: "red",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: 0,
+					x: -BLOCK.WIDTH,
 					color: "red",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: 0,
+					x: 0,
 					color: "red",
 				},
 			];
@@ -320,29 +327,29 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: 0,
+					x: -BLOCK.WIDTH,
 					color: "purple",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: 0,
+					x: -BLOCK.WIDTH * 2,
 					color: "purple",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: 0,
+					x: 0,
 					color: "purple",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X + BLOCK.WIDTH,
+					y: 0,
+					x: BLOCK.WIDTH,
 					color: "purple",
 				},
 			];
@@ -351,29 +358,29 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
 					color: "pink",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: -BLOCK.HEIGHT,
+					x: 0,
 					color: "pink",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
 					color: "pink",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: 0,
+					x: 0,
 					color: "pink",
 				},
 			];
@@ -382,29 +389,29 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
 					color: "yellow",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
 					color: "yellow",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: -BLOCK.HEIGHT,
+					x: 0,
 					color: "yellow",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: 0,
+					x: -BLOCK.WIDTH * 2,
 					color: "yellow",
 				},
 			];
@@ -413,29 +420,29 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
 					color: "orange",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
 					color: "orange",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: -BLOCK.HEIGHT,
+					x: 0,
 					color: "orange",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: 0,
+					x: -BLOCK.WIDTH,
 					color: "orange",
 				},
 			];
@@ -444,29 +451,29 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
 					color: "green",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: 0,
+					x: -BLOCK.WIDTH * 2,
 					color: "green",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: -BLOCK.HEIGHT,
+					x: 0,
 					color: "green",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: 0,
+					x: -BLOCK.WIDTH,
 					color: "green",
 				},
 			];
@@ -475,29 +482,29 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
 					color: "blue",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X,
+					y: 0,
+					x: 0,
 					color: "blue",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y - BLOCK.HEIGHT,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH * 2,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
 					color: "blue",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: PREVIEW_WINDOW_CENTER_Y,
-					x: PREVIEW_WINDOW_CENTER_X - BLOCK.WIDTH,
+					y: 0,
+					x: -BLOCK.WIDTH,
 					color: "blue",
 				},
 			];
@@ -508,8 +515,7 @@ const createPreviewBlock: () => BLOCKS = () => {
 
 const getMainBlock = (blocks: BLOCKS) => {
 	blocks.forEach((block) => {
-		block.x += GAME_WINDOW.WIDTH / 2 - PREVIEW_WINDOW.WIDTH / 2;
-		block.y -= PREVIEW_WINDOW.HEIGHT / 2;
+		block.x += GAME_WINDOW.WIDTH / 2;
 	});
 
 	return blocks;
@@ -570,8 +576,7 @@ const Game = ({
 	master: string;
 }) => {
 	const [blocks, setBlocks] = useState<BLOCKS>([]);
-	const [firstWaitingBlock, setFirstWaitingBlock] = useState<BLOCKS>([]);
-	const [secondWaitingBlock, setSecondWaitingBlock] = useState<BLOCKS>([]);
+	const [waitingBlocks, setWaitingBlocks] = useState<BLOCKS[]>([[], []]);
 	const [chatingInputText, setChatingInputText] = useState("");
 	const [rank, setRank] = useState("");
 
@@ -622,8 +627,9 @@ const Game = ({
 
 		setRank("");
 		setBlocks(getMainBlock(createPreviewBlock()));
-		setFirstWaitingBlock(createPreviewBlock());
-		setSecondWaitingBlock(createPreviewBlock());
+
+		let waitingBlock = [createPreviewBlock(), createPreviewBlock()];
+		setWaitingBlocks(waitingBlock);
 
 		timeIntervalId.current = setInterval(() => {
 			downBlockRef.current?.();
@@ -653,15 +659,16 @@ const Game = ({
 
 		clearFilledLine();
 
-		blocks.push(...getMainBlock(firstWaitingBlock));
+		blocks.push(...getMainBlock(waitingBlocks[0]));
 
 		setBlocks(
 			blocks.map((block) => {
 				return { ...block };
 			})
 		);
-		setFirstWaitingBlock(secondWaitingBlock);
-		setSecondWaitingBlock(createPreviewBlock());
+
+		let waitingBlock = [waitingBlocks[1], createPreviewBlock()];
+		setWaitingBlocks(waitingBlock);
 
 		if (isOverd(blocks) === true) {
 			finishGame();
@@ -926,38 +933,38 @@ const Game = ({
 			<Center>
 				<ColCenter>
 					<PreviewWindows>
-						<PreviewWindow key="2">
-							{firstWaitingBlock.map((item) => {
-								let blockStyle = {
-									top: item.y,
-									left: item.x,
-									backgroundColor: item.color,
-								};
-								return (
-									<div
-										key={item.key}
-										css={BlockStyle}
-										style={blockStyle}
-									/>
-								);
-							})}
-						</PreviewWindow>
-						<PreviewWindow key="3">
-							{secondWaitingBlock.map((item) => {
-								let blockStyle = {
-									top: item.y,
-									left: item.x,
-									backgroundColor: item.color,
-								};
-								return (
-									<div
-										key={item.key}
-										css={BlockStyle}
-										style={blockStyle}
-									/>
-								);
-							})}
-						</PreviewWindow>
+						{waitingBlocks.map((waitingBlock, index) => (
+							<PreviewWindow key={index}>
+								<PreviewCenter>
+									{waitingBlock.map((item) => {
+										let y = item.y;
+										let x = item.x;
+
+										if (item.shape === BLOCK_SHAPE.SQUARE) {
+											x -= BLOCK.WIDTH / 2;
+										} else if (
+											item.shape === BLOCK_SHAPE.LINEAR
+										) {
+											x -= BLOCK.WIDTH / 2;
+											y -= BLOCK.HEIGHT / 2;
+										}
+
+										let blockStyle = {
+											top: y,
+											left: x,
+											backgroundColor: item.color,
+										};
+										return (
+											<div
+												key={item.key}
+												css={PreviewBlockStyle}
+												style={blockStyle}
+											/>
+										);
+									})}
+								</PreviewCenter>
+							</PreviewWindow>
+						))}
 					</PreviewWindows>
 					<GameWindow key="1">
 						{blocks.map((item) => {

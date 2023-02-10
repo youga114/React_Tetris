@@ -31,32 +31,7 @@ type GameState = {
 
 const initialState: GameState = {
 	state: "대기중",
-	users: [
-		{
-			name: "",
-			blocks: [],
-		},
-		{
-			name: "",
-			blocks: [],
-		},
-		{
-			name: "",
-			blocks: [],
-		},
-		{
-			name: "",
-			blocks: [],
-		},
-		{
-			name: "",
-			blocks: [],
-		},
-		{
-			name: "",
-			blocks: [],
-		},
-	],
+	users: [],
 	chatings: [],
 	numberOfUsers: 1,
 	lineUp: 0,
