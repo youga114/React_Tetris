@@ -62,7 +62,14 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 		case CHAT:
 			return {
 				...state,
-				chatings: state.chatings.concat(action.data.chatings),
+				chatings: [
+					...state.chatings,
+					{
+						chatingKey: "chat" + chatKey++,
+						user: action.data.user,
+						text: action.data.text,
+					},
+				],
 			};
 		case LEAVE_USER:
 			return {

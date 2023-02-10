@@ -204,6 +204,7 @@ const ChatingBox = styled.div`
 	background-color: rgb(212, 244, 250);
 	width: 300px;
 	border-style: solid;
+	border-color: #666;
 	height: 200px;
 	font-size: 12px;
 	overflow: auto;
@@ -559,28 +560,39 @@ const Game = ({
 	const downBlockRef = useRef<() => void>();
 	const inputEl = useRef<HTMLInputElement>(null);
 	const getGameControllKey = useRef<(event: KeyboardEvent) => void>();
-	const gameControllKeyListener = useRef((event: KeyboardEvent) => {
+	const gameControllKeyListener = useCallback((event: KeyboardEvent) => {
 		getGameControllKey.current?.(event);
-	});
+	}, []);
+	const getChatingEnterKey = useRef<(event: KeyboardEvent) => void>();
+	const getChatingEnterKeyListener = useCallback((event: KeyboardEvent) => {
+		getChatingEnterKey.current?.(event);
+	}, []);
 
 	useEffect(() => {
-		window.addEventListener("keydown", getChatingEnterKey, false);
+		window.addEventListener("keydown", getChatingEnterKeyListener, false);
 		return () => {
-			window.removeEventListener("keydown", getChatingEnterKey, false);
+			window.removeEventListener(
+				"keydown",
+				getChatingEnterKeyListener,
+				false
+			);
 		};
 	}, []);
 
-	const getChatingEnterKey = useCallback((event: KeyboardEvent) => {
-		let keyCode = event.keyCode;
+	getChatingEnterKey.current = useCallback(
+		(event: KeyboardEvent) => {
+			let keyCode = event.keyCode;
 
-		switch (keyCode) {
-			case KEY_CODE.ENTER:
-				clearChatingInput();
-				break;
-			default:
-				return;
-		}
-	}, []);
+			switch (keyCode) {
+				case KEY_CODE.ENTER:
+					clearChatingInput();
+					break;
+				default:
+					return;
+			}
+		},
+		[chatingInputText]
+	);
 
 	const clearChatingInput = useCallback(() => {
 		sendMessage(chatingInputText);
@@ -592,11 +604,7 @@ const Game = ({
 	}, [chatingInputText]);
 
 	const initialize = useCallback(() => {
-		window.addEventListener(
-			"keydown",
-			gameControllKeyListener.current,
-			false
-		);
+		window.addEventListener("keydown", gameControllKeyListener, false);
 
 		blockKey = 1;
 
@@ -687,11 +695,7 @@ const Game = ({
 
 	const finishGame = useCallback((blocks: BLOCKS) => {
 		setRank(numberOfUsers.toString());
-		window.removeEventListener(
-			"keydown",
-			gameControllKeyListener.current,
-			false
-		);
+		window.removeEventListener("keydown", gameControllKeyListener, false);
 		clearInterval(timeIntervalId.current);
 
 		for (let i = 0; i < blocks.length; i++) {
@@ -1004,9 +1008,9 @@ const Game = ({
 					<ColCenter>
 						<InputBox
 							ref={inputEl}
-							onChange={(e) =>
-								setChatingInputText(e.target.value)
-							}
+							onChange={(e) => {
+								setChatingInputText(e.target.value);
+							}}
 						/>
 						<SendButton onClick={clearChatingInput} key="12">
 							전송

@@ -10,7 +10,7 @@ const GameContainer = () => {
 	const { me, roomName } = useSelector((state: RootState) => state.account);
 
 	const dispatch = useDispatch();
-	const sendMessage = useCallback((text) => {
+	const sendMessage = useCallback((text: string) => {
 		dispatch({
 			type: "server/chat",
 			data: {
