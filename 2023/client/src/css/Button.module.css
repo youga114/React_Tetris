@@ -1,4 +1,4 @@
-#btn {
+.btn {
 	background: #222;
 	height: 30px;
 	width: 140px;
@@ -18,7 +18,7 @@
 	margin: 6px;
 }
 
-#btn #circle {
+.circle {
 	width: 5px;
 	height: 5px;
 	background: transparent;
@@ -40,11 +40,11 @@
 	text-decoration: none;
 }
 
-#btn:hover {
+.btn:hover {
 	background: #000;
 }
 
-#btn:hover #circle {
+.btn:hover .circle {
 	height: 30px;
 	width: 100px;
 	left: 20px;

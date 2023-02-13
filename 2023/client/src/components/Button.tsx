@@ -1,11 +1,11 @@
 import React, { ReactNode } from "react";
-import "../css/Button.css";
+import styles from "../css/Button.module.css";
 
 const Lobby = ({ children }: { children: ReactNode }) => {
 	return (
-		<div id="btn">
-			<span className="noselect">{children}</span>
-			<div id="circle"></div>
+		<div className={`${styles.btn}`}>
+			<span className={`${styles.noselect}`}>{children}</span>
+			<div className={`${styles.circle}`}></div>
 		</div>
 	);
 };
