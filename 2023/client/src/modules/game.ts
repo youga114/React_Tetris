@@ -1,17 +1,4 @@
-import { Reducer } from "react";
 import { AnyAction } from "redux";
-
-let chatKey = 0;
-
-const ENTER_GAME = "ENTER_GAME";
-const JOIN_USER = "JOIN_USER";
-const CHAT = "CHAT";
-const LEAVE_USER = "LEAVE_USER";
-const START = "START";
-const SET_BLOCKS = "SET_BLOCKS";
-const END_GAME_USER = "END_GAME_USER";
-const END_GAME = "END_GAME";
-const UP_LINE = "UP_LINE";
 
 type GameState = {
 	state: string;
@@ -124,3 +111,15 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 };
 
 export default game;
+
+let chatKey = 0;
+
+const ENTER_GAME = "ENTER_GAME";
+const JOIN_USER = "JOIN_USER";
+const CHAT = "CHAT";
+const LEAVE_USER = "LEAVE_USER";
+const START = "START";
+const SET_BLOCKS = "SET_BLOCKS";
+const END_GAME_USER = "END_GAME_USER";
+const END_GAME = "END_GAME";
+const UP_LINE = "UP_LINE";

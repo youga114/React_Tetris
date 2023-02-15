@@ -1,8 +1,5 @@
 import { AnyAction } from "redux";
 
-const ENTER_GAME = "ENTER_GAME";
-const LEAVE_GAME = "LEAVE_GAME";
-
 type AccountState = {
 	me: string;
 	roomName: string;
@@ -31,3 +28,6 @@ const account = (state: AccountState = initialState, action: AnyAction) => {
 };
 
 export default account;
+
+const ENTER_GAME = "ENTER_GAME";
+const LEAVE_GAME = "LEAVE_GAME";

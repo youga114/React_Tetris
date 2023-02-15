@@ -13,510 +13,6 @@ type BLOCKS = {
 	color: string;
 }[];
 
-const KEY_CODE = {
-	ENTER: 13,
-	SPACE: 32,
-	LEFT: 37,
-	UP: 38,
-	RIGHT: 39,
-	DOWN: 40,
-};
-
-const BLOCK_SHAPE = {
-	SQUARE: 0,
-	LINEAR: 1,
-	FALCI_SHAPE: 2,
-	REVERSE_FALCI_SHAPE: 3,
-	MOUNTINE_SHAPE: 4,
-	BENT_UP_LINE: 5,
-	BENT_DOWN_LINE: 6,
-	DEAD: 7,
-};
-
-const BLOCK = {
-	WIDTH: 20,
-	HEIGHT: 20,
-	BORDER_WIDTH: 2,
-};
-
-const GAME_WINDOW = {
-	WIDTH: BLOCK.WIDTH * 10,
-	HEIGHT: BLOCK.HEIGHT * 20,
-	BORDER_WIDTH: 5,
-};
-
-const PREVIEW_WINDOW = {
-	WIDTH: BLOCK.WIDTH * 5,
-	HEIGHT: BLOCK.HEIGHT * 4,
-	BORDER_WIDTH: 1,
-};
-
-const ENEMY_BLOCK = {
-	WIDTH: 13,
-	HEIGHT: 13,
-	BORDER_WIDTH: 1,
-};
-
-const ENEMY_WINDOW = {
-	WIDTH: ENEMY_BLOCK.WIDTH * 10,
-	HEIGHT: ENEMY_BLOCK.HEIGHT * 20,
-	BORDER_WIDTH: 6,
-};
-
-const NUMBER_OF_BLOCKS = 4;
-
-const Body = styled("div")`
-	height: 80vh;
-	width: 100%;
-	margin: 5vh 5vw;
-	display: flex;
-	justify-content: center;
-`;
-const Left = styled.div`
-	margin: 5vh 3vw;
-	width: 800px;
-	display: flex;
-	justify-content: start;
-	flex-wrap: wrap;
-`;
-const EnemyWindow = styled.div`
-	border-width: ${ENEMY_WINDOW.BORDER_WIDTH}px;
-	border-color: skyblue;
-	border-style: solid;
-	background-color: black;
-	width: ${ENEMY_WINDOW.WIDTH}px;
-	height: ${ENEMY_WINDOW.HEIGHT}px;
-	overflow: hidden;
-	margin: 1vh 1vw;
-`;
-const You1 = styled.div`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You2 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You3 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You4 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You5 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const Center = styled.div`
-	margin: 5vh 3vw;
-	width: 500px;
-	display: flex;
-	justify-content: center;
-	flex-wrap: wrap;
-	align-items: center;
-`;
-const GameWindow = styled.div`
-	position: relative;
-	border-width: ${GAME_WINDOW.BORDER_WIDTH}px;
-	border-color: skyblue;
-	border-style: solid;
-	background-color: black;
-	width: ${GAME_WINDOW.WIDTH}px;
-	height: ${GAME_WINDOW.HEIGHT}px;
-	overflow: hidden;
-`;
-const PreviewWindows = styled.div`
-	position: relative;
-	width: ${PREVIEW_WINDOW.WIDTH}px;
-	height: ${PREVIEW_WINDOW.HEIGHT * 2 + PREVIEW_WINDOW.BORDER_WIDTH * 4}px;
-	overflow: hidden;
-`;
-const PreviewWindow = styled.div`
-	position: relative;
-	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
-	border-color: skyblue;
-	border-style: solid;
-	background-color: black;
-	width: ${PREVIEW_WINDOW.WIDTH}px;
-	height: ${PREVIEW_WINDOW.HEIGHT}px;
-	overflow: hidden;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-`;
-const PreviewCenter = styled.div`
-	position: relative;
-	left: ${BLOCK.WIDTH / 2}px;
-`;
-const PreviewBlockStyle = css`
-	position: absolute;
-	border-width: ${BLOCK.BORDER_WIDTH}px;
-	border-color: white;
-	border-style: outset;
-	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
-	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
-`;
-const Id = styled.div`
-	position: relative;
-	width: 205px;
-	height: 20px;
-	text-align: center;
-	font-size: 15px;
-	background-color: white;
-	border-style: solid;
-`;
-const Right = styled.div`
-	margin: 5vh 5vw;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
-`;
-const ChatingBox = styled.div`
-	text-align: left;
-	background-color: rgb(212, 244, 250);
-	width: 300px;
-	border-style: solid;
-	border-color: #666;
-	height: 200px;
-	font-size: 12px;
-	overflow: auto;
-`;
-const InputBox = styled.input`
-	border-style: solid;
-	width: 90%;
-	height: 20px;
-	font-size: 10px;
-`;
-const SendButton = styled.button`
-	position: relative;
-	width: 10%;
-	height: 25px;
-	font-size: 14px;
-	color: black;
-	text-align: center;
-	padding: 0;
-`;
-const BlockStyle = css`
-	position: absolute;
-	border-width: ${BLOCK.BORDER_WIDTH}px;
-	border-color: white;
-	border-style: outset;
-	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
-	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
-`;
-const EnemyBlockStyle = css`
-	position: absolute;
-	border-width: ${ENEMY_BLOCK.BORDER_WIDTH}px;
-	border-color: white;
-	border-style: outset;
-	width: ${ENEMY_BLOCK.WIDTH - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
-	height: ${ENEMY_BLOCK.HEIGHT - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
-	left: 76px;
-	top: ${-ENEMY_BLOCK.HEIGHT}px;
-`;
-const Ranking = styled.div`
-	position: absolute;
-	color: white;
-	font-size: 80px;
-	left: 75px;
-	top: 135px;
-`;
-const EnemyRanking = styled.div`
-	position: absolute;
-	color: white;
-	font-size: 50px;
-	left: 45px;
-	top: 95px;
-`;
-const ColCenter = styled.div`
-	display: flex;
-	justify-content: center;
-`;
-
-let blockKey = 1;
-let upLineCount = 1;
-let dropMilliseconds = 300;
-
-const createPreviewBlock: () => BLOCKS = () => {
-	switch (Math.floor(Math.random() * 7)) {
-		case BLOCK_SHAPE.SQUARE:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.SQUARE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH,
-					color: "red",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.SQUARE,
-					y: -BLOCK.HEIGHT,
-					x: 0,
-					color: "red",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.SQUARE,
-					y: 0,
-					x: -BLOCK.WIDTH,
-					color: "red",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.SQUARE,
-					y: 0,
-					x: 0,
-					color: "red",
-				},
-			];
-		case BLOCK_SHAPE.LINEAR:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
-					x: -BLOCK.WIDTH,
-					color: "purple",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
-					x: -BLOCK.WIDTH * 2,
-					color: "purple",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
-					x: 0,
-					color: "purple",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
-					x: BLOCK.WIDTH,
-					color: "purple",
-				},
-			];
-		case BLOCK_SHAPE.FALCI_SHAPE:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH,
-					color: "pink",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: 0,
-					color: "pink",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH * 2,
-					color: "pink",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: 0,
-					x: 0,
-					color: "pink",
-				},
-			];
-		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH,
-					color: "yellow",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH * 2,
-					color: "yellow",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: 0,
-					color: "yellow",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: 0,
-					x: -BLOCK.WIDTH * 2,
-					color: "yellow",
-				},
-			];
-		case BLOCK_SHAPE.MOUNTINE_SHAPE:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH,
-					color: "orange",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH * 2,
-					color: "orange",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: -BLOCK.HEIGHT,
-					x: 0,
-					color: "orange",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: 0,
-					x: -BLOCK.WIDTH,
-					color: "orange",
-				},
-			];
-		case BLOCK_SHAPE.BENT_UP_LINE:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH,
-					color: "green",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: 0,
-					x: -BLOCK.WIDTH * 2,
-					color: "green",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: -BLOCK.HEIGHT,
-					x: 0,
-					color: "green",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: 0,
-					x: -BLOCK.WIDTH,
-					color: "green",
-				},
-			];
-		case BLOCK_SHAPE.BENT_DOWN_LINE:
-			return [
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH,
-					color: "blue",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: 0,
-					x: 0,
-					color: "blue",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: -BLOCK.HEIGHT,
-					x: -BLOCK.WIDTH * 2,
-					color: "blue",
-				},
-				{
-					key: blockKey++,
-					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: 0,
-					x: -BLOCK.WIDTH,
-					color: "blue",
-				},
-			];
-		default:
-			return [];
-	}
-};
-
-const getMainBlock = (blocks: BLOCKS) => {
-	blocks.forEach((block) => {
-		block.x += GAME_WINDOW.WIDTH / 2;
-	});
-
-	return blocks;
-};
-
-const isOverd = (blocks: BLOCKS) => {
-	for (let i = blocks.length - 4; i < blocks.length; ++i) {
-		if (
-			blocks[i].y >= GAME_WINDOW.HEIGHT ||
-			blocks[i].x >= GAME_WINDOW.WIDTH ||
-			blocks[i].x < 0
-		) {
-			return true;
-		}
-
-		for (let j = 0; j < blocks.length - 4; ++j) {
-			if (blocks[i].y === blocks[j].y && blocks[i].x === blocks[j].x) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-};
-
 const Game = ({
 	users,
 	me,
@@ -1046,3 +542,507 @@ const Game = ({
 };
 
 export default React.memo(Game);
+
+const KEY_CODE = {
+	ENTER: 13,
+	SPACE: 32,
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	DOWN: 40,
+};
+
+const BLOCK_SHAPE = {
+	SQUARE: 0,
+	LINEAR: 1,
+	FALCI_SHAPE: 2,
+	REVERSE_FALCI_SHAPE: 3,
+	MOUNTINE_SHAPE: 4,
+	BENT_UP_LINE: 5,
+	BENT_DOWN_LINE: 6,
+	DEAD: 7,
+};
+
+const BLOCK = {
+	WIDTH: 20,
+	HEIGHT: 20,
+	BORDER_WIDTH: 2,
+};
+
+const GAME_WINDOW = {
+	WIDTH: BLOCK.WIDTH * 10,
+	HEIGHT: BLOCK.HEIGHT * 20,
+	BORDER_WIDTH: 5,
+};
+
+const PREVIEW_WINDOW = {
+	WIDTH: BLOCK.WIDTH * 5,
+	HEIGHT: BLOCK.HEIGHT * 4,
+	BORDER_WIDTH: 1,
+};
+
+const ENEMY_BLOCK = {
+	WIDTH: 13,
+	HEIGHT: 13,
+	BORDER_WIDTH: 1,
+};
+
+const ENEMY_WINDOW = {
+	WIDTH: ENEMY_BLOCK.WIDTH * 10,
+	HEIGHT: ENEMY_BLOCK.HEIGHT * 20,
+	BORDER_WIDTH: 6,
+};
+
+const NUMBER_OF_BLOCKS = 4;
+
+const Body = styled("div")`
+	height: 80vh;
+	width: 100%;
+	margin: 5vh 5vw;
+	display: flex;
+	justify-content: center;
+`;
+const Left = styled.div`
+	margin: 5vh 3vw;
+	width: 800px;
+	display: flex;
+	justify-content: start;
+	flex-wrap: wrap;
+`;
+const EnemyWindow = styled.div`
+	border-width: ${ENEMY_WINDOW.BORDER_WIDTH}px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: ${ENEMY_WINDOW.WIDTH}px;
+	height: ${ENEMY_WINDOW.HEIGHT}px;
+	overflow: hidden;
+	margin: 1vh 1vw;
+`;
+const You1 = styled.div`
+	position: relative;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+`;
+const You2 = css`
+	position: relative;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+`;
+const You3 = css`
+	position: relative;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+`;
+const You4 = css`
+	position: relative;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+`;
+const You5 = css`
+	position: relative;
+	height: 20px;
+	width: 136px;
+	text-align: center;
+	font-size: 15px;
+	border-style: solid;
+	background-color: white;
+`;
+const Center = styled.div`
+	margin: 5vh 3vw;
+	width: 500px;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	align-items: center;
+`;
+const GameWindow = styled.div`
+	position: relative;
+	border-width: ${GAME_WINDOW.BORDER_WIDTH}px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: ${GAME_WINDOW.WIDTH}px;
+	height: ${GAME_WINDOW.HEIGHT}px;
+	overflow: hidden;
+`;
+const PreviewWindows = styled.div`
+	position: relative;
+	width: ${PREVIEW_WINDOW.WIDTH}px;
+	height: ${PREVIEW_WINDOW.HEIGHT * 2 + PREVIEW_WINDOW.BORDER_WIDTH * 4}px;
+	overflow: hidden;
+`;
+const PreviewWindow = styled.div`
+	position: relative;
+	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
+	border-color: skyblue;
+	border-style: solid;
+	background-color: black;
+	width: ${PREVIEW_WINDOW.WIDTH}px;
+	height: ${PREVIEW_WINDOW.HEIGHT}px;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+`;
+const PreviewCenter = styled.div`
+	position: relative;
+	left: ${BLOCK.WIDTH / 2}px;
+`;
+const PreviewBlockStyle = css`
+	position: absolute;
+	border-width: ${BLOCK.BORDER_WIDTH}px;
+	border-color: white;
+	border-style: outset;
+	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
+	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
+`;
+const Id = styled.div`
+	position: relative;
+	width: 205px;
+	height: 20px;
+	text-align: center;
+	font-size: 15px;
+	background-color: white;
+	border-style: solid;
+`;
+const Right = styled.div`
+	margin: 5vh 5vw;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+`;
+const ChatingBox = styled.div`
+	text-align: left;
+	background-color: rgb(212, 244, 250);
+	width: 300px;
+	border-style: solid;
+	border-color: #666;
+	height: 200px;
+	font-size: 12px;
+	overflow: auto;
+`;
+const InputBox = styled.input`
+	border-style: solid;
+	width: 90%;
+	height: 20px;
+	font-size: 10px;
+`;
+const SendButton = styled.button`
+	position: relative;
+	width: 10%;
+	height: 25px;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	padding: 0;
+`;
+const BlockStyle = css`
+	position: absolute;
+	border-width: ${BLOCK.BORDER_WIDTH}px;
+	border-color: white;
+	border-style: outset;
+	width: ${BLOCK.WIDTH - BLOCK.BORDER_WIDTH * 2}px;
+	height: ${BLOCK.HEIGHT - BLOCK.BORDER_WIDTH * 2}px;
+`;
+const EnemyBlockStyle = css`
+	position: absolute;
+	border-width: ${ENEMY_BLOCK.BORDER_WIDTH}px;
+	border-color: white;
+	border-style: outset;
+	width: ${ENEMY_BLOCK.WIDTH - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
+	height: ${ENEMY_BLOCK.HEIGHT - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
+	left: 76px;
+	top: ${-ENEMY_BLOCK.HEIGHT}px;
+`;
+const Ranking = styled.div`
+	position: absolute;
+	color: white;
+	font-size: 80px;
+	left: 75px;
+	top: 135px;
+`;
+const EnemyRanking = styled.div`
+	position: absolute;
+	color: white;
+	font-size: 50px;
+	left: 45px;
+	top: 95px;
+`;
+const ColCenter = styled.div`
+	display: flex;
+	justify-content: center;
+`;
+
+let blockKey = 1;
+let upLineCount = 1;
+let dropMilliseconds = 300;
+
+const createPreviewBlock: () => BLOCKS = () => {
+	switch (Math.floor(Math.random() * 7)) {
+		case BLOCK_SHAPE.SQUARE:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
+					color: "red",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: -BLOCK.HEIGHT,
+					x: 0,
+					color: "red",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: 0,
+					x: -BLOCK.WIDTH,
+					color: "red",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.SQUARE,
+					y: 0,
+					x: 0,
+					color: "red",
+				},
+			];
+		case BLOCK_SHAPE.LINEAR:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: 0,
+					x: -BLOCK.WIDTH,
+					color: "purple",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: 0,
+					x: -BLOCK.WIDTH * 2,
+					color: "purple",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: 0,
+					x: 0,
+					color: "purple",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.LINEAR,
+					y: 0,
+					x: BLOCK.WIDTH,
+					color: "purple",
+				},
+			];
+		case BLOCK_SHAPE.FALCI_SHAPE:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
+					color: "pink",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: 0,
+					color: "pink",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
+					color: "pink",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.FALCI_SHAPE,
+					y: 0,
+					x: 0,
+					color: "pink",
+				},
+			];
+		case BLOCK_SHAPE.REVERSE_FALCI_SHAPE:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
+					color: "yellow",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
+					color: "yellow",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: 0,
+					color: "yellow",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
+					y: 0,
+					x: -BLOCK.WIDTH * 2,
+					color: "yellow",
+				},
+			];
+		case BLOCK_SHAPE.MOUNTINE_SHAPE:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
+					color: "orange",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
+					color: "orange",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: -BLOCK.HEIGHT,
+					x: 0,
+					color: "orange",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
+					y: 0,
+					x: -BLOCK.WIDTH,
+					color: "orange",
+				},
+			];
+		case BLOCK_SHAPE.BENT_UP_LINE:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
+					color: "green",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: 0,
+					x: -BLOCK.WIDTH * 2,
+					color: "green",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: -BLOCK.HEIGHT,
+					x: 0,
+					color: "green",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_UP_LINE,
+					y: 0,
+					x: -BLOCK.WIDTH,
+					color: "green",
+				},
+			];
+		case BLOCK_SHAPE.BENT_DOWN_LINE:
+			return [
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH,
+					color: "blue",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: 0,
+					x: 0,
+					color: "blue",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: -BLOCK.HEIGHT,
+					x: -BLOCK.WIDTH * 2,
+					color: "blue",
+				},
+				{
+					key: blockKey++,
+					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
+					y: 0,
+					x: -BLOCK.WIDTH,
+					color: "blue",
+				},
+			];
+		default:
+			return [];
+	}
+};
+
+const getMainBlock = (blocks: BLOCKS) => {
+	blocks.forEach((block) => {
+		block.x += GAME_WINDOW.WIDTH / 2;
+	});
+
+	return blocks;
+};
+
+const isOverd = (blocks: BLOCKS) => {
+	for (let i = blocks.length - 4; i < blocks.length; ++i) {
+		if (
+			blocks[i].y >= GAME_WINDOW.HEIGHT ||
+			blocks[i].x >= GAME_WINDOW.WIDTH ||
+			blocks[i].x < 0
+		) {
+			return true;
+		}
+
+		for (let j = 0; j < blocks.length - 4; ++j) {
+			if (blocks[i].y === blocks[j].y && blocks[i].x === blocks[j].x) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+};

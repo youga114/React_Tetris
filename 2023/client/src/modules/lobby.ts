@@ -1,8 +1,6 @@
 import { Reducer } from "react";
 import { AnyAction } from "redux";
 
-const GET_GAMES = "GET_GAMES";
-
 type Games = {
 	gameNumber: number;
 	numberOfUsers: number;
@@ -32,3 +30,5 @@ const lobby: Reducer<LobbyState, AnyAction> = (
 };
 
 export default lobby;
+
+const GET_GAMES = "GET_GAMES";

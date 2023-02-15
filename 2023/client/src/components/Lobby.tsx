@@ -4,41 +4,6 @@ import styled from "@emotion/styled";
 import GameItemContainer from "../containers/GameItemContainer";
 import Button from "./Button";
 
-const Body = styled.div`
-	height: 100vh;
-	width: 100vw;
-	margin: 0;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-	align-items: center;
-`;
-
-const GameList = styled.div`
-	border-style: double;
-	border-color: white;
-	border-width: 4px;
-	background-color: #222;
-	opacity: 0.8;
-	width: 500px;
-	height: 70%;
-	overflow-y: scroll;
-`;
-
-const Greeting = styled.div`
-	width: 500px;
-	text-align: center;
-	font-size: 30px;
-	color: yellow;
-`;
-
-const CreateGameDiv = styled.div`
-	justify-content: flex-start;
-	width: 500px;
-	margin: 5px;
-	display: flex;
-`;
-
 const Lobby = ({
 	games,
 	me,
@@ -83,3 +48,38 @@ const Lobby = ({
 };
 
 export default Lobby;
+
+const Body = styled.div`
+	height: 100vh;
+	width: 100vw;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+`;
+
+const GameList = styled.div`
+	border-style: double;
+	border-color: white;
+	border-width: 4px;
+	background-color: #222;
+	opacity: 0.8;
+	width: 500px;
+	height: 70%;
+	overflow-y: scroll;
+`;
+
+const Greeting = styled.div`
+	width: 500px;
+	text-align: center;
+	font-size: 30px;
+	color: yellow;
+`;
+
+const CreateGameDiv = styled.div`
+	justify-content: flex-start;
+	width: 500px;
+	margin: 5px;
+	display: flex;
+`;
