@@ -47,22 +47,12 @@ const Game = ({
 	updateBlocks: (blocks: BLOCKS) => void;
 	master: string;
 }) => {
-	const [blocks, setBlocks] = useState<BLOCKS>([]);
-	const [waitingBlocks, setWaitingBlocks] = useState<BLOCKS[]>([[], []]);
-	const [chatingInputText, setChatingInputText] = useState("");
-	const [rank, setRank] = useState("");
-
-	const timeIntervalId = useRef<number>();
-	const downBlockRef = useRef<() => void>();
-	const inputEl = useRef<HTMLInputElement>(null);
-	const getGameControllKey = useRef<(event: KeyboardEvent) => void>();
-	const gameControllKeyListener = useCallback((event: KeyboardEvent) => {
-		getGameControllKey.current?.(event);
-	}, []);
 	const getChatingEnterKey = useRef<(event: KeyboardEvent) => void>();
 	const getChatingEnterKeyListener = useCallback((event: KeyboardEvent) => {
 		getChatingEnterKey.current?.(event);
 	}, []);
+	const inputEl = useRef<HTMLInputElement>(null);
+	const [chatingInputText, setChatingInputText] = useState("");
 
 	useEffect(() => {
 		window.addEventListener("keydown", getChatingEnterKeyListener, false);
@@ -99,6 +89,12 @@ const Game = ({
 		}
 	}, [chatingInputText]);
 
+	const timeIntervalId = useRef<number>();
+	const downBlock = useRef<() => void>();
+	const [rank, setRank] = useState("");
+	const [blocks, setBlocks] = useState<BLOCKS>([]);
+	const [waitingBlocks, setWaitingBlocks] = useState<BLOCKS[]>([[], []]);
+
 	const initialize = useCallback(() => {
 		window.addEventListener("keydown", gameControllKeyListener, false);
 
@@ -111,13 +107,13 @@ const Game = ({
 		setWaitingBlocks(waitingBlock);
 
 		timeIntervalId.current = setInterval(() => {
-			downBlockRef.current?.();
+			downBlock.current?.();
 		}, dropMilliseconds);
 
 		start();
 	}, [start]);
 
-	const downBlock = useCallback(() => {
+	downBlock.current = useCallback(() => {
 		let downedBlocks = blocks.map((block) => {
 			return { ...block };
 		});
@@ -151,8 +147,6 @@ const Game = ({
 
 		setBlocks(downedBlocks);
 	}, [blocks]);
-
-	downBlockRef.current = downBlock;
 
 	const clearFilledLine = useCallback((blocks: BLOCKS) => {
 		let cloneBlocks = blocks.map((block) => {
@@ -242,15 +236,14 @@ const Game = ({
 		upLineCount = 1;
 	};
 
+	const getGameControllKey = useRef<(event: KeyboardEvent) => void>();
+	const gameControllKeyListener = useCallback((event: KeyboardEvent) => {
+		getGameControllKey.current?.(event);
+	}, []);
+
 	getGameControllKey.current = (event) => {
-		let keyCode = 0;
-		// if (event === null) {
-		// 	keyCode = window.event?.keyCode;
-		// 	window.event?.preventDefault();
-		// } else {
-		keyCode = event.keyCode;
+		let keyCode = event.keyCode;
 		event.preventDefault();
-		// }
 
 		let movedBlocks = blocks.map((block) => {
 			return { ...block };
@@ -329,7 +322,7 @@ const Game = ({
 				setBlocks(movedBlocks);
 				break;
 			case KEY_CODE.DOWN:
-				downBlock();
+				downBlock.current?.();
 				break;
 			default:
 				break;
