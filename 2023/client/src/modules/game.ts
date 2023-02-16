@@ -1,4 +1,5 @@
 import { AnyAction } from "redux";
+import produce from "immer";
 
 type GameState = {
 	state: string;
@@ -26,88 +27,63 @@ const initialState: GameState = {
 };
 
 const game = (state: GameState = initialState, action: AnyAction) => {
-	switch (action.type) {
-		case ENTER_GAME:
-			return {
-				...state,
-				users: action.data.users,
-				master: action.data.master,
-			};
-		case JOIN_USER:
-			return {
-				...state,
-				users: action.data.users,
-				chatings: [
-					...state.chatings,
-					{
-						chatingKey: "chat" + chatKey++,
-						user: null,
-						text: action.data.joinPerson + "님이 입장하셨습니다.",
-					},
-				],
-			};
-		case CHAT:
-			return {
-				...state,
-				chatings: [
-					...state.chatings,
-					{
-						chatingKey: "chat" + chatKey++,
-						user: action.data.user,
-						text: action.data.text,
-					},
-				],
-			};
-		case LEAVE_USER:
-			return {
-				...state,
-				users: action.data.users,
-				chatings: [
-					...state.chatings,
-					{
-						chatingKey: "chat" + chatKey++,
-						user: null,
-						text: action.data.exitPerson + "님이 퇴장하셨습니다.",
-					},
-				],
-			};
-		case START:
-			return {
-				...state,
-				state: "게임중",
-				numberOfUsers: action.data.numberOfUsers,
-			};
-		case SET_BLOCKS:
-			let user = action.data.user;
-
-			for (let i = 0; i < state.users.length; ++i) {
-				if (user === state.users[i].name) {
-					state.users[i].blocks = action.data.blocks;
-					break;
+	return produce(state, (draft) => {
+		switch (action.type) {
+			case ENTER_GAME:
+				draft.users = action.data.users;
+				draft.master = action.data.master;
+				break;
+			case JOIN_USER:
+				draft.users = action.data.users;
+				draft.chatings.push({
+					chatingKey: "chat" + chatKey++,
+					user: null,
+					text: action.data.joinPerson + "님이 입장하셨습니다.",
+				});
+				break;
+			case CHAT:
+				draft.chatings.push(...state.chatings, {
+					chatingKey: "chat" + chatKey++,
+					user: action.data.user,
+					text: action.data.text,
+				});
+				break;
+			case LEAVE_USER:
+				draft.users = action.data.users;
+				draft.chatings.push({
+					chatingKey: "chat" + chatKey++,
+					user: null,
+					text: action.data.exitPerson + "님이 퇴장하셨습니다.",
+				});
+				break;
+			case START:
+				draft.state = "게임중";
+				draft.numberOfUsers = action.data.numberOfUsers;
+				break;
+			case SET_BLOCKS:
+				let user = action.data.user;
+				for (let i = 0; i < draft.users.length; ++i) {
+					if (user === draft.users[i].name) {
+						draft.users[i].blocks = action.data.blocks;
+						break;
+					}
 				}
-			}
-
-			return state;
-
-		case END_GAME_USER:
-			return state;
-		case END_GAME:
-			return {
-				...state,
-				state: "대기중",
-				numberOfUsers: --state.numberOfUsers,
-			};
-		case UP_LINE:
-			if (state.state === "게임중") {
-				return {
-					...state,
-					lineUp: ++state.lineUp,
-				};
-			}
-			return state;
-		default:
-			return state;
-	}
+				break;
+			case END_GAME_USER:
+				break;
+			case END_GAME:
+				draft.state = "대기중";
+				draft.numberOfUsers -= 1;
+				break;
+			case UP_LINE:
+				if (draft.state === "게임중") {
+					draft.lineUp += 1;
+				}
+				break;
+			default:
+				break;
+		}
+	});
 };
 
 export default game;
