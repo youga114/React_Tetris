@@ -17,6 +17,16 @@ type GameState = {
 	master: string;
 };
 
+const ENTER_GAME = "ENTER_GAME";
+const JOIN_USER = "JOIN_USER";
+const CHAT = "CHAT";
+const LEAVE_USER = "LEAVE_USER";
+const START = "START";
+const SET_BLOCKS = "SET_BLOCKS";
+const END_GAME_USER = "END_GAME_USER";
+const END_GAME = "END_GAME";
+const UP_LINE = "UP_LINE";
+
 const initialState: GameState = {
 	state: "대기중",
 	users: [],
@@ -25,6 +35,8 @@ const initialState: GameState = {
 	lineUp: 0,
 	master: "",
 };
+
+let chatKey = 0;
 
 const game = (state: GameState = initialState, action: AnyAction) => {
 	return produce(state, (draft) => {
@@ -87,15 +99,3 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 };
 
 export default game;
-
-let chatKey = 0;
-
-const ENTER_GAME = "ENTER_GAME";
-const JOIN_USER = "JOIN_USER";
-const CHAT = "CHAT";
-const LEAVE_USER = "LEAVE_USER";
-const START = "START";
-const SET_BLOCKS = "SET_BLOCKS";
-const END_GAME_USER = "END_GAME_USER";
-const END_GAME = "END_GAME";
-const UP_LINE = "UP_LINE";
