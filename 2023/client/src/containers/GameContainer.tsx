@@ -38,12 +38,11 @@ const GameContainer = () => {
 		});
 	}, [roomName]);
 
-	const end = useCallback((blocks) => {
+	const end = useCallback(() => {
 		dispatch({
 			type: "server/gameset",
 			data: {
 				roomName: roomName,
-				blocks: blocks,
 				user: me,
 				rank: numberOfUsers,
 			},
@@ -54,29 +53,43 @@ const GameContainer = () => {
 				data: { rank: numberOfUsers },
 			});
 		}
-	}, []);
+	}, [roomName]);
 
-	const addLine = useCallback((upLineCount) => {
-		dispatch({
-			type: "server/lineup",
-			data: {
-				roomName: roomName,
-				randomVar: Math.floor(Math.random() * 10),
-				upLineCount: upLineCount,
-			},
-		});
-	}, []);
+	const addLine = useCallback(
+		(upLineCount) => {
+			dispatch({
+				type: "server/lineup",
+				data: {
+					roomName: roomName,
+					randomVar: Math.floor(Math.random() * 10),
+					upLineCount: upLineCount,
+				},
+			});
+		},
+		[roomName]
+	);
 
-	const updateBlocks = useCallback((blocks) => {
-		dispatch({
-			type: "server/blocks",
-			data: {
-				roomName: roomName,
-				userBlocks: blocks[0],
-				user: me,
-			},
-		});
-	}, []);
+	const updateBlocks = useCallback(
+		(
+			blocks: {
+				key: number;
+				shape: number;
+				y: number;
+				x: number;
+				color: string;
+			}[]
+		) => {
+			dispatch({
+				type: "server/blocks",
+				data: {
+					roomName: roomName,
+					blocks: blocks,
+					user: me,
+				},
+			});
+		},
+		[roomName]
+	);
 
 	return (
 		<Game

@@ -26,6 +26,7 @@ const SET_BLOCKS = "SET_BLOCKS";
 const END_GAME_USER = "END_GAME_USER";
 const END_GAME = "END_GAME";
 const UP_LINE = "UP_LINE";
+const PLAYING = "PLAYING";
 
 const initialState: GameState = {
 	state: "대기중",
@@ -46,7 +47,7 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 				draft.master = action.data.master;
 				break;
 			case JOIN_USER:
-				draft.users = action.data.users;
+				draft.users.push(action.data.user);
 				draft.chatings.push({
 					chatingKey: "chat" + chatKey++,
 					user: null,
@@ -92,6 +93,9 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 					draft.lineUp += 1;
 				}
 				break;
+			case PLAYING:
+				draft.state = "게임중";
+				break;
 			default:
 				break;
 		}
@@ -99,3 +103,9 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 };
 
 export default game;
+
+export const playing = () => {
+	return {
+		type: PLAYING,
+	};
+};

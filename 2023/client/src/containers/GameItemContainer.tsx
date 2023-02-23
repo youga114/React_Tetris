@@ -17,7 +17,7 @@ const GameItemContainer = (props: {
 			type: "server/join",
 			data: {
 				name: me,
-				roomNum: props.gameNum,
+				gameNumber: props.gameNum,
 			},
 		});
 	}, []);

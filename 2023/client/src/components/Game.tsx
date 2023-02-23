@@ -42,7 +42,7 @@ const Game = ({
 	sendMessage: (text: string) => void;
 	leave: () => void;
 	start: () => void;
-	end: (blocks: BLOCKS) => void;
+	end: () => void;
 	addLine: (upLineCount: number) => void;
 	updateBlocks: (blocks: BLOCKS) => void;
 	master: string;
@@ -94,8 +94,16 @@ const Game = ({
 	const [rank, setRank] = useState("");
 	const [blocks, setBlocks] = useState<BLOCKS>([]);
 	const [waitingBlocks, setWaitingBlocks] = useState<BLOCKS[]>([[], []]);
+	const [playing, setPlaying] = useState(false);
 
-	const initialize = useCallback(() => {
+	useEffect(() => {
+		if (state === "게임중" && playing === false) {
+			gameStart();
+			setPlaying(true);
+		}
+	}, [state]);
+
+	const gameStart = useCallback(() => {
 		window.addEventListener("keydown", gameControllKeyListener, false);
 
 		blockKey = 1;
@@ -109,9 +117,7 @@ const Game = ({
 		timeIntervalId.current = setInterval(() => {
 			downBlock.current?.();
 		}, dropMilliseconds);
-
-		start();
-	}, [start]);
+	}, []);
 
 	downBlock.current = useCallback(() => {
 		let downedBlocks = blocks.map((block) => {
@@ -192,7 +198,9 @@ const Game = ({
 			blocks[i].color = "rgb(166,166,166)";
 		}
 
-		end(blocks);
+		setPlaying(false);
+		updateBlocks(blocks);
+		end();
 
 		return blocks;
 	}, []);
@@ -436,7 +444,7 @@ const Game = ({
 										}
 
 										let blockStyle = {
-											top: y,
+											top: y + BLOCK.HEIGHT,
 											left: x,
 											backgroundColor: item.color,
 										};
@@ -475,7 +483,7 @@ const Game = ({
 				<div>
 					<ChatingBox key="11">
 						{chatings.map((chat) => {
-							if (chat.user === "join") {
+							if (chat.user === null) {
 								return (
 									<div key={chat.chatingKey}>{chat.text}</div>
 								);
@@ -488,7 +496,7 @@ const Game = ({
 							} else {
 								return (
 									<div key={chat.chatingKey}>
-										{`${chat.user}>${chat.text}`}
+										{`${chat.user} > ${chat.text}`}
 									</div>
 								);
 							}
@@ -511,8 +519,8 @@ const Game = ({
 							justifyContent: "end",
 						}}
 					>
-						{state !== "게임중" && master === me && (
-							<div onClick={initialize}>
+						{state === "대기중" && master === me && (
+							<div onClick={start}>
 								<Button>시작하기</Button>
 							</div>
 						)}
@@ -571,7 +579,7 @@ const GAME_WINDOW = {
 const PREVIEW_WINDOW = {
 	WIDTH: BLOCK.WIDTH * 5,
 	HEIGHT: BLOCK.HEIGHT * 4,
-	BORDER_WIDTH: 1,
+	BORDER_WIDTH: 4,
 };
 
 const ENEMY_BLOCK = {
@@ -583,7 +591,7 @@ const ENEMY_BLOCK = {
 const ENEMY_WINDOW = {
 	WIDTH: ENEMY_BLOCK.WIDTH * 10,
 	HEIGHT: ENEMY_BLOCK.HEIGHT * 20,
-	BORDER_WIDTH: 6,
+	BORDER_WIDTH: 4,
 };
 
 const NUMBER_OF_BLOCKS = 4;
@@ -591,71 +599,31 @@ const NUMBER_OF_BLOCKS = 4;
 const Body = styled("div")`
 	height: 80vh;
 	width: 100%;
-	margin: 5vh 5vw;
+	margin: 5vh 0px;
 	display: flex;
 	justify-content: center;
 `;
 const Left = styled.div`
-	margin: 5vh 3vw;
-	width: 800px;
+	margin: 50px 0px;
+	width: 600px;
 	display: flex;
 	justify-content: start;
 	flex-wrap: wrap;
+	&:empty {
+		width: 0px;
+		margin: 0px;
+	}
 `;
 const EnemyWindow = styled.div`
+	position: relative;
 	border-width: ${ENEMY_WINDOW.BORDER_WIDTH}px;
-	border-color: skyblue;
+	border-color: white;
 	border-style: solid;
-	background-color: black;
+	background-color: #222;
 	width: ${ENEMY_WINDOW.WIDTH}px;
 	height: ${ENEMY_WINDOW.HEIGHT}px;
 	overflow: hidden;
 	margin: 1vh 1vw;
-`;
-const You1 = styled.div`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You2 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You3 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You4 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
-`;
-const You5 = css`
-	position: relative;
-	height: 20px;
-	width: 136px;
-	text-align: center;
-	font-size: 15px;
-	border-style: solid;
-	background-color: white;
 `;
 const Center = styled.div`
 	margin: 5vh 3vw;
@@ -668,9 +636,9 @@ const Center = styled.div`
 const GameWindow = styled.div`
 	position: relative;
 	border-width: ${GAME_WINDOW.BORDER_WIDTH}px;
-	border-color: skyblue;
+	border-color: white;
 	border-style: solid;
-	background-color: black;
+	background-color: #222;
 	width: ${GAME_WINDOW.WIDTH}px;
 	height: ${GAME_WINDOW.HEIGHT}px;
 	overflow: hidden;
@@ -684,9 +652,9 @@ const PreviewWindows = styled.div`
 const PreviewWindow = styled.div`
 	position: relative;
 	border-width: ${PREVIEW_WINDOW.BORDER_WIDTH}px;
-	border-color: skyblue;
+	border-color: white;
 	border-style: solid;
-	background-color: black;
+	background-color: #222;
 	width: ${PREVIEW_WINDOW.WIDTH}px;
 	height: ${PREVIEW_WINDOW.HEIGHT}px;
 	overflow: hidden;
@@ -724,13 +692,14 @@ const Right = styled.div`
 `;
 const ChatingBox = styled.div`
 	text-align: left;
-	background-color: rgb(212, 244, 250);
+	background-color: #222;
 	width: 300px;
 	border-style: solid;
 	border-color: #666;
 	height: 200px;
-	font-size: 12px;
+	font-size: 12pt;
 	overflow: auto;
+	color: white;
 `;
 const InputBox = styled.input`
 	border-style: solid;
@@ -762,8 +731,6 @@ const EnemyBlockStyle = css`
 	border-style: outset;
 	width: ${ENEMY_BLOCK.WIDTH - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
 	height: ${ENEMY_BLOCK.HEIGHT - ENEMY_BLOCK.BORDER_WIDTH * 2}px;
-	left: 76px;
-	top: ${-ENEMY_BLOCK.HEIGHT}px;
 `;
 const Ranking = styled.div`
 	position: absolute;
@@ -795,28 +762,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH,
 					color: "red",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: 0,
 					color: "red",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH,
 					color: "red",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.SQUARE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: 0,
 					color: "red",
 				},
@@ -826,28 +793,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH,
 					color: "purple",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH * 2,
 					color: "purple",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: 0,
 					color: "purple",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.LINEAR,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: BLOCK.WIDTH,
 					color: "purple",
 				},
@@ -857,28 +824,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH,
 					color: "pink",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: 0,
 					color: "pink",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH * 2,
 					color: "pink",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.FALCI_SHAPE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: 0,
 					color: "pink",
 				},
@@ -888,28 +855,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH,
 					color: "yellow",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH * 2,
 					color: "yellow",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: 0,
 					color: "yellow",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.REVERSE_FALCI_SHAPE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH * 2,
 					color: "yellow",
 				},
@@ -919,28 +886,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH,
 					color: "orange",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH * 2,
 					color: "orange",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: 0,
 					color: "orange",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.MOUNTINE_SHAPE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH,
 					color: "orange",
 				},
@@ -950,28 +917,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH,
 					color: "green",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH * 2,
 					color: "green",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: 0,
 					color: "green",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_UP_LINE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH,
 					color: "green",
 				},
@@ -981,28 +948,28 @@ const createPreviewBlock: () => BLOCKS = () => {
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH,
 					color: "blue",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: 0,
 					color: "blue",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: -BLOCK.HEIGHT,
+					y: -BLOCK.HEIGHT * 2,
 					x: -BLOCK.WIDTH * 2,
 					color: "blue",
 				},
 				{
 					key: blockKey++,
 					shape: BLOCK_SHAPE.BENT_DOWN_LINE,
-					y: 0,
+					y: -BLOCK.HEIGHT,
 					x: -BLOCK.WIDTH,
 					color: "blue",
 				},

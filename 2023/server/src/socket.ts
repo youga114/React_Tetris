@@ -89,6 +89,14 @@ const socket = (server: http.Server) => {
                             break;
                         }
                     }
+                    io.sockets.to(socket.id).emit("action", {
+                        type: ENTER_GAME,
+                        data: {
+                            users: users[i],
+                            roomName: games[i].name,
+                            master: games[i].master,
+                        },
+                    });
                     users[i].push({
                         name: action.data.name,
                         blocks: [],
@@ -98,19 +106,14 @@ const socket = (server: http.Server) => {
                     socket.join(games[i].name);
                     socket.broadcast.in(games[i].name).emit("action", {
                         type: JOIN_USER,
-                        data: { users: users[i], joinPerson: action.data.user },
+                        data: {
+                            user: users[i][users[i].length - 1],
+                            joinPerson: action.data.name,
+                        },
                     });
                     socket.broadcast
                         .in(LOBBY)
                         .emit("action", { type: GET_GAMES, data: games });
-                    io.sockets.to(socket.id).emit("action", {
-                        type: ENTER_GAME,
-                        data: {
-                            user: users[i],
-                            roomName: games[i].name,
-                            master: games[i].master,
-                        },
-                    });
                     break;
                 case "server/chat":
                     socket.broadcast.in(action.data.roomName).emit("action", {
@@ -169,7 +172,6 @@ const socket = (server: http.Server) => {
                     }
                     break;
                 case "server/start":
-                    console.log(action.data.roomName);
                     for (var i = 0; i < games.length; i++) {
                         if (games[i].name == action.data.roomName) {
                             games[i].state = "게임중";
@@ -185,10 +187,23 @@ const socket = (server: http.Server) => {
                         .emit("action", { type: GET_GAMES, data: games });
                     break;
                 case "server/blocks":
+                    for (var i = 0; i < games.length; i++) {
+                        if (games[i].name == action.data.roomName) {
+                            break;
+                        }
+                    }
+
+                    for (var j = 0; j < users[i].length; j++) {
+                        if (users[i][j].name == action.data.user) {
+                            users[i][j].blocks = action.data.blocks;
+                            break;
+                        }
+                    }
+
                     socket.broadcast.in(action.data.roomName).emit("action", {
                         type: SET_BLOCKS,
                         data: {
-                            userBlocks: action.data.userBlocks,
+                            blocks: action.data.blocks,
                             user: action.data.user,
                         },
                     });
