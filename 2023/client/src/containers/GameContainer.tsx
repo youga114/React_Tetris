@@ -10,16 +10,19 @@ const GameContainer = () => {
 	const { me, roomName } = useSelector((state: RootState) => state.account);
 
 	const dispatch = useDispatch();
-	const sendMessage = useCallback((text: string) => {
-		dispatch({
-			type: "server/chat",
-			data: {
-				user: me,
-				text: text,
-				roomName: roomName,
-			},
-		});
-	}, []);
+	const sendMessage = useCallback(
+		(text: string) => {
+			dispatch({
+				type: "server/chat",
+				data: {
+					user: me,
+					text: text,
+					roomName: roomName,
+				},
+			});
+		},
+		[roomName]
+	);
 
 	const start = useCallback(() => {
 		dispatch({
@@ -47,12 +50,6 @@ const GameContainer = () => {
 				rank: numberOfUsers,
 			},
 		});
-		if (numberOfUsers === 1) {
-			dispatch({
-				type: "END_GAME",
-				data: { rank: numberOfUsers },
-			});
-		}
 	}, [roomName]);
 
 	const addLine = useCallback(

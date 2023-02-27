@@ -27,6 +27,7 @@ const socket = (server: http.Server) => {
     let users: {
         name: string;
         blocks: [];
+        rank: string;
     }[][] = [];
 
     const io = new Server(server, {
@@ -67,6 +68,7 @@ const socket = (server: http.Server) => {
                         {
                             name: action.data.master,
                             blocks: [],
+                            rank: "",
                         },
                     ]);
                     socket.leave(LOBBY);
@@ -100,6 +102,7 @@ const socket = (server: http.Server) => {
                     users[i].push({
                         name: action.data.name,
                         blocks: [],
+                        rank: "",
                     });
                     games[i].numberOfUsers++;
                     socket.leave(LOBBY);
@@ -209,14 +212,15 @@ const socket = (server: http.Server) => {
                     });
                     break;
                 case "server/gameset":
-                    socket.broadcast.in(action.data.roomName).emit("action", {
+                    io.sockets.in(action.data.roomName).emit("action", {
                         type: END_GAME_USER,
                         data: {
-                            blocks: action.data.blocks,
                             enemyRank: action.data.rank,
+                            user: action.data.user,
+                            rank: action.data.rank,
                         },
                     });
-                    if (action.data.rank == 1) {
+                    if (action.data.rank <= 1) {
                         for (var i = 0; i < games.length; i++) {
                             if (games[i].name == action.data.roomName) {
                                 games[i].state = "대기중";

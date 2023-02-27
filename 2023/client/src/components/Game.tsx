@@ -30,6 +30,7 @@ const Game = ({
 	users: {
 		name: string;
 		blocks: BLOCKS;
+		rank: string;
 	}[];
 	me: string;
 	chatings: {
@@ -102,6 +103,17 @@ const Game = ({
 			setPlaying(true);
 		}
 	}, [state]);
+
+	useEffect(() => {
+		if (playing === true && state === "대기중") {
+			let endBlocks = blocks.map((block) => {
+				return { ...block };
+			});
+
+			endBlocks.splice(-4);
+			updateBlocks(finishGame(endBlocks));
+		}
+	}, [state, numberOfUsers, playing]);
 
 	const gameStart = useCallback(() => {
 		window.addEventListener("keydown", gameControllKeyListener, false);
@@ -199,7 +211,6 @@ const Game = ({
 		}
 
 		setPlaying(false);
-		updateBlocks(blocks);
 		end();
 
 		return blocks;
@@ -419,7 +430,7 @@ const Game = ({
 									/>
 								);
 							})}
-							{<Ranking>{""}</Ranking>}
+							{<Ranking>{user.rank}</Ranking>}
 						</EnemyWindow>
 					);
 				})}
@@ -490,7 +501,7 @@ const Game = ({
 							} else if (chat.user === "me") {
 								return (
 									<div key={chat.chatingKey}>
-										{`${me}>${chat.text}`}
+										{`나의 메시지 > ${chat.text}`}
 									</div>
 								);
 							} else {
