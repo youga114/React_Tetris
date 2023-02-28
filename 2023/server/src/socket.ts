@@ -215,7 +215,6 @@ const socket = (server: http.Server) => {
                     io.sockets.in(action.data.roomName).emit("action", {
                         type: END_GAME_USER,
                         data: {
-                            enemyRank: action.data.rank,
                             user: action.data.user,
                             rank: action.data.rank,
                         },

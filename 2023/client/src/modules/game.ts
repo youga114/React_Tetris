@@ -76,6 +76,7 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 			case START: {
 				draft.users.forEach((user) => {
 					user.blocks = [];
+					user.rank = "";
 				});
 				draft.state = "게임중";
 				draft.numberOfUsers = action.data.numberOfUsers;

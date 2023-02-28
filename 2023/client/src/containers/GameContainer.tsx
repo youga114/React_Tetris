@@ -50,7 +50,7 @@ const GameContainer = () => {
 				rank: numberOfUsers,
 			},
 		});
-	}, [roomName]);
+	}, [roomName, numberOfUsers]);
 
 	const addLine = useCallback(
 		(upLineCount) => {

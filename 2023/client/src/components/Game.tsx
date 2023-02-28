@@ -98,22 +98,51 @@ const Game = ({
 	const [playing, setPlaying] = useState(false);
 
 	useEffect(() => {
-		if (state === "게임중" && playing === false) {
+		const hasStartedFromServer = state === "게임중" && playing === false;
+		if (hasStartedFromServer) {
 			gameStart();
 			setPlaying(true);
 		}
 	}, [state]);
 
+	const finishGame = useCallback(
+		(blocks: BLOCKS) => {
+			setRank(numberOfUsers.toString());
+			window.removeEventListener(
+				"keydown",
+				gameControllKeyListener,
+				false
+			);
+			clearInterval(timeIntervalId.current);
+
+			for (let i = 0; i < blocks.length; i++) {
+				blocks[i].color = "rgb(166,166,166)";
+			}
+
+			setPlaying(false);
+			end();
+
+			return blocks;
+		},
+		[end]
+	);
+
 	useEffect(() => {
-		if (playing === true && state === "대기중") {
+		const isLastPlayer = playing === true && state === "대기중";
+		if (isLastPlayer) {
 			let endBlocks = blocks.map((block) => {
 				return { ...block };
 			});
 
 			endBlocks.splice(-4);
-			updateBlocks(finishGame(endBlocks));
+
+			endBlocks = finishGame(endBlocks);
+
+			updateBlocks(endBlocks);
+
+			setBlocks(endBlocks);
 		}
-	}, [state, numberOfUsers, playing]);
+	}, [state]);
 
 	const gameStart = useCallback(() => {
 		window.addEventListener("keydown", gameControllKeyListener, false);
@@ -197,21 +226,6 @@ const Game = ({
 		if (clearFilledLineCount > 0) {
 			addLine(clearFilledLineCount);
 		}
-
-		return blocks;
-	}, []);
-
-	const finishGame = useCallback((blocks: BLOCKS) => {
-		setRank(numberOfUsers.toString());
-		window.removeEventListener("keydown", gameControllKeyListener, false);
-		clearInterval(timeIntervalId.current);
-
-		for (let i = 0; i < blocks.length; i++) {
-			blocks[i].color = "rgb(166,166,166)";
-		}
-
-		setPlaying(false);
-		end();
 
 		return blocks;
 	}, []);
@@ -396,6 +410,7 @@ const Game = ({
 		}
 
 		updateBlocks(rotatedBlocks);
+
 		setBlocks(rotatedBlocks);
 	}, [blocks]);
 
@@ -430,7 +445,7 @@ const Game = ({
 									/>
 								);
 							})}
-							{<Ranking>{user.rank}</Ranking>}
+							<EnemyRanking>{user.rank}</EnemyRanking>
 						</EnemyWindow>
 					);
 				})}
