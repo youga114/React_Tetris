@@ -122,6 +122,14 @@ const Game = ({
 			setPlaying(false);
 			end();
 
+			setWaitingBlocks((prevWaitingBlocks) =>
+				prevWaitingBlocks.map((waitingBlock) => {
+					return waitingBlock.map((block) => {
+						return { ...block, color: "rgb(166,166,166)" };
+					});
+				})
+			);
+
 			return blocks;
 		},
 		[end]
@@ -764,6 +772,9 @@ const Ranking = styled.div`
 	font-size: 80px;
 	left: 75px;
 	top: 135px;
+	-webkit-text-stroke: 2px black;
+	text-stroke: 2px black;
+	text-shadow: black 1px 0 10px;
 `;
 const EnemyRanking = styled.div`
 	position: absolute;
@@ -771,6 +782,9 @@ const EnemyRanking = styled.div`
 	font-size: 50px;
 	left: 45px;
 	top: 95px;
+	-webkit-text-stroke: 2px black;
+	text-stroke: 2px black;
+	text-shadow: black 1px 0 10px;
 `;
 const ColCenter = styled.div`
 	display: flex;
