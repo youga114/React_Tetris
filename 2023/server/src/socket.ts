@@ -183,6 +183,12 @@ const socket = (server: http.Server) => {
                             break;
                         }
                     }
+
+                    for (var j = 0; j < users[i].length; j++) {
+                        users[i][j].blocks = [];
+                        users[i][j].rank = "";
+                    }
+
                     io.sockets.in(action.data.roomName).emit("action", {
                         type: START,
                         data: { numberOfUsers: games[i].numberOfUsers },
