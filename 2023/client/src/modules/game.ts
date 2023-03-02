@@ -65,12 +65,22 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 				break;
 			}
 			case LEAVE_USER: {
-				draft.users = action.data.users;
 				draft.chatings.push({
 					chatingKey: "chat" + chatKey++,
 					user: null,
-					text: action.data.exitPerson + "님이 퇴장하셨습니다.",
+					text: action.data.user + "님이 퇴장하셨습니다.",
 				});
+				let user = action.data.user;
+				for (let i = 0; i < draft.users.length; ++i) {
+					if (user === draft.users[i].name) {
+						draft.users.splice(i, 1);
+						break;
+					}
+				}
+
+				if (draft.master !== action.data.master) {
+					draft.master = action.data.master;
+				}
 				break;
 			}
 			case START: {

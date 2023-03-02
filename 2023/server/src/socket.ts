@@ -152,14 +152,16 @@ const socket = (server: http.Server) => {
                                 games.splice(i, 1);
                             } else {
                                 games[i].numberOfUsers--;
+
+                                const master = users[i][0].name;
+
                                 socket.broadcast
                                     .in(games[i].name)
                                     .emit("action", {
                                         type: LEAVE_USER,
                                         data: {
-                                            users: users[i],
-                                            exitPerson: action.data.user,
-                                            someoneNum: action.data.someoneNum,
+                                            user: action.data.user,
+                                            master,
                                         },
                                     });
                             }
@@ -212,6 +214,19 @@ const socket = (server: http.Server) => {
                     });
                     break;
                 case "server/gameset":
+                    for (var i = 0; i < games.length; i++) {
+                        if (games[i].name == action.data.roomName) {
+                            break;
+                        }
+                    }
+
+                    for (var j = 0; j < users[i].length; j++) {
+                        if (users[i][j].name == action.data.user) {
+                            users[i][j].rank = action.data.rank;
+                            break;
+                        }
+                    }
+
                     io.sockets.in(action.data.roomName).emit("action", {
                         type: END_GAME_USER,
                         data: {
