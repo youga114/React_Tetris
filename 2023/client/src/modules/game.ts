@@ -14,7 +14,7 @@ type GameState = {
 		text: string;
 	}[];
 	numberOfUsers: number;
-	lineUp: number;
+	upLineCount: number;
 	master: string;
 };
 
@@ -27,13 +27,14 @@ const SET_BLOCKS = "SET_BLOCKS";
 const END_GAME_USER = "END_GAME_USER";
 const UP_LINE = "UP_LINE";
 const PLAYING = "PLAYING";
+export const UPDATE_UP_LINE = "UPDATE_UP_LINE";
 
 const initialState: GameState = {
 	state: "대기중",
 	users: [],
 	chatings: [],
 	numberOfUsers: 1,
-	lineUp: 0,
+	upLineCount: 0,
 	master: "",
 };
 
@@ -120,8 +121,12 @@ const game = (state: GameState = initialState, action: AnyAction) => {
 			}
 			case UP_LINE: {
 				if (draft.state === "게임중") {
-					draft.lineUp += 1;
+					draft.upLineCount += action.data.upLineCount;
 				}
+				break;
+			}
+			case UPDATE_UP_LINE: {
+				draft.upLineCount = action.data.upLineCount;
 				break;
 			}
 			case PLAYING: {

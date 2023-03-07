@@ -2,11 +2,11 @@ import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../modules";
 import Game from "../components/Game";
+import { UPDATE_UP_LINE } from "../modules/game";
 
 const GameContainer = () => {
-	const { users, chatings, state, numberOfUsers, master } = useSelector(
-		(state: RootState) => state.game
-	);
+	const { users, chatings, state, numberOfUsers, master, upLineCount } =
+		useSelector((state: RootState) => state.game);
 	const { me, roomName } = useSelector((state: RootState) => state.account);
 
 	const dispatch = useDispatch();
@@ -58,7 +58,6 @@ const GameContainer = () => {
 				type: "server/lineup",
 				data: {
 					roomName: roomName,
-					randomVar: Math.floor(Math.random() * 10),
 					upLineCount: upLineCount,
 				},
 			});
@@ -88,6 +87,15 @@ const GameContainer = () => {
 		[roomName]
 	);
 
+	const updateUpLineCount = useCallback((upLineCount: number) => {
+		dispatch({
+			type: UPDATE_UP_LINE,
+			data: {
+				upLineCount: upLineCount,
+			},
+		});
+	}, []);
+
 	return (
 		<Game
 			users={users}
@@ -95,13 +103,15 @@ const GameContainer = () => {
 			chatings={chatings}
 			state={state}
 			numberOfUsers={numberOfUsers}
+			upLineCount={upLineCount}
 			sendMessage={sendMessage}
+			master={master}
 			leave={leave}
 			start={start}
 			end={end}
 			addLine={addLine}
 			updateBlocks={updateBlocks}
-			master={master}
+			updateUpLineCount={updateUpLineCount}
 		/>
 	);
 };

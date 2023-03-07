@@ -253,9 +253,13 @@ const socket = (server: http.Server) => {
                     }
                     break;
                 case "server/lineup":
+                    console.log(action.data.roomName);
+                    console.log(action.data.upLineCount);
                     socket.broadcast.in(action.data.roomName).emit("action", {
                         type: UP_LINE,
-                        data: { randomVar: action.data.randomVar },
+                        data: {
+                            upLineCount: action.data.upLineCount,
+                        },
                     });
                     break;
                 default:

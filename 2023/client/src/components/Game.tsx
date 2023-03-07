@@ -19,13 +19,15 @@ const Game = ({
 	chatings,
 	state,
 	numberOfUsers,
+	upLineCount,
+	master,
 	sendMessage,
 	leave,
 	start,
 	end,
 	addLine,
 	updateBlocks,
-	master,
+	updateUpLineCount,
 }: {
 	users: {
 		name: string;
@@ -40,13 +42,15 @@ const Game = ({
 	}[];
 	state: string;
 	numberOfUsers: number;
+	upLineCount: number;
+	master: string;
 	sendMessage: (text: string) => void;
 	leave: () => void;
 	start: () => void;
 	end: () => void;
 	addLine: (upLineCount: number) => void;
 	updateBlocks: (blocks: BLOCKS) => void;
-	master: string;
+	updateUpLineCount: (upLineCount: number) => void;
 }) => {
 	const getChatingEnterKey = useRef<(event: KeyboardEvent) => void>();
 	const getChatingEnterKeyListener = useCallback((event: KeyboardEvent) => {
@@ -203,79 +207,104 @@ const Game = ({
 		setBlocks(downedBlocks);
 	}, [blocks]);
 
-	const clearFilledLine = useCallback((blocks: BLOCKS) => {
-		let cloneBlocks = blocks.map((block) => {
-			return { ...block };
-		});
-		let clearFilledLineCount = 0;
+	const clearFilledLine = useCallback(
+		(blocks: BLOCKS) => {
+			let cloneBlocks = blocks.map((block) => {
+				return { ...block };
+			});
+			let clearFilledLineCount = 0;
 
-		for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
-			let sameHeightBlockIdx = [];
-			let blockHeight = cloneBlocks[i].y;
-			for (let j = 0; j < blocks.length; j++) {
-				if (blocks[j].y === blockHeight) {
-					sameHeightBlockIdx.push(j);
-				}
-			}
-			if (sameHeightBlockIdx.length > 9) {
+			for (let i = cloneBlocks.length - 4; i < cloneBlocks.length; i++) {
+				let sameHeightBlockIdx = [];
+				let blockHeight = cloneBlocks[i].y;
 				for (let j = 0; j < blocks.length; j++) {
-					if (blocks[j].y < blockHeight) {
-						blocks[j].y += BLOCK.HEIGHT;
+					if (blocks[j].y === blockHeight) {
+						sameHeightBlockIdx.push(j);
 					}
 				}
-				for (let k = 9; k >= 0; k--) {
-					blocks.splice(sameHeightBlockIdx[k], 1);
+				if (sameHeightBlockIdx.length > 9) {
+					for (let j = 0; j < blocks.length; j++) {
+						if (blocks[j].y < blockHeight) {
+							blocks[j].y += BLOCK.HEIGHT;
+						}
+					}
+					for (let k = 9; k >= 0; k--) {
+						blocks.splice(sameHeightBlockIdx[k], 1);
+					}
+
+					clearFilledLineCount++;
 				}
-
-				clearFilledLineCount++;
 			}
-		}
 
-		if (clearFilledLineCount > 0) {
-			addLine(clearFilledLineCount);
-		}
-
-		return blocks;
-	}, []);
-
-	const upLine = () => {
-		let emptyBlockIdx = Math.floor(Math.random() * 10);
-
-		if (upLineCount <= numberOfUsers - 2) {
-			upLineCount += 1;
-			return;
-		}
-
-		for (let i = 0; i < blocks.length - 4; i++) {
-			blocks[i].y -= BLOCK.HEIGHT;
-		}
-		for (let i = 0; i < 10; i++) {
-			if (emptyBlockIdx !== i) {
-				blocks.splice(0, 0, {
-					key: blockKey++,
-					shape: BLOCK_SHAPE.DEAD,
-					y: GAME_WINDOW.HEIGHT - BLOCK.HEIGHT,
-					x: BLOCK.WIDTH * i,
-					color: "rgb(166,166,166)",
-				});
+			if (clearFilledLineCount > 0) {
+				addLine(clearFilledLineCount);
 			}
+
+			return blocks;
+		},
+		[addLine]
+	);
+
+	useEffect(() => {
+		if (playing) {
+			upLine(upLineCount);
 		}
-		for (let i = blocks.length - 4; i < blocks.length; i++) {
-			for (let j = 0; j < blocks.length - 4; j++) {
-				if (
-					blocks[i].x === blocks[j].x &&
-					blocks[i].y === blocks[j].y
+	}, [upLineCount]);
+
+	const upLine = useCallback(
+		(upLineCount: number) => {
+			let emptyBlockIdx = Math.floor(Math.random() * 10);
+			let cloneBlocks = blocks.map((block) => {
+				return { ...block };
+			});
+
+			if (upLineCount < numberOfUsers - 1) {
+				return;
+			}
+
+			for (let j = 0; j < upLineCount / (numberOfUsers - 1); ++j) {
+				for (let i = 0; i < cloneBlocks.length - 4; i++) {
+					cloneBlocks[i].y -= BLOCK.HEIGHT;
+				}
+				for (let i = 0; i < 10; i++) {
+					if (emptyBlockIdx !== i) {
+						cloneBlocks.splice(0, 0, {
+							key: blockKey++,
+							shape: BLOCK_SHAPE.DEAD,
+							y: GAME_WINDOW.HEIGHT - BLOCK.HEIGHT,
+							x: BLOCK.WIDTH * i,
+							color: "rgb(166,166,166)",
+						});
+					}
+				}
+				for (
+					let i = cloneBlocks.length - 4;
+					i < cloneBlocks.length;
+					i++
 				) {
-					for (let k = blocks.length - 4; k < blocks.length; k++) {
-						blocks[k].y -= BLOCK.HEIGHT;
+					for (let j = 0; j < cloneBlocks.length - 4; j++) {
+						if (
+							cloneBlocks[i].x === cloneBlocks[j].x &&
+							cloneBlocks[i].y === cloneBlocks[j].y
+						) {
+							for (
+								let k = cloneBlocks.length - 4;
+								k < cloneBlocks.length;
+								k++
+							) {
+								cloneBlocks[k].y -= BLOCK.HEIGHT;
+							}
+							j -= 1;
+						}
 					}
-					j -= 1;
 				}
 			}
-		}
 
-		upLineCount = 1;
-	};
+			setBlocks(cloneBlocks);
+			updateUpLineCount(upLineCount % (numberOfUsers - 1));
+		},
+		[blocks]
+	);
 
 	const getGameControllKey = useRef<(event: KeyboardEvent) => void>();
 	const gameControllKeyListener = useCallback((event: KeyboardEvent) => {
